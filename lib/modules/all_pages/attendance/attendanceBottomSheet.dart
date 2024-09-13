@@ -199,6 +199,8 @@ class AttendanceBottomSheet extends StatelessWidget {
                       print("locationnnn:");
                       // Example of how to use the controller to fetch coordinates
                       locationController.getCoordinatesFromAddress(
+
+
                           //" C 53, 1st Floor, C Block, Sector 2, Noida, Uttar Pradesh 201301"
                       );
                     },
