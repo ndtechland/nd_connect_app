@@ -40,6 +40,8 @@ class LocationController extends GetxController {
   LatLng? center;
   var address =' C 53, 1st Floor, C Block, Sector 2, Noida, Uttar Pradesh 201301'.obs;
   Future<void> getCoordinatesFromAddress() async {
+
+
     try {
       isLoading(true); // Show loading state
       List<Location> locations = await locationFromAddress(address.toString());
