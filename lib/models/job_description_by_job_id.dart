@@ -7,6 +7,7 @@ import 'dart:convert';
 JobdetailbyjobIdModel jobdetailbyjobIdModelFromJson(String str) =>
     JobdetailbyjobIdModel.fromJson(json.decode(str));
 
+
 String jobdetailbyjobIdModelToJson(JobdetailbyjobIdModel data) =>
     json.encode(data.toJson());
 

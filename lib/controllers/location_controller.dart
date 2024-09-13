@@ -57,7 +57,7 @@ class LocationController extends GetxController {
     } catch (e) {
       errorMessage.value = 'Failed to get location from address: $e';
     } finally {
-      isLoading(false); // Hide loading state
+      isLoading(false);
     }
   }
 }
