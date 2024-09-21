@@ -69,8 +69,8 @@ class BankDetailEmployeeProfile extends StatelessWidget {
                               onTap: () async {
                                 await _profileEmployeeController
                                     .profileemployeeApi();
-                                await _profileEmployeeController
-                                    .profileBasicemployeeApi();
+                                // await _profileEmployeeController
+                                //     .profileBasicemployeeApi();
                                 await _profileEmployeeController
                                     .profileEmployeBankApi();
 

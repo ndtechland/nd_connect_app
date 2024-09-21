@@ -13,7 +13,7 @@ class CityModel {
   int statusCode;
   dynamic status;
   String message;
-  dynamic error;
+ // dynamic error;
   List<CityModell> data;
 
   CityModel({
@@ -21,7 +21,7 @@ class CityModel {
     required this.statusCode,
     required this.status,
     required this.message,
-    required this.error,
+   // required this.error,
     required this.data,
   });
 
@@ -30,7 +30,7 @@ class CityModel {
         statusCode: json["statusCode"],
         status: json["status"],
         message: json["message"],
-        error: json["error"],
+       // error: json["error"],
         data: List<CityModell>.from(
             json["data"].map((x) => CityModell.fromJson(x))),
       );
@@ -40,27 +40,30 @@ class CityModel {
         "statusCode": statusCode,
         "status": status,
         "message": message,
-        "error": error,
+        //"error": error,
         "data": List<dynamic>.from(data.map((x) => x.toJson())),
       };
 }
 
 class CityModell {
-  int id;
-  String cityName;
-  int stateId;
+  final int id;
+  final String cityName;
+  final int stateId;
 
   CityModell({
     required this.id,
-    required this.cityName,
+    required this.cityName, // Use city1 as cityName
     required this.stateId,
   });
 
-  factory CityModell.fromJson(Map<String, dynamic> json) => CityModell(
-        id: json["id"],
-        cityName: json["cityName"],
-        stateId: json["stateId"],
-      );
+  factory CityModell.fromJson(Map<String, dynamic> json) {
+    return CityModell(
+      id: json['id'],
+      cityName: json['city1'], // Ensure you're using city1 as the correct key
+      stateId: json['stateId'],
+    );
+  }
+
 
   Map<String, dynamic> toJson() => {
         "id": id,

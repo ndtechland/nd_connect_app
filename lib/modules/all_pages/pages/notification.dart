@@ -6,9 +6,9 @@ import '../../../widget/navbar.dart';
 
 
 class NotificationScreen extends StatefulWidget {
-  static const String id = 'NotificationScreen';
+  static const String id = '10';
 
-  const NotificationScreen({Key? key}) : super(key: key);
+  const NotificationScreen({Key? key, required id}) : super(key: key);
 
   @override
   _NotificationScreenState createState() => _NotificationScreenState();

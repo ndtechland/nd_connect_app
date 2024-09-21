@@ -702,11 +702,101 @@ class HomeEmployee2 extends StatelessWidget {
                   children: [
                     Column(
                       children: [
+                        // Container(
+                        //   height: categoryHeight*0.6,
+                        //   width: categoryWidth*0.85,
+                        //   decoration: BoxDecoration(
+                        //     color:  appColor2.withOpacity(0.9),
+                        //     //  containerColors[3 % containerColors.length],
+                        //     boxShadow: [
+                        //       BoxShadow(
+                        //         offset: Offset(0, 0),
+                        //         blurRadius: 1,
+                        //         color: Color.fromRGBO(0, 0, 0, 0.16),
+                        //       )
+                        //     ],
+                        //     borderRadius:
+                        //     BorderRadius.all(Radius.circular(15)),
+                        //   ),
+                        //   child: Column(
+                        //     crossAxisAlignment: CrossAxisAlignment.start,
+                        //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        //     children: [
+                        //       Padding(
+                        //         padding: const EdgeInsets.all(12.0),
+                        //         child: Text("Total Leaves",style: GoogleFonts.poppins(
+                        //             textStyle: TextStyle(
+                        //                 fontSize: 18,
+                        //                 color: Colors.white,fontWeight: FontWeight.w600
+                        //             )
+                        //         ),),
+                        //       ),
+                        //       // Container(
+                        //       //   alignment: Alignment.center,
+                        //       //   height: categoryHeight*0.13,
+                        //       //   width: categoryWidth*0.4,
+                        //       //   decoration: BoxDecoration(
+                        //       //     color: Colors.white,
+                        //       //     borderRadius: BorderRadius.only(topRight: Radius.circular(18),bottomRight:Radius.circular(18) )
+                        //       //   ),
+                        //       //   child: Text(_homedashboardController.dashboardResponse?.data?.leave==null?"34":
+                        //       //   ("${_homedashboardController.dashboardResponse?.data?.leave}"),
+                        //       //   style: TextStyle(
+                        //       //     color: Colors.black87,
+                        //       //     fontSize: 18,
+                        //       //     fontWeight: FontWeight.w600
+                        //       //   ),),
+                        //       // ),
+                        //       Padding(
+                        //         padding: const EdgeInsets.all(12.0),
+                        //         child: Row(
+                        //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        //           children: [
+                        //             responsiveText(
+                        //               context: context,
+                        //               text:_homedashboardController.dashboardResponse?.data?.leave==null?"34":
+                        //               ("${_homedashboardController.dashboardResponse?.data?.leave}"),
+                        //               fontSizePortrait: 18,
+                        //               fontSizeLandscape: 18,
+                        //               color: Colors.white,
+                        //             ),
+                        //             Align(
+                        //               alignment: Alignment.bottomRight,
+                        //               child: CircleAvatar(
+                        //                 radius: 25,
+                        //                 backgroundColor: Colors.white,
+                        //                 child:  image[0] != null
+                        //                     ? Image.asset(
+                        //                   image[0], fit: BoxFit.cover,
+                        //                   //color: Colors.white,
+                        //                   // imageColors[
+                        //                   //     index % imageColors.length],
+                        //                   // fit: BoxFit.fill,
+                        //                   errorBuilder:
+                        //                       (context, error, stackTrace) {
+                        //                     return Image.asset(
+                        //                       'lib/assets/logo/noimageavlble.jpg',
+                        //                       fit: BoxFit.cover,
+                        //                     );
+                        //                   },
+                        //                 )
+                        //                     : Image.network(
+                        //                   'https://ih1.redbubble.net/image.5098928927.2456/flat,750x,075,f-pad,750x1000,f8f8f8.u2.jpg',
+                        //                   fit: BoxFit.fill,
+                        //                 ),
+                        //               ),
+                        //             ),
+                        //           ],
+                        //         ),
+                        //       )
+                        //     ],
+                        //   ),
+                        // ),
                         Container(
                           height: categoryHeight*0.6,
                           width: categoryWidth*0.85,
                           decoration: BoxDecoration(
-                            color:  appColor2.withOpacity(0.9),
+                            color: appColor2.withOpacity(0.9),
                             //  containerColors[3 % containerColors.length],
                             boxShadow: [
                               BoxShadow(
@@ -718,38 +808,21 @@ class HomeEmployee2 extends StatelessWidget {
                             borderRadius:
                             BorderRadius.all(Radius.circular(15)),
                           ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.all(12.0),
-                                child: Text("Total Leaves",style: GoogleFonts.poppins(
+                          child: Padding(
+                            padding: const EdgeInsets.all(12.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text("Total Leaves",style: GoogleFonts.poppins(
                                     textStyle: TextStyle(
                                         fontSize: 18,
                                         color: Colors.white,fontWeight: FontWeight.w600
                                     )
                                 ),),
-                              ),
-                              // Container(
-                              //   alignment: Alignment.center,
-                              //   height: categoryHeight*0.13,
-                              //   width: categoryWidth*0.4,
-                              //   decoration: BoxDecoration(
-                              //     color: Colors.white,
-                              //     borderRadius: BorderRadius.only(topRight: Radius.circular(18),bottomRight:Radius.circular(18) )
-                              //   ),
-                              //   child: Text(_homedashboardController.dashboardResponse?.data?.leave==null?"34":
-                              //   ("${_homedashboardController.dashboardResponse?.data?.leave}"),
-                              //   style: TextStyle(
-                              //     color: Colors.black87,
-                              //     fontSize: 18,
-                              //     fontWeight: FontWeight.w600
-                              //   ),),
-                              // ),
-                              Padding(
-                                padding: const EdgeInsets.all(12.0),
-                                child: Row(
+
+                                Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
                                     responsiveText(
@@ -787,9 +860,9 @@ class HomeEmployee2 extends StatelessWidget {
                                       ),
                                     ),
                                   ],
-                                ),
-                              )
-                            ],
+                                )
+                              ],
+                            ),
                           ),
                         ),
                         SizedBox(height: 10,),
@@ -830,8 +903,8 @@ class HomeEmployee2 extends StatelessWidget {
                                       context: context,
                                       text:_homedashboardController.dashboardResponse?.data?.totalAttendance==null?"2876":
                                       ("${_homedashboardController.dashboardResponse?.data?.totalAttendance}"),
-                                      fontSizePortrait: 16,
-                                      fontSizeLandscape: 16,
+                                      fontSizePortrait: 18,
+                                      fontSizeLandscape: 18,
                                       color: Colors.white,
                                     ),
                                     Align(

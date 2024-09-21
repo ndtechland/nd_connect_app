@@ -45,6 +45,14 @@ dependencies:
   flutter_file_downloader: ^2.0.0
   path_provider: ^2.1.0
   google_fonts:
+  firebase_messaging:
+  facebook_app_events: ^0.19.0
+  firebase_analytics: ^10.1.5
+  firebase_core:
+  googleapis_auth: ^1.6.0
+  http:
+  app_settings:
+  image_picker:
   #percent_indicator:
 dev_dependencies:
   flutter_test:
@@ -63,7 +71,7 @@ dev_dependencies:
   #font_awesome_flutter: ^10.1.0
   #permission_handler: ^9.2.0
   #lottie: ^1.3.0
-  http: ^0.13.4
+  #http: ^0.13.4
   #permission_handler: ^10.2.0
   #http: ^1.1.0
   #flutter_carousel_slider: ^1.0.8
@@ -78,12 +86,8 @@ dev_dependencies:
   table_calendar:
   persistent_bottom_nav_bar: ^6.2.1
   #webview_flutter:
-
-
-
   video_player: ^2.4.4
   logging: ^1.0.2
-
   #chewie: ^1.3.3
   #splashscreen:
   #share_plus: ^7.1.0

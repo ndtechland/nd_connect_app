@@ -209,7 +209,9 @@ class Data {
   String? aadharOne;
   String? panimg;
   String? aadharTwo;
-
+  String? fatherName;
+  String? shiftTime;
+  String? shiftType;
   Data({
     this.fullName,
     this.workEmail,
@@ -235,6 +237,9 @@ class Data {
     this.aadharOne,
     this.panimg,
     this.aadharTwo,
+    this.fatherName,
+    this.shiftTime,
+    this.shiftType,
   });
 
   factory Data.fromJson(Map<String, dynamic> json) => Data(
@@ -262,6 +267,9 @@ class Data {
     aadharOne: json["aadharOne"],
     panimg: json["panimg"],
     aadharTwo: json["aadharTwo"],
+    fatherName: json["fatherName"],
+    shiftTime: json["shiftTime"],
+    shiftType: json["shiftType"],
   );
 
   Map<String, dynamic> toJson() => {
@@ -289,6 +297,9 @@ class Data {
     "aadharOne": aadharOne,
     "panimg": panimg,
     "aadharTwo": aadharTwo,
+    "fatherName": fatherName,
+    "shiftTime": shiftTime,
+    "shiftType": shiftType,
   };
 }
 

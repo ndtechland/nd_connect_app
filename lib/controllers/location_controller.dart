@@ -31,6 +31,7 @@
 import 'package:get/get.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:nd_connect_techland/modules/all_pages/attendance/attendance.dart';
 
 class LocationController extends GetxController {
   var latitude = 0.0.obs;
@@ -51,6 +52,7 @@ class LocationController extends GetxController {
         print("LatLang:${latitude.value} & ${longitude.value}");
         // Use the latitude and longitude without const
         center = LatLng(latitude.value, longitude.value);
+       // await Get.to(()=>Attendance());
       } else {
         errorMessage.value = 'No locations found for the provided address.';
       }

@@ -92,8 +92,8 @@ class SplashScreen extends StatelessWidget {
                 if (accountData2 != null) {
                   // Auto-login and fetch the necessary data
                   await _getprofileepersonal.profileemployeeApi();
-                  await _homedashboardController.dashboarddApi();
-                  _homedashboardController.update();
+                 // await _homedashboardController.dashboarddApi();
+                  //_homedashboardController.update();
                   Future.delayed(Duration(seconds: 1));
                   await Navigator.pushReplacement(
                     context,

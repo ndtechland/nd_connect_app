@@ -29,6 +29,7 @@ import '../models/employee_model/dashboard_employee_model.dart';
 import '../models/employee_model/offer_appointment_latter_model.dart';
 import '../models/employee_model/payment_get_model/get_payment_model.dart';
 import '../models/employee_model/profile_model/bank_profile_details_employee.dart';
+import '../models/employee_model/profile_model/profileUpdateEmployeeModel.dart';
 import '../models/employee_model/profile_model/profile_basic_detail_model.dart';
 import '../models/employee_model/profile_model/profile_info_model_personal.dart';
 import '../models/employee_model/support_comman_model.dart';
@@ -187,7 +188,7 @@ class ApiProvider {
       cvFileContent,
       filename: cvFileName, // Use the file name from the parameter
       contentType:
-          MediaType('application', 'pdf'), // Use MediaType from http_parser
+      MediaType('application', 'pdf'), // Use MediaType from http_parser
     ));
 
     // Send the request
@@ -199,7 +200,7 @@ class ApiProvider {
       // Assuming the response body contains the user ID in JSON format
       var jsonResponse = jsonDecode(httpResponse.body);
       var userId = jsonResponse['loginProfile']
-          ['id']; // Extract the user ID from getData
+      ['id']; // Extract the user ID from getData
 
       // Save the user ID using GetStorage
       final storage = GetStorage();
@@ -221,7 +222,7 @@ class ApiProvider {
 
       Fluttertoast.showToast(
         msg:
-            "Failed to create profile. Status code: ${httpResponse.statusCode}",
+        "Failed to create profile. Status code: ${httpResponse.statusCode}",
         backgroundColor: Colors.red,
         textColor: Colors.white,
         toastLength: Toast.LENGTH_LONG,
@@ -278,13 +279,13 @@ class ApiProvider {
   ///user_ profile__update.........15 jun
 
   static String apiUrl7 = "${baseUrl}App/UpdateProfile";
+
   static Future<http.Response> updateuserProfileApi(
-    Map<String, String> formData,
-    Uint8List cvFileContent,
-    String CVFileName,
-    Uint8List cvFileContent2,
-    String ProfileImage,
-  ) async {
+      Map<String, String> formData,
+      Uint8List cvFileContent,
+      String CVFileName,
+      Uint8List cvFileContent2,
+      String ProfileImage,) async {
     var uri = Uri.parse(apiUrl7);
     var request = http.MultipartRequest('POST', uri);
 
@@ -295,13 +296,16 @@ class ApiProvider {
 
     // Helper function to determine the MediaType based on the file extension
     MediaType getMediaType(String filename) {
-      String ext = filename.split('.').last.toLowerCase();
+      String ext = filename
+          .split('.')
+          .last
+          .toLowerCase();
       switch (ext) {
-        // case 'jpg':
-        // case 'jpeg':
-        //   return MediaType('image', 'jpeg');
-        // case 'png':
-        //   return MediaType('image', 'png');
+      // case 'jpg':
+      // case 'jpeg':
+      //   return MediaType('image', 'jpeg');
+      // case 'png':
+      //   return MediaType('image', 'png');
         case 'pdf':
           return MediaType('application', 'pdf');
         default:
@@ -310,15 +314,18 @@ class ApiProvider {
     }
 
     MediaType getMediaType2(String filename) {
-      String ext = filename.split('.').last.toLowerCase();
+      String ext = filename
+          .split('.')
+          .last
+          .toLowerCase();
       switch (ext) {
         case 'jpg':
         case 'jpeg':
           return MediaType('image', 'jpeg');
         case 'png':
           return MediaType('image', 'png');
-        // case 'pdf':
-        //   return MediaType('application', 'pdf');
+      // case 'pdf':
+      //   return MediaType('application', 'pdf');
         default:
           throw Exception('Unsupported file type');
       }
@@ -332,9 +339,9 @@ class ApiProvider {
         // Use the file name from the parameter
         contentType: getMediaType(CVFileName)
 
-        //contentType:
-        //MediaType('application', 'pdf'), // Use MediaType from http_parser
-        ));
+      //contentType:
+      //MediaType('application', 'pdf'), // Use MediaType from http_parser
+    ));
 
     request.files.add(http.MultipartFile.fromBytes(
         'ProfileImage', // The name of the file field
@@ -343,9 +350,9 @@ class ApiProvider {
         // Use the file name from the parameter
         contentType: getMediaType2(ProfileImage)
 
-        //contentType:
-        //MediaType('application', 'pdf'), // Use MediaType from http_parser
-        ));
+      //contentType:
+      //MediaType('application', 'pdf'), // Use MediaType from http_parser
+    ));
 
     // Get token from GetStorage
     // final storage = GetStorage();
@@ -377,7 +384,7 @@ class ApiProvider {
       // Show error toast
       Fluttertoast.showToast(
         msg:
-            "Failed to Update Profile. Status code: ${httpResponse.statusCode}",
+        "Failed to Update Profile. Status code: ${httpResponse.statusCode}",
         backgroundColor: Colors.red,
         textColor: Colors.white,
         toastLength: Toast.LENGTH_LONG,
@@ -389,8 +396,8 @@ class ApiProvider {
   }
 
   ///change password api,,,,for user.......
-  static Future<http.Response?> ChangePasswordApi(
-      BuildContext context, // Added context parameter
+  static Future<http.Response?> ChangePasswordApi(BuildContext context,
+      // Added context parameter
       String CurrentPassword,
       String NewPassword,
       String ConfirmPassword) async {
@@ -497,7 +504,7 @@ class ApiProvider {
     } on SocketException catch (_) {
       Fluttertoast.showToast(
         msg:
-            "Network error: Unable to resolve host. Please check your internet connection.",
+        "Network error: Unable to resolve host. Please check your internet connection.",
         backgroundColor: Colors.red,
         textColor: Colors.white,
         toastLength: Toast.LENGTH_LONG,
@@ -520,198 +527,6 @@ class ApiProvider {
     }
   }
 
-  ///
-
-  // static Future<http.Response?> ChangePasswordApi(
-  //     BuildContext context, // Added context parameter
-  //     String CurrentPassword,
-  //     String NewPassword,
-  //     String ConfirmPassword) async {
-  //   var prefs = GetStorage();
-  //
-  //   // Read saved userId
-  //   String userId = prefs.read("Id").toString();
-  //   print('wwwuseridEE:$userId');
-  //
-  //   var url = "${baseUrl}App/UserChangePassword";
-  //   var body = jsonEncode({
-  //     "CurrentPassword": CurrentPassword,
-  //     "NewPassword": NewPassword,
-  //     "ConfirmPassword": ConfirmPassword,
-  //     "userId": userId
-  //   });
-  //
-  //   print("loginnnn");
-  //   print(body);
-  //
-  //   try {
-  //     http.Response r = await http.post(
-  //       Uri.parse(url),
-  //       body: body,
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //     ).timeout(const Duration(seconds: 10));
-  //
-  //     print(r.body);
-  //
-  //     if (r.statusCode == 200) {
-  //       var responseData = json.decode(r.body);
-  //       var userId = responseData['loginProfile']['id'];
-  //
-  //       // Save user ID (assuming 'Id' is part of the response JSON)
-  //       prefs.write("Id", userId);
-  //       print('Saved userId: $userId');
-  //
-  //       // Show loading dialog
-  //       showDialog(
-  //         context: context,
-  //         barrierDismissible: false,
-  //         builder: (context) {
-  //           return Center(
-  //             child: CircularProgressIndicator(),
-  //           );
-  //         },
-  //       );
-  //
-  //       // Simulate a delay for async operations
-  //       await Future.delayed(Duration(seconds: 1));
-  //
-  //       // Clear shared preferences
-  //       SharedPreferences.getInstance().then((prefs) => prefs.clear());
-  //
-  //       // Hide loading dialog
-  //       Get.back();
-  //
-  //       // Navigate to Login Page
-  //       Get.offAll(() => Login());
-  //
-  //       // Show success toast
-  //       Fluttertoast.showToast(
-  //         msg: "Password changed successfully!",
-  //         backgroundColor: Colors.green,
-  //         textColor: Colors.white,
-  //         toastLength: Toast.LENGTH_LONG,
-  //         gravity: ToastGravity.CENTER,
-  //       );
-  //     } else if (r.statusCode == 401) {
-  //       Fluttertoast.showToast(
-  //         msg: "Unauthorized access. Status code: ${r.statusCode}",
-  //         backgroundColor: Colors.red,
-  //         textColor: Colors.white,
-  //         toastLength: Toast.LENGTH_LONG,
-  //         gravity: ToastGravity.BOTTOM,
-  //       );
-  //
-  //       Get.snackbar('Error', r.body);
-  //     } else {
-  //       Fluttertoast.showToast(
-  //         msg: "Failed to change password. Status code: ${r.statusCode}",
-  //         backgroundColor: Colors.red,
-  //         textColor: Colors.white,
-  //         toastLength: Toast.LENGTH_LONG,
-  //         gravity: ToastGravity.BOTTOM,
-  //       );
-  //
-  //       Get.snackbar('Error', r.body);
-  //     }
-  //
-  //     return r;
-  //   } on TimeoutException catch (_) {
-  //     Fluttertoast.showToast(
-  //       msg: "Network connection slow or disconnected",
-  //       backgroundColor: Colors.red,
-  //       textColor: Colors.white,
-  //       toastLength: Toast.LENGTH_LONG,
-  //       gravity: ToastGravity.BOTTOM,
-  //     );
-  //
-  //     return null;
-  //   } on SocketException catch (_) {
-  //     Fluttertoast.showToast(
-  //       msg:
-  //           "Network error: Unable to resolve host. Please check your internet connection.",
-  //       backgroundColor: Colors.red,
-  //       textColor: Colors.white,
-  //       toastLength: Toast.LENGTH_LONG,
-  //       gravity: ToastGravity.BOTTOM,
-  //     );
-  //
-  //     return null;
-  //   } catch (error) {
-  //     print('Network error: $error');
-  //
-  //     Fluttertoast.showToast(
-  //       msg: "Network error: $error",
-  //       backgroundColor: Colors.red,
-  //       textColor: Colors.white,
-  //       toastLength: Toast.LENGTH_LONG,
-  //       gravity: ToastGravity.BOTTOM,
-  //     );
-  //
-  //     return null;
-  //   }
-  // }
-
-  ///
-  // static Future<http.Response> ChangePasswordApi(String CurrentPassword,
-  //     String NewPassword, String ConfirmPassword) async {
-  //   var prefs = GetStorage();
-  //
-  //   //saved userid..........
-  //   //prefs.write("Id".toString(), json.decode(r.body)['Id']);
-  //   userId = prefs.read("Id").toString();
-  //   print('wwwuseridEE:${userId}');
-  //   var url = "${baseUrl}App/UserChangePassword";
-  //   //https://api.hirejobindia.com/api/App/UserChangePassword
-  //   //App/UserChangePassword?userId=38
-  //   var body = jsonEncode({
-  //     "CurrentPassword": CurrentPassword,
-  //     "NewPassword": NewPassword,
-  //     "ConfirmPassword": ConfirmPassword,
-  //     "userId": userId
-  //   });
-  //
-  //   print("loginnnn");
-  //   print(body);
-  //   http.Response r = await http.post(
-  //     Uri.parse(url),
-  //     body: body,
-  //     headers: {
-  //       "Content-Type": "application/json",
-  //     },
-  //   );
-  //
-  //   print(r.body);
-  //
-  //   if (r.statusCode == 200) {
-  //     var responseData = json.decode(r.body);
-  //     var userId = responseData['loginProfile']['id'];
-  //
-  //     // Save user ID (assuming 'Id' is part of the response JSON)
-  //     prefs.write("Id", userId);
-  //     print('Saved userId: $userId');
-  //
-  //     // Navigate to HomePage
-  //     Get.to(() => Home());
-  //
-  //     Fluttertoast.showToast(
-  //       msg: "Password Change successfully!",
-  //       backgroundColor: Colors.green,
-  //       textColor: Colors.white,
-  //       toastLength: Toast.LENGTH_LONG,
-  //       gravity: ToastGravity.CENTER,
-  //     );
-  //
-  //     return r;
-  //   } else if (r.statusCode == 401) {
-  //     Get.snackbar('Message', r.body);
-  //   } else {
-  //     Get.snackbar('Error', r.body);
-  //   }
-  //
-  //   return r;
-  // }
 
   ///api 1.....all jobs....
   static AllJobsApi() async {
@@ -790,29 +605,6 @@ class ApiProvider {
     }
   }
 
-  ///5.profile_api...
-  // static PriofileApi() async {
-  //   var prefs = GetStorage();
-  //
-  //   //saved userid..........
-  //   //prefs.write("Id".toString(), json.decode(r.body)['Id']);
-  //   userId = prefs.read("Id").toString();
-  //   print('wwwuseridEE:${userId}');
-  //   //https://api.hirejobindia.com/api/App/GetProfile?userId=2
-  //   var url = '${baseUrl}App/GetProfile?userId=$userId';
-  //   try {
-  //     http.Response r = await http.get(Uri.parse(url));
-  //     if (r.statusCode == 200) {
-  //       print("url");
-  //       print(url);
-  //       GetProfileModel? geetprofilemodel = getProfileModelFromJson(r.body);
-  //       print("profile: ${geetprofilemodel.response!.emailId}");
-  //       return geetprofilemodel;
-  //     }
-  //   } catch (error) {
-  //     print('profileedetaileror: $error');
-  //   }
-  // }
 
   ///6.job apply successfully..........post...apis...
   static Future<http.Response> ApplyJobAPi(String JobId) async {
@@ -842,7 +634,7 @@ class ApiProvider {
         'Success',
         r.body,
         backgroundColor:
-            Colors.green.shade300, // Set the background color to green
+        Colors.green.shade300, // Set the background color to green
         snackPosition: SnackPosition.TOP, // Set the position of the snackbar
         duration: Duration(
             seconds: 2), // Set the duration of the snackbar to 2 seconds
@@ -902,7 +694,7 @@ class ApiProvider {
         r.body,
         //"Job Saved Successfully",
         backgroundColor:
-            Colors.green.shade300, // Set the background color to green
+        Colors.green.shade300, // Set the background color to green
         snackPosition: SnackPosition.TOP, // Set the position of the snackbar
         duration: Duration(
             seconds: 2), // Set the duration of the snackbar to 2 seconds
@@ -967,7 +759,7 @@ class ApiProvider {
       print(r.body.toString());
       if (r.statusCode == 200) {
         var CompanyDetailByCompanyIdModel =
-            companyDetailByCompanyIdModelFromJson(r.body);
+        companyDetailByCompanyIdModelFromJson(r.body);
         return CompanyDetailByCompanyIdModel;
       }
       print(url);
@@ -1054,63 +846,11 @@ class ApiProvider {
     }
   }
 
-  ///api.9. delete  apis.....
-  // static Future<bool> deleteJobApi(int bookmarkid) async {
-  //   //https://api.hirejobindia.com/api/App/DeleteBookmarkjob/?id=5
-  //   var url = "${baseUrl}App/DeleteBookmarkjob/?id=$bookmarkid";
-  //
-  //   final url2 = Uri.parse(url);
-  //   final response = await http.delete(url2);
-  //
-  //   print("urldlt111");
-  //   print(url);
-  //
-  //   if (response.statusCode == 200) {
-  //     print("urldlt");
-  //     print(url);
-  //     Get.to(Bookmark());
-  //
-  //     return true;
-  //   } else {
-  //     return false;
-  //   }
-  // }
-
-  ///
-
-  ///
-
-  ///registration....
-  // static Future<http.Response> createProfile(
-  //     Map<String, dynamic> formData) async {
-  //   const String apiUrl =
-  //       'https://api.hirejobindia.com/api/Login/createProfile';
-  //
-  //   try {
-  //     final http.Response response = await http.post(
-  //       Uri.parse(apiUrl),
-  //       body: formData,
-  //     );
-  //     print("data${formData}");
-  //
-  //     return response;
-  //   } catch (error) {
-  //     throw Exception('Failed to create profile: $error');
-  //   }
-  // }
-
-  ///
 
   static String apiUrl2 = "${baseUrl}Login/createProfile";
 
-  //var url = "${baseUrl}App/DeleteBookmarkjob/?id=$jobId";
-  //static const String apiUrl = 'https://api.hirejobindia.com/api/Login/createProfile';
-  ///
-
-  ///state api....
-  ///state Api get...........................
   static Future<List<StateModelss>> getSatesApi() async {
-    var url = "${baseUrl}EmployeeApi/Getstate";
+    var url = "https://api.ndtechland.com/api/EmployeeApi/Getstate";
     try {
       http.Response r = await http.get(Uri.parse(url));
       print(r.body.toString());
@@ -1125,14 +865,35 @@ class ApiProvider {
     }
   }
 
+  static Future<List<StateModelss>> getSatesApi1() async {
+    var url = "https://api.ndtechland.com/api/EmployeeApi/Getstate";
+    try {
+      http.Response response = await http.get(Uri.parse(url));
+      if (response.statusCode == 200) {
+        var jsonResponse = jsonDecode(response.body);
+        if (jsonResponse['data'] != null) {
+          // Parsing the list of states
+          return (jsonResponse['data'] as List)
+              .map((item) => StateModelss.fromJson(item))
+              .toList();
+        }
+      }
+      return [];
+    } catch (error) {
+      print('Error fetching states: $error');
+      return [];
+    }
+  }
+
   ///todo: city by stste id...
-  static Future<List<CityModell>> getCitiesApi(String stateID) async {
-    var url = "${baseUrl}EmployeeApi/getcity?stateid=$stateID";
+  static Future<List<CityModell>> getCitiesApi(int stateID) async {
+    var url = "https://api.ndtechland.com/api/EmployeeApi/getcity?stateid=$stateID";
     try {
       http.Response r = await http.get(Uri.parse(url));
       print(r.body.toString());
       if (r.statusCode == 200) {
         var citiesData = cityModelFromJson(r.body);
+        print("citiesData:${citiesData.data}");
         return citiesData.data;
       } else {
         return [];
@@ -1169,7 +930,7 @@ class ApiProvider {
         print("url");
         print(url);
         JobdetailbyjobIdModel? getjobdetailssmodel =
-            jobdetailbyjobIdModelFromJson(r.body);
+        jobdetailbyjobIdModelFromJson(r.body);
         print("jobdetail: ${getjobdetailssmodel.response!.id}");
         return getjobdetailssmodel;
       }
@@ -1179,8 +940,8 @@ class ApiProvider {
   }
 
   ///4.login_employeee..........post...apis...
-  static Future<http.Response> EmployeeLoginApi(
-      String employee_ID, String password) async {
+  static Future<http.Response> EmployeeLoginApi(String employee_ID,
+      String password) async {
     var url = "https://api.ndtechland.com/api/Account/Login";
     var body2 = jsonEncode({
       "Employee_ID": employee_ID,
@@ -1259,9 +1020,10 @@ class ApiProvider {
         print("url");
         print(url);
         GetProfileEmployeePersonalModel? geetprofilepersonalmodel =
-            getProfileEmployeePersonalModelFromJson(r.body);
+        getProfileEmployeePersonalModelFromJson(r.body);
         print(
-            "profileinfo: ${geetprofilepersonalmodel.data!.personalEmailAddress}");
+            "profileinfo: ${geetprofilepersonalmodel.data!
+                .personalEmailAddress}");
         print(
             "profileImage: ${geetprofilepersonalmodel.data!.empProfile}");
         return geetprofilepersonalmodel;
@@ -1297,7 +1059,7 @@ class ApiProvider {
         print("url");
         print(url);
         BasicInformationModel? geetprofilepersonalmodel =
-            basicInformationModelFromJson(r.body);
+        basicInformationModelFromJson(r.body);
         print("profileinfo: ${geetprofilepersonalmodel.data!.employeeId}");
         return geetprofilepersonalmodel;
       } else {
@@ -1332,7 +1094,7 @@ class ApiProvider {
         print("url");
         print(url);
         BankDetailInformationModel? geetprofilbankmodel =
-            bankDetailInformationModelFromJson(r.body);
+        bankDetailInformationModelFromJson(r.body);
         print("profileinfobnk: ${geetprofilbankmodel.data!.accountHolderName}");
         return geetprofilbankmodel;
       } else {
@@ -1367,7 +1129,7 @@ class ApiProvider {
         print("url");
         print(url);
         GetOfferAppointmentModel? getapptoffermodel =
-            getOfferAppointmentModelFromJson(r.body);
+        getOfferAppointmentModelFromJson(r.body);
         print("profileinfobnk: ${getapptoffermodel.data!.offerletter}");
         return getapptoffermodel;
       } else {
@@ -1513,7 +1275,8 @@ class ApiProvider {
         return leaveDropdownData.data!.getLeaveTypeList!;
       } else {
         print(
-            'Failed to load dropdown category. Status code: ${response.statusCode}');
+            'Failed to load dropdown category. Status code: ${response
+                .statusCode}');
         return [];
       }
     } catch (error) {
@@ -1543,7 +1306,8 @@ class ApiProvider {
         return leaveDropdownData.data!.getLeaveList!;
       } else {
         print(
-            'Failed to load dropdown category. Status code: ${response.statusCode}');
+            'Failed to load dropdown category. Status code: ${response
+                .statusCode}');
         return [];
       }
     } catch (error) {
@@ -1555,6 +1319,7 @@ class ApiProvider {
 
   //apply leave employee..............
   static String apiUrl4 = "${baseUrl}EmployeeApi/ApplyLeaveNew";
+
   static Future<http.Response> ApplyLeave(Map<String, String> formData) async {
     var uri = Uri.parse(apiUrl4);
     var request = http.MultipartRequest('POST', uri);
@@ -1626,16 +1391,15 @@ class ApiProvider {
   ///update_personal_profile..wmployee.
 
   //static String apiUrl5 = "${baseUrl}EmployeeApi/EmployeePresnolInfo";
-  static Future<http.Response> updatePersonal(
-    Map<String, String> formData,
-    List<Uint8List>? aadharFileContent,
-    String? Aadharbase64,
-    Uint8List? panFileContent,
-    String? Panbase64,
+  static Future<http.Response> updatePersonal1(Map<String, String> formData,
+      List<Uint8List>? aadharFileContent,
+      String? Aadharbase64,
+      Uint8List? panFileContent,
+      String? Panbase64,
       Uint8List? profileFileContent,
-    String? Profilebase64,
-  ) async {
-    var uri = Uri.parse("https://api.ndtechland.com/api/EmployeeApi/EmployeePersonalDetail");
+      String? Profilebase64,) async {
+    var uri = Uri.parse(
+        "https://api.ndtechland.com/api/EmployeeApi/EmployeePersonalDetail");
     var request = http.MultipartRequest('POST', uri);
 
     // Add form fields
@@ -1659,7 +1423,10 @@ class ApiProvider {
 
     // Helper function to determine the MediaType based on the file extension
     MediaType getMediaType(String filename) {
-      String ext = filename.split('.').last.toLowerCase();
+      String ext = filename
+          .split('.')
+          .last
+          .toLowerCase();
       switch (ext) {
         case 'jpg':
         case 'jpeg':
@@ -1674,7 +1441,10 @@ class ApiProvider {
     }
 
     MediaType getMediaType2(String filename) {
-      String ext = filename.split('.').last.toLowerCase();
+      String ext = filename
+          .split('.')
+          .last
+          .toLowerCase();
       switch (ext) {
         case 'jpg':
         case 'jpeg':
@@ -1688,32 +1458,35 @@ class ApiProvider {
       }
     }
 
-   // Add Aadhar image files
+    // Add Aadhar image files
     for (int i = 0; i < aadharFileContent!.length; i++) {
       request.files.add(http.MultipartFile.fromBytes(
           'AadharImage', // Use array notation if multiple files are allowed
           aadharFileContent[i],
           filename:
-              Aadharbase64, // Use a generic filename with index for each Aadhar file
+          Aadharbase64,
+          // Use a generic filename with index for each Aadhar file
           contentType: getMediaType(Aadharbase64!)));
     }
 
     // Add PAN image file
-    request.files.add(http.MultipartFile.fromBytes('PanbaseImage', panFileContent!,
-        filename: Panbase64,
-        // Use the file path as the filename for PAN
-        contentType: getMediaType2(Panbase64!)
+    request.files.add(
+        http.MultipartFile.fromBytes('PanbaseImage', panFileContent!,
+            filename: Panbase64,
+            // Use the file path as the filename for PAN
+            contentType: getMediaType2(Panbase64!)
 
-        //contentType:
-        //MediaType('application', 'pdf'), // Use MediaType from http_parser
+          //contentType:
+          //MediaType('application', 'pdf'), // Use MediaType from http_parser
         ));
-    request.files.add(http.MultipartFile.fromBytes('Empprofile', profileFileContent!,
-        filename: Profilebase64,
-        // Use the file path as the filename for PAN
-        contentType: getMediaType2(Panbase64)
+    request.files.add(
+        http.MultipartFile.fromBytes('Empprofile', profileFileContent!,
+            filename: Profilebase64,
+            // Use the file path as the filename for PAN
+            contentType: getMediaType2(Panbase64)
 
-        //contentType:
-        //MediaType('application', 'pdf'), // Use MediaType from http_parser
+          //contentType:
+          //MediaType('application', 'pdf'), // Use MediaType from http_parser
         ));
 
     // Add headers
@@ -1747,7 +1520,7 @@ class ApiProvider {
           'Failed to update profile. Status code: ${httpResponse.statusCode}');
       Fluttertoast.showToast(
         msg:
-            "Failed to update profile. Status code: ${httpResponse.statusCode}",
+        "Failed to update profile. Status code: ${httpResponse.statusCode}",
         backgroundColor: Colors.red,
         textColor: Colors.white,
         toastLength: Toast.LENGTH_LONG,
@@ -1757,18 +1530,265 @@ class ApiProvider {
     return httpResponse;
   }
 
-  ///update bank employee....
-//user signup..............
+ // final String apiUrl = "https://api.ndtechland.com/api/EmployeeApi/EmployeePersonalDetail";
+//todayyyy correct for profile and pan
+// static Future<http.Response> updatePersonal({
+//     required Map<String, String> formData,
+//     List<Uint8List>? aadharFileContent,
+//   List<String>? Aadharbase64, // Update to handle multiple Aadhaar filenames
+//   Uint8List? panFileContent,
+//     String? Panbase64,
+//     Uint8List? profileFileContent,
+//     String? Profilebase64,
+//   }) async {
+//     var uri = Uri.parse("https://api.ndtechland.com/api/EmployeeApi/EmployeePersonalDetail");
+//     var request = http.MultipartRequest('POST', uri);
+//
+//     // Add form fields
+//     request.fields.addAll(formData);
+//
+//     // Helper function to determine the MediaType based on the file extension
+//     MediaType getMediaType(String filename) {
+//       String ext = filename.split('.').last.toLowerCase();
+//       switch (ext) {
+//         case 'jpg': return MediaType('image', 'jpg');
+//         case 'jpeg':
+//           return MediaType('image', 'jpeg');
+//         case 'png':
+//           return MediaType('image', 'png');
+//         case 'pdf':
+//           return MediaType('application', 'pdf');
+//         default:
+//           throw Exception('Unsupported file type');
+//       }
+//     }
+//
+//     // Add Aadhaar images if available
+//     if (aadharFileContent != null && Aadharbase64 != null) {
+//       for (int i = 0; i < aadharFileContent.length; i++) {
+//         request.files.add(http.MultipartFile.fromBytes(
+//           'AadharImage', // Ensure this matches the API requirement
+//           aadharFileContent[i],
+//           filename: Aadharbase64[i],
+//           contentType: getMediaType(Aadharbase64[i]),
+//         ));
+//       }
+//     }
+//
+//     // Add PAN image if available
+//     if (panFileContent != null && Panbase64 != null) {
+//       request.files.add(http.MultipartFile.fromBytes(
+//         'PanbaseImage', // Ensure this matches the API requirement
+//         panFileContent,
+//         filename: Panbase64,
+//         contentType: getMediaType(Panbase64),
+//       ));
+//     }
+//
+//     // Add profile image if available
+//     if (profileFileContent != null && Profilebase64 != null) {
+//       request.files.add(http.MultipartFile.fromBytes(
+//         'Empprofile', // Ensure this matches the API requirement
+//         profileFileContent,
+//         filename: Profilebase64,
+//         contentType: getMediaType(Profilebase64),
+//       ));
+//     }
+//
+//     // Get token from GetStorage
+//     String token = GetStorage().read("token").toString();
+//     request.headers['Authorization'] = 'Bearer $token';
+//
+//     // Send the request
+//     var response = await request.send();
+//
+//     // Parse the response
+//     var httpResponse = await http.Response.fromStream(response);
+//
+//     // Handle success or failure
+//     if (httpResponse.statusCode == 200) {
+//       print("Profile updated successfully: ${httpResponse.body}");
+//       Fluttertoast.showToast(
+//         msg: "Profile updated successfully!",
+//         backgroundColor: Colors.green,
+//         textColor: Colors.white,
+//         toastLength: Toast.LENGTH_LONG,
+//         gravity: ToastGravity.CENTER,
+//       );
+//     } else {
+//       Fluttertoast.showToast(
+//         msg: "Failed to update profile. Status code: ${httpResponse.statusCode}",
+//         backgroundColor: Colors.red,
+//         textColor: Colors.white,
+//         toastLength: Toast.LENGTH_LONG,
+//         gravity: ToastGravity.BOTTOM,
+//       );
+//       print("Response body: ${httpResponse.body}");
+//     }
+//
+//     return httpResponse;
+//   }
 
-  //  static String apiUrl5 = "${baseUrl}EmployeeApi/EmployeePresnolInfo";
+  static Future<http.Response> updatePersonal({
+    required Map<String, String> formData,
+    List<Uint8List>? aadharFileContent,
+    List<String>? Aadharbase64, // Changed to List to handle multiple images
+    Uint8List? panFileContent,
+    String? Panbase64,
+    Uint8List? profileFileContent,
+    String? Profilebase64,
+  }) async {
+    var uri = Uri.parse("https://api.ndtechland.com/api/EmployeeApi/EmployeePersonalDetail");
+    var request = http.MultipartRequest('POST', uri);
 
- // static String apiUrl6 = "${baseUrl}EmployeeApi/EmployeeBankDetail";
+    // Add form fields
+    request.fields.addAll(formData);
+
+    // Helper function to determine the MediaType based on the file extension
+    MediaType getMediaType(String filename) {
+      String ext = filename.split('.').last.toLowerCase();
+      switch (ext) {
+        case 'jpg': return MediaType('image', 'jpeg');
+        case 'jpeg': return MediaType('image', 'jpeg');
+        case 'png': return MediaType('image', 'png');
+        case 'pdf': return MediaType('application', 'pdf');
+        default: throw Exception('Unsupported file type: $ext');
+      }
+    }
+
+    // Add Aadhaar images if available
+    if (aadharFileContent != null && Aadharbase64 != null) {
+      for (int i = 0; i < aadharFileContent.length; i++) {
+        request.files.add(http.MultipartFile.fromBytes(
+          'AadharImage', // Ensure this matches the API requirement
+          aadharFileContent[i],
+          filename: Aadharbase64[i],
+          contentType: getMediaType(Aadharbase64[i]),
+        ));
+      }
+    }
+
+    // Add PAN image if available
+    if (panFileContent != null && Panbase64 != null) {
+      request.files.add(http.MultipartFile.fromBytes(
+        'PanbaseImage', // Ensure this matches the API requirement
+        panFileContent,
+        filename: Panbase64,
+        contentType: getMediaType(Panbase64),
+      ));
+    }
+
+    // Add profile image if available
+    if (profileFileContent != null && Profilebase64 != null) {
+      request.files.add(http.MultipartFile.fromBytes(
+        'Empprofile', // Ensure this matches the API requirement
+        profileFileContent,
+        filename: Profilebase64,
+        contentType: getMediaType(Profilebase64),
+      ));
+    }
+
+    // Add authorization token
+    String token = GetStorage().read("token").toString();
+    request.headers['Authorization'] = 'Bearer $token';
+
+    var response = await request.send();
+    var httpResponse = await http.Response.fromStream(response);
+
+    // Handle response
+    if (httpResponse.statusCode == 200) {
+      print("Profile updated successfully: ${httpResponse.body}");
+      Fluttertoast.showToast(
+        msg: "Profile updated successfully!",
+        backgroundColor: Colors.green,
+        textColor: Colors.white,
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.CENTER,
+      );
+    } else {
+      Fluttertoast.showToast(
+        msg: "Failed to update profile. Status code: ${httpResponse.statusCode}",
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.BOTTOM,
+      );
+      print("Response body: ${httpResponse.body}");
+    }
+
+    return httpResponse;
+  }
+
+
+  static Future<http.Response> updatePersonal2({
+    required Map<String, String> formData,
+    List<Uint8List>? aadharFileContent,
+    String? Aadharbase64,
+    Uint8List? panFileContent,
+    String? Panbase64,
+    Uint8List? profileFileContent,
+    String? Profilebase64,
+  }) async {
+    var uri = Uri.parse("https://api.ndtechland.com/api/EmployeeApi/EmployeePersonalDetail");
+    var request = http.MultipartRequest('POST', uri);
+
+    // Add form fields
+    formData.forEach((key, value) {
+      request.fields[key] = value;
+      print('Field: $key, Value: $value'); // Print each form field
+    });
+    String token = GetStorage().read("token").toString();
+    request.headers['Authorization'] = 'Bearer $token';
+
+    try {
+      // Send the request
+      var response = await request.send();
+
+      // Handle the response
+      var httpResponse = await http.Response.fromStream(response);
+      if (httpResponse.statusCode == 200) {
+        print("profileRes:${httpResponse.body}");
+        // Success
+        Fluttertoast.showToast(
+          msg: "Profile updated successfully!",
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.CENTER,
+        );
+      } else {
+        // Error
+        Fluttertoast.showToast(
+          msg: "Failed to update profile. Status code: ${httpResponse.statusCode}",
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.BOTTOM,
+        );
+      }
+      return httpResponse;
+    } catch (e) {
+      // Handle exceptions
+      Fluttertoast.showToast(
+        msg: 'Network error. Please try again.',
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.BOTTOM,
+      );
+      rethrow;
+    }
+  }
+
+
+
+
   static Future<http.Response> updateBankEmployeeApi(
-    Map<String, String> formData,
-    Uint8List cvFileContent,
-    String Chequebase64,
-  ) async {
-    var uri = Uri.parse("https://api.ndtechland.com/api/EmployeeApi/EmployeeBankDetail");
+      Map<String, String> formData,
+      Uint8List? cvFileContent,
+      String? Chequebase64,) async {
+    var uri = Uri.parse(
+        "https://api.ndtechland.com/api/EmployeeApi/EmployeeBankDetail");
     var request = http.MultipartRequest('POST', uri);
 
     // Add form fields
@@ -1778,7 +1798,10 @@ class ApiProvider {
 
     // Helper function to determine the MediaType based on the file extension
     MediaType getMediaType(String filename) {
-      String ext = filename.split('.').last.toLowerCase();
+      String ext = filename
+          .split('.')
+          .last
+          .toLowerCase();
       switch (ext) {
         case 'jpg':
         case 'jpeg':
@@ -1795,14 +1818,14 @@ class ApiProvider {
     // Add file field
     request.files.add(http.MultipartFile.fromBytes(
         'Chequebase64', // The name of the file field
-        cvFileContent,
+        cvFileContent!,
         filename: Chequebase64,
         // Use the file name from the parameter
-        contentType: getMediaType(Chequebase64)
+        contentType: getMediaType(Chequebase64!)
 
-        //contentType:
-        //MediaType('application', 'pdf'), // Use MediaType from http_parser
-        ));
+      //contentType:
+      //MediaType('application', 'pdf'), // Use MediaType from http_parser
+    ));
 
     // Get token from GetStorage
     final storage = GetStorage();
@@ -1819,12 +1842,13 @@ class ApiProvider {
 
     // Print the response data
     print('Response status: ${httpResponse.statusCode}');
-    print('Response body: ${httpResponse.body}');
 
     if (httpResponse.statusCode == 200) {
+      print('Response body: ${httpResponse.body}');
+
       // Show success toast
       Fluttertoast.showToast(
-        msg: "Bank Updated successfully!",
+        msg: "Bank Updated successfullyyyy!",
         backgroundColor: Colors.green,
         textColor: Colors.white,
         toastLength: Toast.LENGTH_LONG,
@@ -1847,79 +1871,82 @@ class ApiProvider {
   ///todo: update profile picture....employee....
 
   static String apiUrl9 = "${baseUrl}EmployeeApi/EmpUpdateprofilepicture";
+
   //https://api.hirejobindia.com/api/EmployeeApi/EmpUpdateprofilepicture
-  static Future<http.Response> updateProfileEmployeeApi(
-    Uint8List cvFileContent3,
-    String Empprofile,
-  ) async {
-    var uri = Uri.parse(apiUrl9);
-    var request = http.MultipartRequest('POST', uri);
-
-    // Helper function to determine the MediaType based on the file extension
-    MediaType getMediaType(String filename) {
-      String ext = filename.split('.').last.toLowerCase();
-      switch (ext) {
-        case 'jpg':
-        case 'jpeg':
-          return MediaType('image', 'jpeg');
-        case 'png':
-          return MediaType('image', 'png');
-        default:
-          throw Exception('Unsupported file type');
-      }
-    }
-
-    // Add file field
-    request.files.add(http.MultipartFile.fromBytes(
-      'Empprofile', // The name of the file field
-      cvFileContent3,
-      filename: Empprofile,
-      contentType: getMediaType(Empprofile),
-    ));
-
-    // Get token from GetStorage
-    final storage = GetStorage();
-    var token = storage.read('token');
-
-    // Set token in headers
-    request.headers['Authorization'] = 'Bearer $token';
-
-    // Send the request
-    var response = await request.send();
-
-    // Parse the response
-    var httpResponse = await http.Response.fromStream(response);
-
-    // Print the response data
-    print('Response status: ${httpResponse.statusCode}');
-    print('Response body: ${httpResponse.body}');
-
-    // Show toast based on response
-    if (httpResponse.statusCode == 200) {
-      Fluttertoast.showToast(
-        msg: "Profile updated successfully!",
-        backgroundColor: Colors.green,
-        textColor: Colors.white,
-        toastLength: Toast.LENGTH_LONG,
-        gravity: ToastGravity.CENTER,
-      );
-    } else {
-      Fluttertoast.showToast(
-        msg:
-            "Failed to update profile. Status code: ${httpResponse.statusCode}",
-        backgroundColor: Colors.red,
-        textColor: Colors.white,
-        toastLength: Toast.LENGTH_LONG,
-        gravity: ToastGravity.BOTTOM,
-      );
-    }
-
-    return httpResponse;
-  }
+  // static Future<http.Response> updateProfileEmployeeApi(
+  //     Uint8List cvFileContent3,
+  //     String Empprofile,) async {
+  //   var uri = Uri.parse(apiUrl9);
+  //   var request = http.MultipartRequest('POST', uri);
+  //
+  //   // Helper function to determine the MediaType based on the file extension
+  //   MediaType getMediaType(String filename) {
+  //     String ext = filename
+  //         .split('.')
+  //         .last
+  //         .toLowerCase();
+  //     switch (ext) {
+  //       case 'jpg':
+  //       case 'jpeg':
+  //         return MediaType('image', 'jpeg');
+  //       case 'png':
+  //         return MediaType('image', 'png');
+  //       default:
+  //         throw Exception('Unsupported file type');
+  //     }
+  //   }
+  //
+  //   // Add file field
+  //   request.files.add(http.MultipartFile.fromBytes(
+  //     'Empprofile', // The name of the file field
+  //     cvFileContent3,
+  //     filename: Empprofile,
+  //     contentType: getMediaType(Empprofile),
+  //   ));
+  //
+  //   // Get token from GetStorage
+  //   final storage = GetStorage();
+  //   var token = storage.read('token');
+  //
+  //   // Set token in headers
+  //   request.headers['Authorization'] = 'Bearer $token';
+  //
+  //   // Send the request
+  //   var response = await request.send();
+  //
+  //   // Parse the response
+  //   var httpResponse = await http.Response.fromStream(response);
+  //
+  //   // Print the response data
+  //   print('Response status: ${httpResponse.statusCode}');
+  //   print('Response body: ${httpResponse.body}');
+  //
+  //   // Show toast based on response
+  //   if (httpResponse.statusCode == 200) {
+  //     Fluttertoast.showToast(
+  //       msg: "Profile updated successfully!",
+  //       backgroundColor: Colors.green,
+  //       textColor: Colors.white,
+  //       toastLength: Toast.LENGTH_LONG,
+  //       gravity: ToastGravity.CENTER,
+  //     );
+  //   } else {
+  //     Fluttertoast.showToast(
+  //       msg:
+  //       "Failed to update profile. Status code: ${httpResponse.statusCode}",
+  //       backgroundColor: Colors.red,
+  //       textColor: Colors.white,
+  //       toastLength: Toast.LENGTH_LONG,
+  //       gravity: ToastGravity.BOTTOM,
+  //     );
+  //   }
+  //
+  //   return httpResponse;
+  // }
 
   ///change password api,,,,for employee.......
-  static Future<http.Response?> ChangePasswordEmployeeApi(
-      BuildContext context, // Added context parameter
+  static Future<http.Response?> ChangePasswordEmployeeApi(BuildContext context,
+      // Added context parameter
       String CurrentPassword,
       String NewPassword,
       String ConfirmPassword) async {
@@ -2027,7 +2054,7 @@ class ApiProvider {
     } on SocketException catch (_) {
       Fluttertoast.showToast(
         msg:
-            "Network error: Unable to resolve host. Please check your internet connection.",
+        "Network error: Unable to resolve host. Please check your internet connection.",
         backgroundColor: Colors.red,
         textColor: Colors.white,
         toastLength: Toast.LENGTH_LONG,
@@ -2074,7 +2101,7 @@ class ApiProvider {
         print("url");
         print(url);
         GetPaymentModel? geetemployepaymentmodel =
-            getPaymentModelFromJson(r.body);
+        getPaymentModelFromJson(r.body);
         print("profilepaymentinfo: ${geetemployepaymentmodel.data!.toInt()}");
         return geetemployepaymentmodel;
       } else {
@@ -2084,6 +2111,7 @@ class ApiProvider {
       print('GetJobamounteror: $error');
     }
   }
+
   ///todo: luckysix api
   ///todo: get profile api....game ..3
   static PriofileLuckySixApi() async {
@@ -2137,65 +2165,18 @@ class ApiProvider {
     }
     return null;
   }
-  // Future<http.Response> updateProfile({
-  //   required String id,
-  //   required String fullName,
-  //   required String phoneNumber,
-  //   required String email,
-  //   required String address,
-  //   required String pinCode,
-  //   required String dob,
-  //   required String profileImagePath,
-  //   required File profileImage,
-  // }) async {
-  //   try {
-  //     var uri = Uri.parse('https://api.luckysix.in/api/Account/UpdateProfile');
-  //
-  //     var request = http.MultipartRequest('POST', uri);
-  //
-  //     request.fields['Id'] = id;
-  //     request.fields['FullName'] = fullName;
-  //     request.fields['Phonenumber'] = phoneNumber;
-  //     request.fields['Email'] = email;
-  //     request.fields['Address'] = address;
-  //     request.fields['PinCode'] = pinCode;
-  //     request.fields['DOB'] = dob;
-  //     request.fields['ProfileImagePath'] = profileImagePath;
-  //
-  //     if (profileImage != null) {
-  //       request.files.add(await http.MultipartFile.fromPath(
-  //         'ProfileImage',
-  //         profileImage.path,
-  //       ));
-  //     }
-  //
-  //     var response = await request.send();
-  //     var responseBody = await response.stream.bytesToString();
-  //
-  //     // Print the raw response to the console
-  //     print('Raw response body: $responseBody');
-  //     print('Raw response body: ${responseBody.toString()}');
-  //
-  //     if (response.statusCode == 200) {
-  //       return responseBody;
-  //     } else {
-  //       throw Exception('Failed to update profile: ${response.statusCode}');
-  //     }
-  //   } catch (e) {
-  //     throw Exception('Error updating profile: $e');
-  //   }
-  // }
+
 
   Future<http.Response> updateProfile({
-     String? id,
-     String? fullName,
-     String? phoneNumber,
-     String? email,
-     String? address,
-     String? pinCode,
-     String? dob,
-     String? profileImagePath,
-     File? profileImage,
+    String? id,
+    String? fullName,
+    String? phoneNumber,
+    String? email,
+    String? address,
+    String? pinCode,
+    String? dob,
+    String? profileImagePath,
+    File? profileImage,
   }) async {
     try {
       var uri = Uri.parse('https://api.luckysix.in/api/Account/UpdateProfile');
@@ -2236,443 +2217,76 @@ class ApiProvider {
   }
 
 
-  // Future<Map<String, dynamic>> updateProfile({
-  //   required String id,
-  //   required String fullName,
-  //   required String phoneNumber,
-  //   required String email,
-  //   required String address,
-  //   required String pinCode,
-  //   required String dob,
-  //   required String profileImagePath,
-  //   required File profileImage,
-  // }) async {
-  //   try {
-  //     var uri = Uri.parse('https://api.luckysix.in/api/Account/UpdateProfile');
-  //
-  //     var request = http.MultipartRequest('POST', uri);
-  //
-  //     request.fields['Id'] = id;
-  //     request.fields['FullName'] = fullName;
-  //     request.fields['Phonenumber'] = phoneNumber;
-  //     request.fields['Email'] = email;
-  //     request.fields['Address'] = address;
-  //     request.fields['PinCode'] = pinCode;
-  //     request.fields['DOB'] = dob;
-  //     request.fields['ProfileImagePath'] = profileImagePath;
-  //
-  //     if (profileImage != null) {
-  //       request.files.add(await http.MultipartFile.fromPath(
-  //         'ProfileImage',
-  //         profileImage.path,
-  //       ));
-  //     }
-  //
-  //     var response = await request.send();
-  //
-  //     if (response.statusCode == 200) {
-  //       var responseData = await response.stream.bytesToString();
-  //       return jsonDecode(responseData);
-  //     } else {
-  //       throw Exception('Failed to update profile: ${response.statusCode}');
-  //     }
-  //   } catch (e) {
-  //     throw Exception('Error updating profile: $e');
-  //   }
-  // }
-  ///
-//   static String apiUrl6 = "$baseUrl/EmployeeApi/EmployeeBankDetail";
-//
-//   static Future<http.Response> updateBankEmployeeApi(
-//     Map<String, String> formData,
-//     Uint8List cvFileContent,
-//     String Chequebase64,
-//   ) async {
-//     var uri = Uri.parse(apiUrl6);
-//     var request = http.MultipartRequest('POST', uri);
-//
-//     // Add form fields
-//     formData.forEach((key, value) {
-//       request.fields[key] = value;
-//     });
-//
-//     // Add file field
-//     request.files.add(http.MultipartFile.fromBytes(
-//       'Chequebase64', // The name of the file field
-//       cvFileContent,
-//       filename: Chequebase64, // Use the file name from the parameter
-//       contentType:
-//           MediaType('application', 'pdf'), // Use MediaType from http_parser
-//     ));
-//
-//     // Get token from GetStorage
-//     final storage = GetStorage();
-//     var token = storage.read('token');
-//
-//     // Set token in headers
-//     request.headers['Authorization'] = 'Bearer $token';
-//
-//     // Send the request
-//     var response = await request.send();
-//
-//     // Parse the response
-//     var httpResponse = await http.Response.fromStream(response);
-//     if (httpResponse.statusCode == 200) {
-//       // Show success toast
-//       Fluttertoast.showToast(
-//         msg: "Profile created successfully!",
-//         backgroundColor: Colors.green,
-//         textColor: Colors.white,
-//         toastLength: Toast.LENGTH_LONG,
-//         gravity: ToastGravity.CENTER,
-//       );
-//     } else {
-//       // Show error toast
-//       Fluttertoast.showToast(
-//         msg: "Failed to Update Bank. Status code: ${httpResponse.statusCode}",
-//         backgroundColor: Colors.red,
-//         textColor: Colors.white,
-//         toastLength: Toast.LENGTH_LONG,
-//         gravity: ToastGravity.BOTTOM,
-//       );
-//     }
-//
-//     return httpResponse;
-//   }
+  static Future<ProfileUpdateEmployeeModel> updateEmployeeDetails({
+    String? fullName,
+    String? workEmail,
+    String? mobileNumber,
+    String? dateOfBirth,
+    String? stateid,
+    String? cityid,
+    String? address1,
+    String? address2,
+    String? pincode,
+    String? personalEmailAddress,
+    String? dateOfJoining,
+    String? departmentName,
+    String? designationName,
+    String? companyName,
+    String? companyLocationName,
+    String? panNo,
+    String? aadharNo,
+    String? empProfile,
+    String? aadharImage,
+    String? panbaseImage,
+  }) async {
+    try {
+      var request = http.MultipartRequest('POST', Uri.parse("https://api.ndtechland.com/api/EmployeeApi/EmployeePersonalDetail"));
 
-  ///
+      // Add only the fields that are provided
+      if (fullName != null) request.fields['FullName'] = fullName;
+      if (workEmail != null) request.fields['WorkEmail'] = workEmail;
+      if (mobileNumber != null) request.fields['MobileNumber'] = mobileNumber;
+      if (dateOfBirth != null) request.fields['DateOfBirth'] = dateOfBirth;
+      if (stateid != null) request.fields['Stateid'] = stateid;
+      if (cityid != null) request.fields['Cityid'] = cityid;
+      if (address1 != null) request.fields['Address1'] = address1;
+      if (address2 != null) request.fields['Address2'] = address2;
+      if (pincode != null) request.fields['Pincode'] = pincode;
+      if (personalEmailAddress != null) request.fields['PersonalEmailAddress'] = personalEmailAddress;
+      if (dateOfJoining != null) request.fields['DateOfJoining'] = dateOfJoining;
+      if (departmentName != null) request.fields['DepartmentName'] = departmentName;
+      if (designationName != null) request.fields['DesignationName'] = designationName;
+      if (companyName != null) request.fields['CompanyName'] = companyName;
+      if (companyLocationName != null) request.fields['CompanyLocationName'] = companyLocationName;
+      if (panNo != null) request.fields['PanNo'] = panNo;
+      if (aadharNo != null) request.fields['AadharNo'] = aadharNo;
 
-  // static String apiUrl5 = "${baseUrl}EmployeeApi/EmployeePresnolInfo";
-  //
-  // static Future<http.Response> updatePersonal(
-  //   Map<String, String> formData,
-  //   List<Uint8List> aadharFileContent1,
-  //   String Aadharbase64,
-  //   Uint8List panFileContent,
-  //   String Panbase64,
-  // ) async {
-  //   var uri = Uri.parse(apiUrl5);
-  //   var request = http.MultipartRequest('POST', uri);
-  //
-  //   // Add form fields
-  //   formData.forEach((key, value) {
-  //     request.fields[key] = value;
-  //     print('Field: $key, Value: $value'); // Print each form field
-  //   });
-  //
-  //   // Helper function to determine the MediaType based on the file extension
-  //   MediaType getMediaType(String filename) {
-  //     String ext = filename.split('.').last.toLowerCase();
-  //     switch (ext) {
-  //       case 'jpg':
-  //       case 'jpeg':
-  //         return MediaType('image', 'jpeg');
-  //       case 'png':
-  //         return MediaType('image', 'png');
-  //       case 'pdf':
-  //         return MediaType('application', 'pdf');
-  //       default:
-  //         throw Exception('Unsupported file type');
-  //     }
-  //   }
-  //
-  //   // Add Aadhar image files
-  //   for (int i = 0; i < aadharFileContent1.length; i++) {
-  //     request.files.add(http.MultipartFile.fromBytes(
-  //       'AadharFile[]', // Use array notation if multiple files are allowed
-  //       aadharFileContent1[i],
-  //       filename: Aadharbase64,
-  //       contentType: getMediaType(Aadharbase64),
-  //     ));
-  //   }
-  //
-  //   // Add PAN image file
-  //   request.files.add(http.MultipartFile.fromBytes(
-  //     'PanFile',
-  //     panFileContent,
-  //     filename: Panbase64,
-  //     contentType: getMediaType(Panbase64),
-  //   ));
-  //
-  //   // Add headers
-  //   String token = GetStorage().read("token").toString();
-  //   request.headers['Authorization'] = 'Bearer $token';
-  //
-  //   // Send the request
-  //   var response = await request.send();
-  //   var httpResponse = await http.Response.fromStream(response);
-  //
-  //   // Print the entire response body
-  //   print('Response body: ${httpResponse.body}');
-  //
-  //   if (httpResponse.statusCode == 200) {
-  //     var jsonResponse = jsonDecode(httpResponse.body);
-  //     var userId = jsonResponse['loginProfile']['id'];
-  //
-  //     // Save the user ID using GetStorage
-  //     final storage = GetStorage();
-  //     storage.write('userId', userId);
-  //
-  //     // Print the user ID
-  //     print('Saved user ID: $userId');
-  //
-  //     // Show success toast
-  //     Fluttertoast.showToast(
-  //       msg: "Profile created successfully!",
-  //       backgroundColor: Colors.green,
-  //       textColor: Colors.white,
-  //       toastLength: Toast.LENGTH_LONG,
-  //       gravity: ToastGravity.CENTER,
-  //     );
-  //   } else {
-  //     print(
-  //         'Failed to create profile. Status code: ${httpResponse.statusCode}');
-  //     Fluttertoast.showToast(
-  //       msg:
-  //           "Failed to create profile. Status code: ${httpResponse.statusCode}",
-  //       backgroundColor: Colors.red,
-  //       textColor: Colors.white,
-  //       toastLength: Toast.LENGTH_LONG,
-  //       gravity: ToastGravity.BOTTOM,
-  //     );
-  //   }
-  //   return httpResponse;
-  // }
+      if (empProfile != null) {
+        request.files.add(await http.MultipartFile.fromPath('EmpProfile', empProfile));
+      }
+      if (aadharImage != null) {
+        request.files.add(await http.MultipartFile.fromPath('AadharImage', aadharImage));
+      }
+      if (panbaseImage != null) {
+        request.files.add(await http.MultipartFile.fromPath('PanbaseImage', panbaseImage));
+      }
+      String token = GetStorage().read("token").toString();
+      request.headers['Authorization'] = 'Bearer $token';
 
-  ///
-//   static Future<List<StateModelss>> getSatesApi() async {
-//     var url = "${baseUrl}EmployeeApi/Getstate";
-//     try {
-//       http.Response r = await http.get(Uri.parse(url));
-//       print(r.body.toString());
-//       if (r.statusCode == 200) {
-//         var statesData = stateModelFromJson(r.body);
-//         return statesData.data;
-//       } else {
-//         return [];
-//       }
-//     } catch (error) {
-//       return [];
-//     }
-//   }
-  ///
+      // Send the request
+      var response = await request.send();
+
+      if (response.statusCode == 200) {
+        final responseBody = await response.stream.bytesToString();
+        return profileUpdateEmployeeModelFromJson(responseBody);
+      } else {
+        throw Exception('Failed to update employee details: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Error: $e');
+    }
+  }
 }
-
-///todo: device  user token for user........
-//  //login with plus cart api gyros api 19.....................................
-//
-//   static cartplusApi(
-//     var productId,
-//   ) async {
-//     var url = baseUrl + 'api/ProductApi/PlusAddToCart/$productId';
-//     var prefs = GetStorage();
-//     //saved id..........
-//
-//     final userId = prefs.read("Id").toString();
-//     print('&&&&&&&&&&&&&&&&&&&&&&okoko:${userId}');
-//
-//     token = prefs.read("token").toString();
-//     print('&&&&&&&&&&&&&&&&&&&&&&okok:${token}');
-//     var body = {
-//       "Id": userId,
-//     };
-//     final headers = {"Authorization": "Bearer $token"};
-//
-//     print(body);
-//     http.Response r =
-//         await http.post(Uri.parse(url), body: body, headers: headers);
-//     print(r.body);
-//     print(r.statusCode);
-//
-//     if (r.statusCode == 200) {
-//       return r;
-//     } else {
-//       Get.snackbar('Error', 'not increase');
-//       return r;
-//     }
-//   }
-//
-//   //login with decrease cart api gyros api 20..................................
-//
-//   static cartminusApi(
-//     var productId,
-//   ) async {
-//     var url = baseUrl + 'api/ProductApi/DeleteAddToCart/$productId';
-//
-//     var prefs = GetStorage();
-//     //saved id..........
-//
-//     final userId = prefs.read("Id").toString();
-//     print('&&&&&&&&&&&&&&&&&&&&&&okoko:${userId}');
-//
-//     token = prefs.read("token").toString();
-//     print('&&&&&&&&&&&&&&&&&&&&&&okok:${token}');
-//     var body = {
-//       "Id": userId,
-//     };
-//     final headers = {"Authorization": "Bearer $token"};
-//
-//     print(body);
-//     http.Response r =
-//         await http.post(Uri.parse(url), body: body, headers: headers);
-//     print(r.body);
-//     print(r.statusCode);
-//
-//     if (r.statusCode == 200) {
-//       var data = jsonDecode(r.body.toString());
-//       if (r.statusCode == 200) {
-//         Get.snackbar('message', "success");
-//       } else {
-//         Get.snackbar('message', data["error"]);
-//       }
-//       return r;
-//     } else {
-//       // Get.snackbar('message', data["stat"]);
-//       return r;
-//     }
-//   }
-//
-//   //sub_address_by_id  gyros api 21.....................................
-
-///.....
-//  //login with email api gyros api 2..................................
-//
-//   static LoginEmailApi(
-//     var Email,
-//     var PassWord,
-//   ) async {
-//     var url = baseUrl + 'api/AdminApi/LoginWithEmail';
-//
-//     var body = {
-//       "Email": Email,
-//       "PassWord": PassWord,
-//     };
-//     print(body);
-//     http.Response r = await http.post(
-//       Uri.parse(url), body: body,
-//       //headers: headers
-//     );
-//     print(r.body);
-//     if (r.statusCode == 200) {
-//       var prefs = GetStorage();
-//       //saved id..........
-//       prefs.write("Id".toString(), json.decode(r.body)['Id']);
-//       Id = prefs.read("Id").toString();
-//       print('&&&&&&&&&&&&&&&&&&&&&&:${Id}');
-//
-//       //saved token.........
-//       prefs.write("token".toString(), json.decode(r.body)['token']);
-//       token = prefs.read("token").toString();
-//       print(token);
-//       return r;
-//     } else if (r.statusCode == 401) {
-//       Get.snackbar('message', r.body);
-//     } else {
-//       Get.snackbar('Error', r.body);
-//       return r;
-//     }
-//   }
-
-///todo: apdate profile info in image...123333....
-//  ///update_personal_profile..wmployee.
-//
-//   static String apiUrl5 = "${baseUrl}EmployeeApi/EmployeePresnolInfo";
-//   static Future<http.Response> updatePersonal(
-//     Map<String, String> formData,
-//     List<Uint8List> aadharFileContent,
-//     String Aadharbase64,
-//     Uint8List panFileContent,
-//     String Panbase64,
-//   ) async {
-//     var uri = Uri.parse(apiUrl5);
-//     var request = http.MultipartRequest('POST', uri);
-//
-//     // Add form fields
-//     formData.forEach((key, value) {
-//       request.fields[key] = value;
-//       print('Field: $key, Value: $value'); // Print each form field
-//     });
-//
-//     // Add Aadharbase64 and Panbase64 fields to the form data
-//     request.fields['Aadharbase64'] = Aadharbase64;
-//     request.fields['Panbase64'] = Panbase64;
-//
-//     // Helper function to determine the MediaType based on the file extension
-//     MediaType getMediaType(String filename) {
-//       String ext = filename.split('.').last.toLowerCase();
-//       switch (ext) {
-//         case 'jpg':
-//         case 'jpeg':
-//           return MediaType('image', 'jpeg');
-//         case 'png':
-//           return MediaType('image', 'png');
-//         case 'pdf':
-//           return MediaType('application', 'pdf');
-//         default:
-//           throw Exception('Unsupported file type');
-//       }
-//     }
-//
-//     // Add Aadhar image files
-//     for (int i = 0; i < aadharFileContent.length; i++) {
-//       request.files.add(http.MultipartFile.fromBytes(
-//         'Aadharbase64', // Use array notation if multiple files are allowed
-//         aadharFileContent[i],
-//         filename:
-//             Aadharbase64, // Use a generic filename with index for each Aadhar file
-//         contentType:
-//             MediaType('application', 'pdf'), // Use MediaType from http_parser
-//       ));
-//     }
-//
-//     // Add PAN image file
-//     request.files.add(http.MultipartFile.fromBytes(
-//       'Panbase64',
-//       panFileContent,
-//       filename: Panbase64, // Use the file path as the filename for PAN
-//       contentType:
-//           MediaType('application', 'pdf'), // Use MediaType from http_parser
-//     ));
-//
-//     // Add headers
-//     String token = GetStorage().read("token").toString();
-//     request.headers['Authorization'] = 'Bearer $token';
-//
-//     // Send the request
-//     var response = await request.send();
-//
-//     // Handle the response
-//     var httpResponse = await http.Response.fromStream(response);
-//     print('Response body: ${httpResponse.body}');
-//
-//     if (httpResponse.statusCode == 200) {
-//       // Success
-//       var jsonResponse = jsonDecode(httpResponse.body);
-//       //var userId = jsonResponse['loginProfile']['id'];
-//
-//       // Show success toast
-//       Fluttertoast.showToast(
-//         msg: "Profile update successfully!",
-//         backgroundColor: Colors.green,
-//         textColor: Colors.white,
-//         toastLength: Toast.LENGTH_LONG,
-//         gravity: ToastGravity.CENTER,
-//       );
-//     } else {
-//       // Error
-//       print(
-//           'Failed to update profile. Status code: ${httpResponse.statusCode}');
-//       Fluttertoast.showToast(
-//         msg:
-//             "Failed to update profile. Status code: ${httpResponse.statusCode}",
-//         backgroundColor: Colors.red,
-//         textColor: Colors.white,
-//         toastLength: Toast.LENGTH_LONG,
-//         gravity: ToastGravity.BOTTOM,
-//       );
-//     }
-//     return httpResponse;
-//   }
 
 class EmptyResponseException implements Exception {
   final String message;
@@ -2693,3 +2307,7 @@ class PaymentRequestException implements Exception {
   final String message;
   PaymentRequestException(this.message);
 }
+
+
+
+

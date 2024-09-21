@@ -13,6 +13,7 @@ import '../../../../../components/responsive_text.dart';
 import '../../../../../constants/static_text.dart';
 import '../../../../../controllers/employee_controller/profile_controller/profile_info_employee_controller.dart';
 import '../../../../../controllers/employeee_controllersss/employee_edit_profile_controller/employee_update_personal_controller.dart';
+import 'back_aadharPage.dart';
 
 class EmployeeProfileNd extends StatelessWidget {
   const EmployeeProfileNd({super.key});
@@ -82,8 +83,8 @@ class EmployeeProfileNd extends StatelessWidget {
                           GestureDetector(
                               onTap: () async {
                                 _getprofileepersonal.profileemployeeApi();
-                                _getprofileepersonal
-                                    .profileBasicemployeeApi();
+                                // _getprofileepersonal
+                                //     .profileBasicemployeeApi();
                                 _getprofileepersonal
                                     .profileEmployeBankApi();
 
@@ -617,7 +618,7 @@ class EmployeeProfileNd extends StatelessWidget {
                                     child: GestureDetector(
                                       onTap: () {
                                         Navigator.push(context, MaterialPageRoute(builder: (_) {
-                                          return Aadharpage();
+                                          return FrontAadharpage();
                                         }));
                                       },
                                       child: Hero(
@@ -638,11 +639,11 @@ class EmployeeProfileNd extends StatelessWidget {
                                     child: GestureDetector(
                                       onTap: () {
                                         Navigator.push(context, MaterialPageRoute(builder: (_) {
-                                          return Aadharpage();
+                                          return BackAadharpage();
                                         }));
                                       },
                                       child: Hero(
-                                        tag: 'aadharImg',
+                                        tag: 'aadharImg1',
                                         child: Image.network(
                                           "${FixedText.imageUrlll}${_getprofileepersonal.getprofileemployeeModel?.data!.aadharTwo.toString()}",
                                         //  'https://cdn.pixabay.com/photo/2022/11/09/00/44/aadhaar-card-7579588_1280.png',

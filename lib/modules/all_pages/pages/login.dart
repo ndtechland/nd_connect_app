@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:nd_connect_techland/modules/all_pages/pages/registration_test.dart';
+import 'package:nd_connect_techland/services_apis/get_server_key.dart';
 
 
 import '../../../components/styles.dart';
@@ -314,8 +315,9 @@ class _LoginState extends State<Login> {
                             false) {
                          // await _profileEmployeeController.profileemployeeApi();
                          await _employeeloginController.checkemployeeLogin();
-
-
+                          GetServerKey getServerKey = GetServerKey();
+                          String accessToken = await getServerKey.GetServerKeyToken();
+                          print("server keyyy:$accessToken");
                         }
                       }, child: Text('Login',style: TextStyle(color: Colors.white),),),
                     ),

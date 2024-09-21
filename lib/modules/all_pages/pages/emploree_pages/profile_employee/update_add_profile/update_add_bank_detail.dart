@@ -3,9 +3,13 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:nd_connect_techland/modules/all_pages/pages/emploree_pages/profile_employee/chequePage.dart';
 import '../../../../../../components/styles.dart';
 import '../../../../../../constants/static_text.dart';
+import '../../../../../../controllers/bottom_nav_controller.dart';
+import '../../../../../../widget/custom_loader.dart';
+import '../../../../../../widget/upload_button.dart';
 import '../../../../../bottom_bar/bottom_bar.dart';
 import '../../../../../components/styles.dart';
 
@@ -32,17 +36,6 @@ class _BankDetailUpdateEmployeeProfileState
   final BankEmployeeUodateController _bankEmployeeUodateController =
       Get.put(BankEmployeeUodateController());
 
-  final EmployeeUpdatePersonalController _employeeUpdatePersonalController =
-      Get.put(EmployeeUpdatePersonalController());
-
-  ProfilePictureEmployeController _profilePictureEmployeController =
-      Get.put(ProfilePictureEmployeController());
-
-  ProfileEmployeeController _profileEmployeeController =
-      Get.put(ProfileEmployeeController());
-
-  final ProfileEmployeeController _getprofileepersonal =
-      Get.put(ProfileEmployeeController());
   var selectedChequeImage = Rxn<Uint8List>(); // Use Rxn for nullable values
 
   final TextEditingController _acholdernameController = TextEditingController();
@@ -61,6 +54,7 @@ class _BankDetailUpdateEmployeeProfileState
   final TextEditingController _epfnumnberController = TextEditingController();
   final TextEditingController _nominiNameController = TextEditingController();
   final TextEditingController _cvFilePathController = TextEditingController();
+  final BottomNavController _bottomNavController = Get.put(BottomNavController());
 
   Uint8List? _cvFileContent;
 
@@ -68,6 +62,9 @@ class _BankDetailUpdateEmployeeProfileState
   void initState() {
     super.initState();
     if (_getprofileebnk.getbankprofiledetail != null) {
+      _getprofileebnk.getbankprofiledetail!.data!.accountTypeId;
+      _bankEmployeeUodateController.selectedAccountType.value = _getprofileebnk.getbankprofiledetail!.data!.accountTypeId.toString();
+      print("accountTypeId:${_getprofileebnk.getbankprofiledetail!.data!.accountTypeId}");
       _acholdernameController.text =
           _getprofileebnk.getbankprofiledetail!.data!.accountHolderName!;
       _bankController.text =
@@ -75,11 +72,10 @@ class _BankDetailUpdateEmployeeProfileState
       _accnumberController.text =
           _getprofileebnk.getbankprofiledetail!.data!.accountNumber!.toString();
       _reenteracnoNumberController.text = _getprofileebnk
-          .getbankprofiledetail!.data!.reEnterAccountNumber!
-          .toString();
+          .getbankprofiledetail!.data!.reEnterAccountNumber!.toString();
       _ifscController.text = _getprofileebnk.getbankprofiledetail!.data!.ifsc!;
-      // _acounttypeController.text =
-      //     _getprofileebnk.getbankprofiledetail!.data!.accountTypeId! as String;
+      _acounttypeController.text =
+          _getprofileebnk.getbankprofiledetail!.data!.accountTypeId.toString();
       _epfnumnberController.text =
           _getprofileebnk.getbankprofiledetail!.data!.epfNumber!;
       _nominiNameController.text =
@@ -114,6 +110,71 @@ class _BankDetailUpdateEmployeeProfileState
       } else {
         print('Storage permission is required to access files.');
       }
+    }
+  }
+  Future<void> _showChequeFileDialog(BuildContext context) async {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Choose Option'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                GestureDetector(
+                  child: Row(
+                    children: [
+                      Icon(Icons.camera),
+                      SizedBox(width: 10),
+                      Text('Take Photo'),
+                    ],
+                  ),
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    _pickImageChequeFromCamera();
+                  },
+                ),
+                Padding(padding: EdgeInsets.all(8.0)),
+                GestureDetector(
+                  child: Row(
+                    children: [
+                      Icon(Icons.image),
+                      SizedBox(width: 10),
+                      Text('Choose from Gallery'),
+                    ],
+                  ),
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    _selectCVFile();
+                  },
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+// Function to pick image from camera
+  Future<void> _pickImageChequeFromCamera() async {
+    try {
+      final ImagePicker picker = ImagePicker();
+      final XFile? image = await picker.pickImage(source: ImageSource.camera);
+
+      if (image != null) {
+        // Convert the selected image to bytes
+        final bytes = await image.readAsBytes();
+
+        // Update the selected image and file content
+        selectedChequeImage.value = bytes;
+        _cvFileContent = bytes;
+
+        // Update the TextField controller with the file name
+        _cvFilePathController.text = image.name;
+      }
+    } catch (e) {
+      print('Error capturing image: $e');
     }
   }
 
@@ -168,6 +229,8 @@ class _BankDetailUpdateEmployeeProfileState
         leading: IconButton(
           icon: Icon(Icons.arrow_back_ios_new_outlined,color: Colors.white),
           onPressed: (){
+           // _bottomNavController.changeTabIndex(0);
+            Navigator.pop(context);
             //Navigator.pushReplacement(context,MaterialPageRoute(builder: (context)=>BottomBar()));
 
             // Navigator.pushReplacement(context,MaterialPageRoute(builder: (context)=>HomeEmployee2()));
@@ -185,9 +248,11 @@ class _BankDetailUpdateEmployeeProfileState
       //extendBodyBehindAppBar: true,
       backgroundColor: Colors.white,
       body: Obx(
-        () => (_getprofileebnk.isLoading.value)
+        () =>
+        (_getprofileebnk.isLoading.value)
             ? Center(child: CircularProgressIndicator())
-            : Form(
+            :
+        Form(
                 key: _bankEmployeeUodateController.bankemployeeFormKey,
                 autovalidateMode: AutovalidateMode.onUserInteraction,
                 child: SingleChildScrollView(
@@ -379,18 +444,14 @@ class _BankDetailUpdateEmployeeProfileState
                                             color: Colors.grey.shade500,
                                           ),
                                         )),
-                                    Container(
-                                      padding: EdgeInsets.symmetric(vertical: 0),
-                                      child: InkWell(
-                                        onTap: () => _bankEmployeeUodateController
-                                            .selectedGender.value,
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Expanded(
-                                              child: Obx(
-                                                () => RadioListTile(
+                                    Container(padding: EdgeInsets.symmetric(vertical: 0),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Expanded(
+                                            child: Obx(()=>
+                                             RadioListTile(
                                                   title: Text(
                                                     'Current',
                                                     style: TextStyle(
@@ -409,23 +470,26 @@ class _BankDetailUpdateEmployeeProfileState
                                                   // title: Text("Male"),
                                                   value:
                                                       //_nurseBooking1Controller.selectedshift.value,
-                                                      "1",
+                                                  //_acounttypeController.value.text.toString(),
+                                                  "1",
                                                   groupValue:
-                                                      _bankEmployeeUodateController
-                                                          .selectedGender.value,
+
+                                                      _bankEmployeeUodateController.selectedAccountType.value,
                                                   onChanged: (value) {
+                                                    print("accountType:${_acounttypeController.value.text}");
                                                     _bankEmployeeUodateController
-                                                        .onChangeShifts(value!);
+                                                        .onChangeAccountType(value!);
                                                     // setState(() {
                                                     //   gender = value.toString();
                                                     // });
                                                   },
                                                 ),
-                                              ),
                                             ),
-                                            Expanded(
-                                              child: Obx(
-                                                () => RadioListTile(
+                                           // ),
+                                          ),
+                                          Expanded(
+                                            child: Obx(()=>
+                                              RadioListTile(
                                                   title: Text(
                                                     'Savings',
                                                     style: TextStyle(
@@ -443,22 +507,26 @@ class _BankDetailUpdateEmployeeProfileState
                                                   // title: Text("Male"),
                                                   value:
                                                       //_nurseBooking1Controller.selectedshift.value,
-                                                      "2",
+                                                  //_acounttypeController.value.text.toString(),
+                                                     "2",
                                                   groupValue:
-                                                      _bankEmployeeUodateController
-                                                          .selectedGender.value,
+                                                  // _acounttypeController.value.text == 2?
+                                                  // _bankEmployeeUodateController.selectedAccountType.value:"",
+                                                 // _acounttypeController.value.text,
+                                                  _bankEmployeeUodateController.selectedAccountType.value,
                                                   onChanged: (value) {
+                                                    print("accountType:${_acounttypeController.value.text}");
                                                     _bankEmployeeUodateController
-                                                        .onChangeShifts(value!);
+                                                        .onChangeAccountType(value!);
                                                     // setState(() {
                                                     //   gender = value.toString();
                                                     // });
                                                   },
                                                 ),
-                                              ),
                                             ),
-                                          ],
-                                        ),
+                                            ),
+                                         // ),
+                                        ],
                                       ),
                                     ),
                                     SizedBox(
@@ -589,45 +657,47 @@ class _BankDetailUpdateEmployeeProfileState
                                           //   ),
                                           // ),
                                           SizedBox(width: 10),
-                                          Container(
-                                            width: 160,
-                                            height: 40,
-                                            decoration: BoxDecoration(
-                                              //color: Colors.white,
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
-                                            ),
-                                            child: ElevatedButton(
-                                              onPressed: () =>
-                                                  _selectCVFile(),
-                                              // _checkAndRequestPermissions(),
-                                              style: ElevatedButton.styleFrom(
-                                                backgroundColor: appColorr2,
-                                                // primary: appColor,
-                                                // onPrimary: Colors.white,
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(10),
-                                                ),
-                                              ),
-                                              child: Text(
-                                                'Upload Cheque',
-                                                style: TextStyle(
-                                                  fontSize: 12,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: Colors.white
-                                                ),
-                                              ),
-                                            ),
-                                          ),
+                                          UpdateButton(onTap: ()
+                                          {
+                                            _showChequeFileDialog(context);
+                                            //_selectCVFile();
+                                            }, text: 'Cheque',),
+                                          // NextButton(onTap: () {
+                                          //   //_selectCVFile();
+                                          // }, text: 'Cheque', h: 50, w: 80,),
+                                          // GestureDetector(
+                                          //   onTap: (){
+                                          //     _selectCVFile();
+                                          //   },
+                                          //   child: Container(
+                                          //     alignment: Alignment.center,
+                                          //     width: 80,
+                                          //     height: 50,
+                                          //     decoration: BoxDecoration(
+                                          //       color: appColorr2,
+                                          //       borderRadius:
+                                          //           BorderRadius.circular(10),
+                                          //     ),
+                                          //     child: Text(
+                                          //       'Cheque',
+                                          //       style: TextStyle(
+                                          //         fontSize: 12,
+                                          //         fontWeight: FontWeight.bold,
+                                          //         color: Colors.white
+                                          //       ),
+                                          //     ),
+                                          //   ),
+                                          // ),
                                         ],
                                       ),
                                     ),
                                     const SizedBox(height: 24),
                                     MyElevatedButton(
                                       onPressed: () {
-                                        _bankEmployeeUodateController
-                                            .updateBankProfile(
+                                        print("update bank");
+                                        Get.dialog(CustomThreeInOutLoader(),
+                                            barrierDismissible: false);
+                                        _bankEmployeeUodateController.updateBankProfile(
                                           accountHolderName:
                                               _acholdernameController.text,
                                           bankname: _bankController.text,
@@ -646,11 +716,14 @@ class _BankDetailUpdateEmployeeProfileState
                                           nominee: _nominiNameController.text,
                                           accountTypeId:
                                               _bankEmployeeUodateController
-                                                  .selectedGender.value,
+                                                  .selectedAccountType.value,
                                           cvFileContent: _cvFileContent!,
                                           Chequebase64:
                                               _cvFilePathController.text,
                                         );
+                                        Get.back();
+                                        print("update bank done");
+
                                       },
                                       text: Text('Update',
                                       style: TextStyle(

@@ -195,6 +195,8 @@ import '../../../models/events_model.dart';
 
 
 class EventCalendarScreen extends StatelessWidget {
+  String id ='12';
+  EventCalendarScreen ({super.key,required this.id});
   @override
   Widget build(BuildContext context) {
     final EventsController controller = Get.put(EventsController());

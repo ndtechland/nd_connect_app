@@ -1,11 +1,15 @@
 import 'dart:io';
 
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 
 ///import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:get/get.dart';
+import 'package:nd_connect_techland/services_apis/local_notification_service.dart';
 
 import 'package:permission_handler/permission_handler.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 
 import 'components/styles.dart';
 import 'controllers/company_controllers/company_controller.dart';
@@ -18,6 +22,13 @@ import 'controllers/view_job_controller/job_controllersss.dart';
 import 'test/profile.dart';
 import 'modules/splash_screen/splash_screen.dart';
 
+
+// import 'firebase_options.dart';
+@pragma('vm:entry-point')
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp();
+  print(message.notification!.title.toString());
+}
 void setupLazyLoading() {
   Get.lazyPut(() => BottomNavigationBarController());
   Get.lazyPut(() => AllJibsController());
@@ -29,24 +40,40 @@ void setupLazyLoading() {
   Get.lazyPut(() => PaymentEmployeeController());
 }
 
+// final FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+// final FirebaseAnalyticsObserver observer =
+// FirebaseAnalyticsObserver(analytics: analytics);
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+   // options: DefaultFirebaseOptions.currentPlatform,
+  );
+  //LocalNotificationService.initialize();
   setupLazyLoading();
-
+ // FirebaseMessaging.onBackgroundMessage(backgroundHandler);
+  final fcmToken = await FirebaseMessaging.instance.getToken();
+  print("mytoken${fcmToken}");
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   HttpOverrides.global = MyHttpOverrides();
 
+ // FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+  // await Firebase.initializeApp(
+  //   options: DefaultFirebaseOptions.currentPlatform,
+  // );
   /// await FlutterDownloader.initialize(debug: true);
   /// await requestFilePermission();
 
   await Permission.storage.request();
 
-  ///await requestPermissions();
-
-  ///FlutterDownloader.registerCallback(downloadCallback);
 
   runApp(const MyApp());
 }
 
+
+Future<void> backgroundHandler(RemoteMessage message) async {
+  print(message.data.toString());
+  print(message.notification!.title);
+}
 class MyHttpOverrides extends HttpOverrides {
   @override
   HttpClient createHttpClient(SecurityContext? context) {
@@ -56,10 +83,6 @@ class MyHttpOverrides extends HttpOverrides {
   }
 }
 
-// void downloadCallback(String id, int status, int progress) {
-//   final DownloadTaskStatus taskStatus = DownloadTaskStatus(status);
-//   // Handle your download callback here if needed
-// }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -102,27 +125,7 @@ class MyApp extends StatelessWidget {
   }
 }
 
-// class HomeScreen extends StatelessWidget {
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: Text('PDF Viewer Example'),
-//       ),
-//       body: Center(
-//         child: ElevatedButton(
-//           onPressed: () {
-//             Get.to(() => PdfViewScreen(
-//                 pdfUrl:
-//                     'https://api.hirejobindia.com/ProfileUploadCV/f09dd832-7b4b-47a0-aec7-1ceff12f068620240530124324724.pdf'));
-//           },
-//           child: Text('View and Download PDF'),
-//         ),
-//       ),
-//     );
-//   }
-// }
-///
+
 // Future<void> requestFilePermission() async {
 //   final status = await Permission.storage.request();
 //
@@ -162,17 +165,7 @@ class MyApp extends StatelessWidget {
 //   }
 // }
 
-///
-// import 'package:file_picker/file_picker.dart';
-// import 'package:flutter/material.dart';
-// import 'package:permission_handler/permission_handler.dart';
-//
-// void main() async {
-//   WidgetsFlutterBinding.ensureInitialized();
-//   await requestPermissions();
-//   runApp(MyApp());
-// }
-//
+
 Future<void> requestPermissions() async {
   if (await Permission.storage.request().isGranted) {
     print('Storage permission granted.');
@@ -182,43 +175,3 @@ Future<void> requestPermissions() async {
     print('Permissions denied.');
   }
 }
-//
-// class MyApp extends StatelessWidget {
-//   @override
-//   Widget build(BuildContext context) {
-//     return MaterialApp(
-//       home: HomeScreen(),
-//     );
-//   }
-// }
-//
-// class HomeScreen extends StatelessWidget {
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(title: Text('File Picker Example')),
-//       body: Center(
-//         child: ElevatedButton(
-//           onPressed: () async {
-//             await pickFile(context);
-//           },
-//           child: Text('Pick File'),
-//         ),
-//       ),
-//     );
-//   }
-// }
-//
-// Future<void> pickFile(BuildContext context) async {
-//   FilePickerResult? result = await FilePicker.platform.pickFiles();
-//   if (result != null) {
-//     PlatformFile file = result.files.first;
-//     ScaffoldMessenger.of(context).showSnackBar(
-//       SnackBar(content: Text('Picked file: ${file.name}')),
-//     );
-//   } else {
-//     ScaffoldMessenger.of(context).showSnackBar(
-//       SnackBar(content: Text('No file selected')),
-//     );
-//   }
-// }

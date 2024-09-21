@@ -173,8 +173,11 @@ class AttendanceBottomSheet extends StatelessWidget {
                       Marker(
                         markerId: MarkerId('center'),
                         position:  locationController.center ??
-                        _center // Fallback to default center if null
-                        ,
+                        _center ,// Fallback to default center if null,
+                        infoWindow: InfoWindow(
+                          title: locationController.address.value,
+                         // snippet: '5 Star Rating',
+                        ),
                       ),
                     },
                   ),
@@ -184,7 +187,7 @@ class AttendanceBottomSheet extends StatelessWidget {
                   locationController.errorMessage.value.isNotEmpty
                       ? locationController.errorMessage.value
                       : "Checking Your Location...",
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600,color: Colors.black87,decoration: TextDecoration.none),
                 )),
                 SizedBox(height: 10,),
                 Container(
@@ -195,15 +198,32 @@ class AttendanceBottomSheet extends StatelessWidget {
                     borderRadius: BorderRadius.circular(32),
                   ),
                   child: TextButton(
-                    onPressed: () {
+                    onPressed: () async {
                       print("locationnnn:");
-                      // Example of how to use the controller to fetch coordinates
-                      locationController.getCoordinatesFromAddress(
 
 
-                          //" C 53, 1st Floor, C Block, Sector 2, Noida, Uttar Pradesh 201301"
-                      );
+                        // Fetch coordinates asynchronously and wait until it's done
+                        await locationController.getCoordinatesFromAddress();
+
+                        // Ensure that the coordinates are available before navigation
+                        if (locationController.latitude.value != 0.0 && locationController.longitude.value != 0.0) {
+                          print("Navigating to Attendance screen");
+                          // Navigate to Attendance screen
+                          Get.off(() => Attendance(id: '13',)); // This will remove the current screen from the stack
+                        } else {
+                          // Show error or handle failed location fetch
+                          Get.snackbar(
+                            "Location Error",
+                            locationController.errorMessage.value.isNotEmpty
+                                ? locationController.errorMessage.value
+                                : "Unable to fetch location. Please try again.",
+                            snackPosition: SnackPosition.BOTTOM,
+                          );
+                        }
+
+
                     },
+
                     child: Text(
                       "Check - In",
                       style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18, color: Colors.white),

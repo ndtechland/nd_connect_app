@@ -32,7 +32,7 @@ class RegistrationController extends GetxController {
   }
 
   ///get cities api...........
-  void getCityByStateID(String stateID) async {
+  void getCityByStateID(int stateID) async {
     cities.clear();
     final localList = await ApiProvider.getCitiesApi(stateID);
     cities.addAll(localList);
@@ -95,7 +95,7 @@ class RegistrationController extends GetxController {
     getStatepi();
     selectedState.listen((p0) {
       if (p0 != null) {
-        getCityByStateID("${p0.id}");
+        // getCityByStateID("${p0.id}");
       }
     });
     //getNurseTypeApi();

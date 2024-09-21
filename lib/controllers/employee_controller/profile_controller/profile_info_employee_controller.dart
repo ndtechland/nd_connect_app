@@ -11,7 +11,7 @@ import '../../../services_apis/api_servicesss.dart';
 class ProfileEmployeeController extends GetxController {
   RxBool isLoading = true.obs;
 
-  RxString cvUrl = ''.obs;
+ // RxString cvUrl = ''.obs;
 
   BasicInformationModel? getbasicemployeeModel;
 
@@ -44,43 +44,43 @@ class ProfileEmployeeController extends GetxController {
     }
   }
 
-  Future<void> profileBasicemployeeApi() async {
-    isLoading(true);
-    getbasicemployeeModel = await ApiProvider.PriofileBasicEmployeeApi();
-
-    if (getbasicemployeeModel?.data?.employeeId == null) {
-      Timer(
-        const Duration(seconds: 1),
-        () {
-          //Get.snackbar("Fail", "${medicinecheckoutModel?.data}");
-          //Get.to(() => MedicineCart());
-          //Get.to((page))
-          ///
-        },
-      );
-      isLoading(true);
-      getbasicemployeeModel = await ApiProvider.PriofileBasicEmployeeApi();
-    }
-    if (getbasicemployeeModel?.data?.employeeId != null) {
-      //Get.to(() => TotalPrice());
-      isLoading(false);
-    }
-  }
+  // Future<void> profileBasicemployeeApi() async {
+  //   isLoading(true);
+  //   getbasicemployeeModel = await ApiProvider.PriofileBasicEmployeeApi();
+  //
+  //   if (getbasicemployeeModel?.data?.employeeId == null) {
+  //     Timer(
+  //       const Duration(seconds: 1),
+  //       () {
+  //         //Get.snackbar("Fail", "${medicinecheckoutModel?.data}");
+  //         //Get.to(() => MedicineCart());
+  //         //Get.to((page))
+  //         ///
+  //       },
+  //     );
+  //     isLoading(true);
+  //     getbasicemployeeModel = await ApiProvider.PriofileBasicEmployeeApi();
+  //   }
+  //   if (getbasicemployeeModel?.data?.employeeId != null) {
+  //     //Get.to(() => TotalPrice());
+  //     isLoading(false);
+  //   }
+  // }
 
   Future<void> profileEmployeBankApi() async {
     isLoading(true);
     getbankprofiledetail = await ApiProvider.PriofileBankDetailEmployeeApi();
 
     if (getbankprofiledetail?.data?.accountHolderName == null) {
-      Timer(
-        const Duration(seconds: 1),
-        () {
-          //Get.snackbar("Fail", "${medicinecheckoutModel?.data}");
-          //Get.to(() => MedicineCart());
-          //Get.to((page))
-          ///
-        },
-      );
+      // Timer(
+      //   const Duration(seconds: 1),
+      //   () {
+      //     //Get.snackbar("Fail", "${medicinecheckoutModel?.data}");
+      //     //Get.to(() => MedicineCart());
+      //     //Get.to((page))
+      //     ///
+      //   },
+      // );
       isLoading(true);
       getbankprofiledetail = await ApiProvider.PriofileBankDetailEmployeeApi();
     }
@@ -94,7 +94,7 @@ class ProfileEmployeeController extends GetxController {
   void onInit() {
     super.onInit();
     profileemployeeApi();
-    profileBasicemployeeApi();
+   // profileBasicemployeeApi();
     profileEmployeBankApi();
   }
 

@@ -70,8 +70,8 @@ class PersonalProfile extends StatelessWidget {
                               onTap: () async {
                                 await _profileEmployeeController
                                     .profileemployeeApi();
-                                await _profileEmployeeController
-                                    .profileBasicemployeeApi();
+                                // await _profileEmployeeController
+                                //     .profileBasicemployeeApi();
                                 await _profileEmployeeController
                                     .profileEmployeBankApi();
 
@@ -301,8 +301,8 @@ class PersonalProfile extends StatelessWidget {
                           GestureDetector(
                               onTap: () async {
                                 _profileEmployeeController.profileemployeeApi();
-                                _profileEmployeeController
-                                    .profileBasicemployeeApi();
+                                // _profileEmployeeController
+                                //     .profileBasicemployeeApi();
                                 _profileEmployeeController
                                     .profileEmployeBankApi();
 

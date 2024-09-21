@@ -3,7 +3,8 @@ import 'package:nd_connect_techland/components/styles.dart';
 import 'package:get/get.dart';
 import '../../../controllers/bottom_nav_controller.dart';
 class Settings extends StatelessWidget {
-  const Settings({super.key});
+  String id ='14';
+   Settings({super.key,required this.id});
 
   @override
   Widget build(BuildContext context) {

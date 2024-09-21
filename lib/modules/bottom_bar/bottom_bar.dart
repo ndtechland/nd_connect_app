@@ -110,12 +110,19 @@
 //     }
 //   }
 //
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:nd_connect_techland/components/styles.dart';
+import 'package:nd_connect_techland/controllers/attendance_controller.dart';
 import 'package:nd_connect_techland/modules/all_pages/attendance/attendance.dart';
+import 'package:nd_connect_techland/services_apis/fcm.dart';
+import 'package:nd_connect_techland/services_apis/notification_service.dart';
 
 import '../../controllers/bottom_nav_controller.dart';
 import '../../controllers/location_controller.dart';
+import '../../services_apis/local_notification_service.dart';
+import '../../widget/upload_button.dart';
 import '../all_pages/attendance/attendanceBottomSheet.dart';
 import '../all_pages/events/events_calender.dart';
 import '../all_pages/pages/emploree_pages/home_page_employee2.dart';
@@ -285,13 +292,98 @@ import 'custom_bottom_bar.dart';
 //   }
 // }
 
+// @pragma('vm:entry-point')
+// Future<void> _firebaseBackgroundHandler() async {
+//   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+// }
 
-class BottomBar extends StatelessWidget {
+const task = 'firstTask';
+class BottomBar extends StatefulWidget {
+  @override
+  State<BottomBar> createState() => _BottomBarState();
+}
+
+class _BottomBarState extends State<BottomBar> {
   final BottomNavController controller = Get.put(BottomNavController());
+
   final LocationController locationController = Get.put(LocationController());
+  NotificationService notificationService = NotificationService();
+  final AttendanceController attendanceController = Get.put(AttendanceController());
+@override
+void initState(){
+  super.initState();
+  notificationService.notificationRequestPermission();
+  notificationService.getDeviceToken();
+  //FcmService.firebaseInit();
+  attendanceController.fetchAttendanceData();
+  LocalNotificationService.initialize(context);
+  FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+    LocalNotificationService.createanddisplaynotification(message);
+  });
+  FirebaseMessaging.instance.getInitialMessage().then(
+        (message) {
+      print("FirebaseMessaging.instance.getInitialMessage");
+      if (message != null) {
+        print("New Notification");
+        _handleMessage(message);
+        // if (message.data['_id'] != null) {
+        //   Navigator.of(context).push(
+        //     MaterialPageRoute(
+        //       builder: (context) => DemoScreen(
+        //         id: message.data['_id'],
+        //       ),
+        //     ),
+        //   );
+        // }
+      }
+    },
+  );
+
+  // 2. This method only call when App in forground it mean app must be opened
+  FirebaseMessaging.onMessage.listen(
+        (message) {
+      print("FirebaseMessaging.onMessage.listen");
+      if (message.notification != null) {
+        print(message.notification!.title);
+        print(message.notification!.body);
+        print("message.data11 ${message.data}");
+        LocalNotificationService.createanddisplaynotification(message);
+
+      }
+    },
+  );
+
+  // 3. This method only call when App in background and not terminated(not closed)
+  FirebaseMessaging.onMessageOpenedApp.listen(
+        (message) {
+      print("FirebaseMessaging.onMessageOpenedApp.listen");
+      if (message.notification != null) {
+        print(message.notification!.title);
+        print(message.notification!.body);
+        print("message.data22 ${message.data['_id']}");
+        _handleMessage(message);
+
+      }
+    },
+  );
+}
+  void _handleMessage(RemoteMessage message) {
+    if (message.data.containsKey('id')) {
+      String id = message.data['id'];
+      // Navigate to a specific page based on the id
+      // Navigator.push(
+      //   context,
+      //   MaterialPageRoute(
+      //     builder: (context) => BottomBar(id: id), // Pass the id to your page
+      //   ),
+      // );
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
+  // LocalNotificationService.initialize(context);
     // Function to show the right-side modal in landscape
     void showModalRightSheet(BuildContext context) {
       showDialog(
@@ -303,7 +395,7 @@ class BottomBar extends StatelessWidget {
               width: MediaQuery.of(context).size.width * 0.6,
               height: double.infinity,
               decoration: BoxDecoration(
-                color: Colors.yellow,
+               // color: Colors.yellow,
                 borderRadius: BorderRadius.horizontal(left: Radius.circular(40.0)),
               ),
               child: AttendanceBottomSheet(),
@@ -334,7 +426,7 @@ class BottomBar extends StatelessWidget {
               builder: (_, controller) {
                 return Container(
                   decoration: BoxDecoration(
-                    color: Colors.yellow,
+                    //color: Colors.yellow,
                     borderRadius: BorderRadius.vertical(top: Radius.circular(40.0)),
                   ),
                   child: AttendanceBottomSheet(),
@@ -352,13 +444,14 @@ class BottomBar extends StatelessWidget {
           case 0:
             return HomeEmployee2();
           case 1:
-            return Settings();
+            return Settings(id: '14',);
           case 2:
-            return Attendance(); // Background screen when bottom sheet opens
+            return Attendance(id: '13',); // Background screen when bottom sheet opens
           case 3:
-            return EventCalendarScreen();
+            return EventCalendarScreen(id: '12',);
           case 4:
-            return TaskList();
+            //return UpdateButton();
+            return TaskList(id: '11',);
           default:
             return HomeEmployee2();
         }

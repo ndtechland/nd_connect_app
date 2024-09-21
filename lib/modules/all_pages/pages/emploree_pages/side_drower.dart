@@ -227,9 +227,10 @@ class EmployeeNavBar extends StatelessWidget {
                   Get.dialog(CustomThreeInOutLoader(),
                       barrierDismissible: false);
                   _profileEmployeeController.profileemployeeApi();
-                  _profileEmployeeController.profileBasicemployeeApi();
+                  // _profileEmployeeController.profileBasicemployeeApi();
                   _profileEmployeeController.profileEmployeBankApi();
-
+                  // await _employeeUpdatePersonalController
+                  //     .getStatepi();
                   //profileBasicemployeeApi();
                   //     profileEmployeBankApi();
 
@@ -286,8 +287,10 @@ class EmployeeNavBar extends StatelessWidget {
                 onTap: () async {
                   Get.dialog(CustomThreeInOutLoader(),
                       barrierDismissible: false);
-                  _allsalaryslipController.fetchSalarySlips();
-                  _allsalaryslipController.onInit();
+                  _profileEmployeeController.profileEmployeBankApi();
+
+                 // _allsalaryslipController.fetchSalarySlips();
+                 // _allsalaryslipController.onInit();
                   Get.back();
                   Future.delayed(Duration(seconds: 1));
                   await Navigator.push(
@@ -310,21 +313,21 @@ class EmployeeNavBar extends StatelessWidget {
               // ),
 
               ///todo: payment
-              ListTile(
-                leading: const Icon(Icons.event),
-                title: const Text('Events'),
-                onTap: () async {
-                  Get.dialog(CustomThreeInOutLoader(),
-                      barrierDismissible: false);
-                  Get.back();
-                  // await _employeeController.paymentemployeeApi();
-                  // _employeeController.onInit();
-                  await Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => EventCalendarScreen()));
-                },
-              ),
+              // ListTile(
+              //   leading: const Icon(Icons.event),
+              //   title: const Text('Events'),
+              //   onTap: () async {
+              //     Get.dialog(CustomThreeInOutLoader(),
+              //         barrierDismissible: false);
+              //     Get.back();
+              //     // await _employeeController.paymentemployeeApi();
+              //     // _employeeController.onInit();
+              //     await Navigator.push(
+              //         context,
+              //         MaterialPageRoute(
+              //             builder: (context) => EventCalendarScreen(id:'12)));
+              //   },
+              // ),
               // ListTile(
               //   leading: const Icon(Icons.stay_current_landscape_rounded),
               //   title: const Text('Offer latter '),
@@ -588,39 +591,19 @@ class EmployeeNavBar extends StatelessWidget {
                 title: const Text('Privacy Policy'),
                 onTap: () {
                   _launchPrivacyUrl();
+                  Get.back();
                 },
               ),
-              // ListTile(
-              //   leading: const Icon(Icons.inbox),
-              //   title: const Text('Inbox'),
-              //   onTap: () {
-              //     // Navigator.push(context,
-              //     //     MaterialPageRoute(builder: (context) => const Inbox()));
-              //   },
-              // ),
+
               ///todo: end inbox and chat features.....
 
-              // ListTile(
-              //   leading: const Icon(Icons.inventory_outlined),
-              //   title: const Text('Invite Friend'),
-              //   onTap: () async {
-              //     // _registrationController.getStatepi();
-              //     // _registrationController.onInit();
-              //     // _registrationController.selectedState.value = null;
-              //     // await Future.delayed(Duration(milliseconds: 800));
-              //     //
-              //     // await Navigator.push(
-              //     //     context,
-              //     //     MaterialPageRoute(builder: (context) => RegistrationPage()
-              //     //       //InviteFriend()
-              //     //     ));
-              //   },
-              // ),
               ListTile(
                 leading: const Icon(Icons.document_scanner_sharp),
                 title: const Text('Terms & Condition'),
                 onTap: () {
                   _launchUrl();
+                  Get.back();
+
                 },
               ),
               ListTile(
@@ -637,12 +620,16 @@ class EmployeeNavBar extends StatelessWidget {
                 title: const Text('About Company'),
                 onTap: () {
                   _launchCompanyUrl();
+                  Get.back();
+
                 },
               ), ListTile(
                 leading: const Icon(Icons.business),
                 title: const Text('ND Connect'),
                 onTap: () {
                   _launchNdConnectUrl();
+                  Get.back();
+
                 },
               ),
               ListTile(

@@ -37,7 +37,22 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+       <meta-data
+           android:name="com.google.firebase.messaging.default_notifications_channel_id"
+           android:value="ndconnectpushnotification" />
+       <receiver android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver"
+       android:exported = "false">
+           <intent-filter>
+            <action android:name="android.intent.action.BOOT_COMPLETED"/>
+           </intent-filter>
+       </receiver>
        <meta-data android:name="com.google.android.geo.API_KEY"
            android:value="AIzaSyBrbWFXlOYpaq51wteSyFS2UjdMPOWBlQw"/>
+       <meta-data
+           android:name="firebase_messaging_auto_init_enabled"
+           android:value="false" />
+       <meta-data
+           android:name="firebase_analytics_collection_enabled"
+           android:value="false" />
     </application>
 </manifest>
