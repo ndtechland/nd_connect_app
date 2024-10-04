@@ -168,32 +168,75 @@ class AttendanceController extends GetxController {
   // Method to update working hours in real-time
 
 
+//   void updateWorkingHours() {
+//     // Current time
+//     DateTime now = DateTime.now();
+//     DateFormat timeFormat = DateFormat("hh:mm a"); // Format for both now and check-in time
+//
+//     // Format 'now' to match the check-in time format
+//     String nowStr = timeFormat.format(now);
+//     print("Formatted now: $nowStr");
+//
+//     try {
+//       // Ensure the check-in time string is well formatted and trimmed
+//       String checkInStr = checkInTime.value.trim().toLowerCase(); // Convert to lowercase
+//       nowStr = nowStr.toLowerCase(); // Convert the nowStr to lowercase
+//       print("Check-in time string: '$checkInStr'");
+//       print("Now time string: '$nowStr'");
+//
+//       // Check if the check-in time string is valid
+//       if (!RegExp(r'^[0-9]{1,2}:[0-9]{2} [APap][Mm]$').hasMatch(checkInStr)) {
+//         throw FormatException("Invalid time format: $checkInStr");
+//       }
+//
+//       // Parse the formatted 'now' and 'check-in' times using the same format
+//       DateTime checkIn = timeFormat.parse(checkInStr);
+//       print("checkIn:$checkIn");
+//       DateTime formattedNow = timeFormat.parse(nowStr); // Parse nowStr
+// print("formattedNow: $formattedNow");
+//       // Calculate the working duration
+//       Duration workingDuration = formattedNow.difference(checkIn);
+//       print("workingDuration: $workingDuration");
+//
+//       // Format the working hours into a readable string
+//       String formattedWorkingHours =
+//           "${workingDuration.inHours}Hrs ${workingDuration.inMinutes.remainder(60)}min";
+//
+//       totalWorkingHours.value = formattedWorkingHours;
+//       print("Total working hours: $formattedWorkingHours");
+//     } catch (e) {
+//       // Handle any parsing errors
+//       print("Error parsing time: $e");
+//       totalWorkingHours.value = "09Hrs";
+//     }
+//   }
+
   void updateWorkingHours() {
     // Current time
     DateTime now = DateTime.now();
     DateFormat timeFormat = DateFormat("hh:mm a"); // Format for both now and check-in time
 
     // Format 'now' to match the check-in time format
-    String nowStr = timeFormat.format(now);
+    String nowStr = timeFormat.format(now).toUpperCase(); // Convert to uppercase
     print("Formatted now: $nowStr");
 
     try {
       // Ensure the check-in time string is well formatted and trimmed
-      String checkInStr = checkInTime.value.trim().toLowerCase(); // Convert to lowercase
-      nowStr = nowStr.toLowerCase(); // Convert the nowStr to lowercase
+      String checkInStr = checkInTime.value.trim().toUpperCase(); // Convert to uppercase
       print("Check-in time string: '$checkInStr'");
       print("Now time string: '$nowStr'");
 
       // Check if the check-in time string is valid
-      if (!RegExp(r'^[0-9]{1,2}:[0-9]{2} [APap][Mm]$').hasMatch(checkInStr)) {
+      if (!RegExp(r'^[0-9]{1,2}:[0-9]{2} [APM]{2}$').hasMatch(checkInStr)) {
         throw FormatException("Invalid time format: $checkInStr");
       }
 
       // Parse the formatted 'now' and 'check-in' times using the same format
       DateTime checkIn = timeFormat.parse(checkInStr);
-      print("checkIn:$checkIn");
+      print("checkIn: $checkIn");
       DateTime formattedNow = timeFormat.parse(nowStr); // Parse nowStr
-print("formattedNow: $formattedNow");
+      print("formattedNow: $formattedNow");
+
       // Calculate the working duration
       Duration workingDuration = formattedNow.difference(checkIn);
       print("workingDuration: $workingDuration");
@@ -207,10 +250,9 @@ print("formattedNow: $formattedNow");
     } catch (e) {
       // Handle any parsing errors
       print("Error parsing time: $e");
-      totalWorkingHours.value = "09Hrs";
+      totalWorkingHours.value = "N/A";
     }
   }
-
 
   @override
   void onClose() {

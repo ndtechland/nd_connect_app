@@ -15,7 +15,7 @@ class AllsalaryslipModells {
   num? statusCode;
   String? status;
   String? message;
-  dynamic error;
+  //dynamic error;
   List<ModelClassSalary>? data;
 
   AllsalaryslipModells({
@@ -23,7 +23,7 @@ class AllsalaryslipModells {
     this.statusCode,
     this.status,
     this.message,
-    this.error,
+    //this.error,
     this.data,
   });
 
@@ -33,7 +33,7 @@ class AllsalaryslipModells {
         statusCode: json["statusCode"],
         status: json["status"],
         message: json["message"],
-        error: json["error"],
+       // error: json["error"],
         data: json["data"] == null
             ? []
             : List<ModelClassSalary>.from(
@@ -45,7 +45,7 @@ class AllsalaryslipModells {
         "statusCode": statusCode,
         "status": status,
         "message": message,
-        "error": error,
+       // "error": error,
         "data": data == null
             ? []
             : List<dynamic>.from(data!.map((x) => x.toJson())),

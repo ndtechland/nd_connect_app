@@ -212,6 +212,7 @@ class Data {
   String? fatherName;
   String? shiftTime;
   String? shiftType;
+  int userid;
   Data({
     this.fullName,
     this.workEmail,
@@ -240,6 +241,7 @@ class Data {
     this.fatherName,
     this.shiftTime,
     this.shiftType,
+    required this.userid,
   });
 
   factory Data.fromJson(Map<String, dynamic> json) => Data(
@@ -270,6 +272,7 @@ class Data {
     fatherName: json["fatherName"],
     shiftTime: json["shiftTime"],
     shiftType: json["shiftType"],
+    userid: json["userid"]
   );
 
   Map<String, dynamic> toJson() => {
@@ -300,6 +303,7 @@ class Data {
     "fatherName": fatherName,
     "shiftTime": shiftTime,
     "shiftType": shiftType,
+    "userid":userid,
   };
 }
 

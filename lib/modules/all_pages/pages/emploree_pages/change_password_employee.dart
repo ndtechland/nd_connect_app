@@ -197,12 +197,16 @@ class _ChangeEmployeePasswordState extends State<ChangeEmployeePassword> {
                     const SizedBox(height: 34),
                     MyElevatedButton(
                       onPressed: () {
+                        print("changePass");
+
                         if (_changepassempController
                                 .changepasswordemployeeFormKey.currentState
                                 ?.validate() ??
                             false) {
                           _changepassempController.checkPasswordchange(context);
                         }
+                        print("changePass done");
+
                       },
                       text: Text('Update',
                       style: TextStyle(

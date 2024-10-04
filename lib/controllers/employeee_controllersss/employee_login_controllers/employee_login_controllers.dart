@@ -1,15 +1,18 @@
 import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:nd_connect_techland/modules/bottom_bar/bottom_bar.dart';
 
 
+import '../../../components/styles.dart';
 import '../../../models/employee_model/autologin_employee_model.dart';
 
 import '../../../services_apis/api_servicesss.dart';
 import '../../../services_apis/auto_login_employee.dart';
 import '../../employee_controller/profile_controller/profile_info_employee_controller.dart';
+import '../employee_dashboard_controller/employee_dashboardcontroller.dart';
 
 
 // class EmployeeLoginController extends GetxController {
@@ -146,8 +149,8 @@ class EmployeeLoginController extends GetxController {
 
   final GlobalKey<FormState> loginFormKey2 = GlobalKey<FormState>();
   late TextEditingController usernameController, passwordController;
-  final ProfileEmployeeController _profileEmployeeController =
-  Get.put(ProfileEmployeeController());
+  final ProfileEmployeeController _profileEmployeeController = Get.put(ProfileEmployeeController());
+  HomedashboardController _homedashboardController = Get.put(HomedashboardController());
   @override
   void onInit() {
     super.onInit();
@@ -180,6 +183,7 @@ class EmployeeLoginController extends GetxController {
         var responseData = json.decode(response.body);
         var userId = responseData['response']['data']['userid'];
         var token = responseData['token'];
+        var refToken = responseData['refreshToken'];
 
         // Save the login data in SharedPreferences for auto-login
         EmployeeLogin loginData = EmployeeLogin(
@@ -187,21 +191,24 @@ class EmployeeLoginController extends GetxController {
             data: Data(userid: userId),
           ),
           token: token,
+          refreshToken: refToken
         );
         await accountService2.setAccountData2(loginData);
 
-        Get.snackbar("Success", "Logged in successfully!");
+        Get.snackbar("Success", "Logged in successfully!",backgroundColor: Colors.white,colorText: appColor2);
         // Redirect to Dashboard or Home page
+        await _homedashboardController.dashboarddApi();
         await _profileEmployeeController.profileemployeeApi();
+        // await _homedashboardController.dashboarddApi();
 
         Get.off(() => BottomBar());
       } else if (response.statusCode == 401) {
-        Get.snackbar('Error', 'Unauthorized: ${response.body}');
+        Get.snackbar('Error', 'Unauthorized: ${response.body}',backgroundColor: Colors.red,colorText: Colors.white);
       } else {
-        Get.snackbar('Error', 'Login failed: ${response.body}');
+        Get.snackbar('Error', 'Login failed: ${response.body}',backgroundColor: Colors.red,colorText: Colors.white);
       }
     } catch (error) {
-      Get.snackbar('Error', 'An error occurred during login: $error');
+      Get.snackbar('Error', 'An error occurred during login: $error',backgroundColor: Colors.red,colorText: Colors.white);
     } finally {
       isLoading.value = false;
     }

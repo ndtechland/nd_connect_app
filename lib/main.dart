@@ -1,16 +1,12 @@
 import 'dart:io';
-
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-
 ///import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:get/get.dart';
 import 'package:nd_connect_techland/services_apis/local_notification_service.dart';
-
 import 'package:permission_handler/permission_handler.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
-
 import 'components/styles.dart';
 import 'controllers/company_controllers/company_controller.dart';
 import 'controllers/company_detail_by_com_id/company_detail_by_id_controller.dart';

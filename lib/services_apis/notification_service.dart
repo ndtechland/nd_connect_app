@@ -10,7 +10,7 @@ import 'package:get/get.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:nd_connect_techland/modules/all_pages/attendance/attendance.dart';
 import 'package:nd_connect_techland/modules/all_pages/events/events_calender.dart';
-import 'package:nd_connect_techland/modules/all_pages/pages/emploree_pages/task.dart';
+import 'package:nd_connect_techland/modules/all_pages/task/task.dart';
 import 'package:nd_connect_techland/modules/all_pages/pages/settings.dart';
 import 'package:nd_connect_techland/services_apis/auto_login_employee.dart';
 

@@ -11,6 +11,8 @@ import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'package:logging/logging.dart';
+import 'package:nd_connect_techland/models/company_location_model.dart';
+import 'package:nd_connect_techland/modules/all_pages/attendance/attendance.dart';
 import 'package:nd_connect_techland/modules/bottom_bar/bottom_bar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -54,31 +56,12 @@ EmployeeLoginController _employeeloginController =
     Get.put(EmployeeLoginController());
 
 class ApiProvider {
-  /// static var baseUrl = 'http://test.pswellness.in/';
-  /// "https://api.hirejobindia.com/api/";
-
-  static var baseUrl = FixedText.apiurl;
-
-  //'https://api.hirejobindia.com/api/';
-
-  //http://pswellness.in/
-  //static var baseUrl1 = 'https://api.gyros.farm/';
-  //'http://pswellness.in/';
+static var baseUrl = FixedText.apiurl;
   static String token = '';
-
-  //static String Token = '';
-
-  //static String catid = '';
-  //static String productid = '';
-  //static String orderid = '';
-  ///static String Id = '';
   static String MedicineId = ''.toString();
   static String adminId = ''.toString();
-
-  //static String userid = ''.toString();
   static String userId = ''.toString();
   static String employeeId = ''.toString();
-
   final box = GetStorage();
 
   ///TODO: here we have to add different api in this page...........
@@ -903,22 +886,9 @@ class ApiProvider {
     }
   }
 
-  ///job_list_by_cat_id ali 10.............
+  ///todo:JobdetailByjobIdApi Api
   static JobdetailByjobIdApi(String? jobListId) async {
     var prefs = GetStorage();
-
-    // SharedPreferences preferences = await SharedPreferences.getInstance();
-    // var JobListId = preferences.getString("JobListId");
-    // print("JobListId: ${JobListId}");
-
-    //JobTitleId
-
-    // prefs.setString(
-    //     "JobListId", _allJibsController.foundJobs[index].id.toString());
-    // print("sadsad${_allJibsController.foundJobs[index].id.toString()}");
-
-    //saved userid..........
-    //prefs.write("Id".toString(), json.decode(r.body)['Id']);
     userId = prefs.read("Id").toString();
     print('wwwuseridEE:${userId}');
     //https://api.hirejobindia.com/api/App/GetProfile?userId=2
@@ -939,7 +909,7 @@ class ApiProvider {
     }
   }
 
-  ///4.login_employeee..........post...apis...
+  ///todo:EmployeeLoginApi Api
   static Future<http.Response> EmployeeLoginApi(String employee_ID,
       String password) async {
     var url = "https://api.ndtechland.com/api/Account/Login";
@@ -965,14 +935,17 @@ class ApiProvider {
       var responseData = json.decode(r.body);
       var employeeId = responseData['response']['data']['userid'];
       var token = responseData['token'];
+      var refreshToken = responseData['refreshToken'];
       //token
       // Save employee ID and token
       final storage = GetStorage();
       storage.write("userid", employeeId);
       storage.write("token", token);
+      storage.write("refreshToken", refreshToken);
 
       print('Saved employeeId: $employeeId');
       print('Saved token: $token');
+      print('Saved refreshToken: $refreshToken');
 
       // Save user ID (assuming 'Id' is part of the response JSON)
       prefs.write("userid", employeeId);
@@ -996,8 +969,52 @@ class ApiProvider {
     return r;
   }
 
-  ///profile personal_info_employee....5...
+  ///todo:RefreshToken Api
+  static Future<http.Response> RefreshToken() async {
+    var prefs = GetStorage();
 
+    // Read saved user id and token
+    var refreshToken = prefs.read("refreshToken").toString();
+    print('refreshToken read: $refreshToken');
+    var url = "${baseUrl}Account/RefreshToken";
+    var body2 = jsonEncode({
+      "refreshToken": refreshToken,
+    });
+    print("loginnnnemployee");
+    print("login body:${body2}");
+
+    http.Response r = await http.post(
+      Uri.parse(url),
+      body: body2,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    );
+
+    print(r.body);
+    if (r.statusCode == 200) {
+      var responseData = json.decode(r.body);
+      var accessToken = responseData['token'];
+      final storage = GetStorage();
+      storage.write("token", accessToken);
+      print('Saveddd accessToken: $accessToken');
+      print('Saveddd accessToken: $responseData');
+
+      // Navigate to HomePage
+      //Get.to(() => Home());
+
+      return r;
+    } else if (r.statusCode == 401) {
+      Get.snackbar('Message', 'Unauthorized: ${r.body}');
+    } else {
+      Get.snackbar('Error', 'Error: ${r.body}');
+    }
+
+    return r;
+
+  }
+
+  ///todo:PriofilePersonalEmployeeApi Api
   static PriofilePersonalEmployeeApi() async {
     var prefs = GetStorage();
 
@@ -1035,8 +1052,7 @@ class ApiProvider {
     }
   }
 
-  ///profile basic_info_employee....6...
-
+  ///todo:PriofileBasicEmployeeApi Api
   static PriofileBasicEmployeeApi() async {
     var prefs = GetStorage();
 
@@ -1070,8 +1086,7 @@ class ApiProvider {
     }
   }
 
-  ///profile bank_info_employee....7...
-
+  ///todo:PriofileBankDetailEmployeeApi Api
   static PriofileBankDetailEmployeeApi() async {
     var prefs = GetStorage();
 
@@ -1105,8 +1120,7 @@ class ApiProvider {
     }
   }
 
-  ///offer_employee_appointment_api...8
-
+  ///todo:OfferAppointmentEmployeeApi Api
   static OfferAppointmentEmployeeApi() async {
     var prefs = GetStorage();
 
@@ -1140,11 +1154,11 @@ class ApiProvider {
     }
   }
 
-  /// Employee - Get all salary slips
+  ///todo:getSalarySlips Api
   static Future<AllsalaryslipModells?> getSalarySlips() async {
     String userId = GetStorage().read("userId").toString();
     String token = GetStorage().read("token").toString();
-    var url = "${baseUrl}EmployeeApi/GetAllEmpsalaryslip";
+    var url = "https://api.ndtechland.com/api/EmployeeApi/GetAllEmployeesalaryslip";
 
     try {
       Map<String, String> headers = {
@@ -1171,7 +1185,7 @@ class ApiProvider {
     }
   }
 
-  ///dashbord...employee....
+  ///todo:getDashboardApi Api
   static getDashboardApi() async {
     var prefs = GetStorage();
 
@@ -1181,7 +1195,7 @@ class ApiProvider {
 
     token = prefs.read("token").toString();
     print('tokendash: $token');
-    var url = '${baseUrl}EmployeeApi/Dashboard';
+    var url = 'https://api.ndtechland.com/api/EmployeeApi/EmployeeDashboard';
     try {
       // Add the token to the headers
       Map<String, String> headers = {
@@ -1194,7 +1208,7 @@ class ApiProvider {
         print("url");
         print(url);
         DashbordModel? geetdashbord = dashbordModelFromJson(r.body);
-        print("profileinfobnk: ${geetdashbord.data?.completionPercentage!}");
+        print("totalAttendance: ${geetdashbord.data?.totalAttendance!}");
         return geetdashbord;
       } else {
         print('Failed to load dashboard');
@@ -1204,8 +1218,7 @@ class ApiProvider {
     }
   }
 
-  ///support comman for both.....
-
+  ///todo:SupportUserEmployeeApi Api
   static SupportUserEmployeeApi() async {
     var prefs = GetStorage();
 
@@ -1239,27 +1252,11 @@ class ApiProvider {
     }
   }
 
-  ///static Future<List<StateModelss>> getSatesApi() async {
-  //     var url = "${baseUrl}EmployeeApi/Getstate";
-  //     try {
-  //       http.Response r = await http.get(Uri.parse(url));
-  //       print(r.body.toString());
-  //       if (r.statusCode == 200) {
-  //         var statesData = stateModelFromJson(r.body);
-  //         return statesData.data;
-  //       } else {
-  //         return [];
-  //       }
-  //     } catch (error) {
-  //       return [];
-  //     }
-  //   }
-
   ///todo: leave...apply..dropdown.catagary..employee
   static Future<List<GetLeaveTypeList>> getDropdownLeaveApi() async {
     String userId = GetStorage().read("userId").toString();
     String token = GetStorage().read("token").toString();
-    var url = "${baseUrl}EmployeeApi/LeaveType";
+    var url = "${baseUrl}LeaveStructure/GetLeaveType";
 
     try {
       Map<String, String> headers = {
@@ -1290,7 +1287,7 @@ class ApiProvider {
   static Future<List<GetLeaveList>> getDropdownLeaveTypeApi() async {
     String userId = GetStorage().read("userId").toString();
     String token = GetStorage().read("token").toString();
-    var url = "${baseUrl}EmployeeApi/LeaveType";
+    var url = "${baseUrl}LeaveStructure/GetLeaveType";
 
     try {
       Map<String, String> headers = {
@@ -1317,11 +1314,10 @@ class ApiProvider {
     }
   }
 
-  //apply leave employee..............
-  static String apiUrl4 = "${baseUrl}EmployeeApi/ApplyLeaveNew";
 
+///todo:ApplyLeave Api
   static Future<http.Response> ApplyLeave(Map<String, String> formData) async {
-    var uri = Uri.parse(apiUrl4);
+    var uri = Uri.parse("${baseUrl}LeaveStructure/EmployeeApplyLeave");
     var request = http.MultipartRequest('POST', uri);
 
     // Print form data
@@ -1353,19 +1349,6 @@ class ApiProvider {
     if (httpResponse.statusCode == 200) {
       print('Response body200: ${httpResponse.body}');
 
-      // Assuming the response body contains the user ID in JSON format
-      //var jsonResponse = jsonDecode(httpResponse.body);
-      //var userId = jsonResponse['loginProfile']['id'];
-
-      // Extract the user ID from getData
-
-      // Save the user ID using GetStorage
-      //final storage = GetStorage();
-      // storage.write('userId', userId);
-
-      // Print the user ID
-      ///print('Saved user ID: $userId');
-      // Show success toast
       Fluttertoast.showToast(
         msg: "Apply Leave successfully!",
         backgroundColor: Colors.green,
@@ -1373,7 +1356,16 @@ class ApiProvider {
         toastLength: Toast.LENGTH_LONG,
         gravity: ToastGravity.CENTER,
       );
-    } else {
+    } else if (httpResponse.statusCode == 501){
+      Fluttertoast.showToast(
+        msg: "Leave Already Applied",
+        backgroundColor: Colors.green,
+        textColor: Colors.white,
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.CENTER,
+      );
+    }
+    else {
       print('Failed to apply Leave. Status code: ${httpResponse.statusCode}');
 
       Fluttertoast.showToast(
@@ -1388,9 +1380,7 @@ class ApiProvider {
     return httpResponse;
   }
 
-  ///update_personal_profile..wmployee.
-
-  //static String apiUrl5 = "${baseUrl}EmployeeApi/EmployeePresnolInfo";
+///todo:updatePersonal1 Api
   static Future<http.Response> updatePersonal1(Map<String, String> formData,
       List<Uint8List>? aadharFileContent,
       String? Aadharbase64,
@@ -1628,11 +1618,13 @@ class ApiProvider {
 //
 //     return httpResponse;
 //   }
-
+  ///todo:updatePersonal Api
   static Future<http.Response> updatePersonal({
     required Map<String, String> formData,
-    List<Uint8List>? aadharFileContent,
-    List<String>? Aadharbase64, // Changed to List to handle multiple images
+    Uint8List? aadharFileContent1,
+    String? Aadhar1base64,
+    Uint8List? aadharFileContent2,
+    String? Aadhar2base64, // Changed to List to handle multiple images
     Uint8List? panFileContent,
     String? Panbase64,
     Uint8List? profileFileContent,
@@ -1643,7 +1635,10 @@ class ApiProvider {
 
     // Add form fields
     request.fields.addAll(formData);
-
+    formData.forEach((key, value) {
+      request.fields[key] = value;
+      print('Field: $key, Value: $value'); // Print each form field
+    });
     // Helper function to determine the MediaType based on the file extension
     MediaType getMediaType(String filename) {
       String ext = filename.split('.').last.toLowerCase();
@@ -1656,18 +1651,32 @@ class ApiProvider {
       }
     }
 
-    // Add Aadhaar images if available
-    if (aadharFileContent != null && Aadharbase64 != null) {
-      for (int i = 0; i < aadharFileContent.length; i++) {
-        request.files.add(http.MultipartFile.fromBytes(
-          'AadharImage', // Ensure this matches the API requirement
-          aadharFileContent[i],
-          filename: Aadharbase64[i],
-          contentType: getMediaType(Aadharbase64[i]),
-        ));
-      }
+    /// Add Aadhaar images if available
+    // if (aadharFileContent != null && Aadharbase64 != null) {
+    //   for (int i = 0; i < aadharFileContent.length; i++) {
+    //     request.files.add(http.MultipartFile.fromBytes(
+    //       'AadharImage', // Ensure this matches the API requirement
+    //       aadharFileContent[i],
+    //       filename: Aadharbase64[i],
+    //       contentType: getMediaType(Aadharbase64[i]),
+    //     ));
+    //   }
+    // }
+    if (aadharFileContent1 != null && Aadhar1base64 != null) {
+      request.files.add(http.MultipartFile.fromBytes(
+        'Aadhar1', // Ensure this matches the API requirement
+        aadharFileContent1,
+        filename: Aadhar1base64,
+        contentType: getMediaType(Aadhar1base64),
+      ));
+    } if (aadharFileContent2 != null && Aadhar2base64 != null) {
+      request.files.add(http.MultipartFile.fromBytes(
+        'Aadhar2', // Ensure this matches the API requirement
+        aadharFileContent2,
+        filename: Aadhar2base64,
+        contentType: getMediaType(Aadhar2base64),
+      ));
     }
-
     // Add PAN image if available
     if (panFileContent != null && Panbase64 != null) {
       request.files.add(http.MultipartFile.fromBytes(
@@ -1719,7 +1728,7 @@ class ApiProvider {
     return httpResponse;
   }
 
-
+  ///todo:updatePersonal2 Api
   static Future<http.Response> updatePersonal2({
     required Map<String, String> formData,
     List<Uint8List>? aadharFileContent,
@@ -1781,8 +1790,7 @@ class ApiProvider {
   }
 
 
-
-
+  ///todo:updateBankEmployeeApi Api
   static Future<http.Response> updateBankEmployeeApi(
       Map<String, String> formData,
       Uint8List? cvFileContent,
@@ -1869,103 +1877,178 @@ class ApiProvider {
   }
 
   ///todo: update profile picture....employee....
-
   static String apiUrl9 = "${baseUrl}EmployeeApi/EmpUpdateprofilepicture";
 
-  //https://api.hirejobindia.com/api/EmployeeApi/EmpUpdateprofilepicture
-  // static Future<http.Response> updateProfileEmployeeApi(
-  //     Uint8List cvFileContent3,
-  //     String Empprofile,) async {
-  //   var uri = Uri.parse(apiUrl9);
-  //   var request = http.MultipartRequest('POST', uri);
-  //
-  //   // Helper function to determine the MediaType based on the file extension
-  //   MediaType getMediaType(String filename) {
-  //     String ext = filename
-  //         .split('.')
-  //         .last
-  //         .toLowerCase();
-  //     switch (ext) {
-  //       case 'jpg':
-  //       case 'jpeg':
-  //         return MediaType('image', 'jpeg');
-  //       case 'png':
-  //         return MediaType('image', 'png');
-  //       default:
-  //         throw Exception('Unsupported file type');
-  //     }
-  //   }
-  //
-  //   // Add file field
-  //   request.files.add(http.MultipartFile.fromBytes(
-  //     'Empprofile', // The name of the file field
-  //     cvFileContent3,
-  //     filename: Empprofile,
-  //     contentType: getMediaType(Empprofile),
-  //   ));
-  //
-  //   // Get token from GetStorage
-  //   final storage = GetStorage();
-  //   var token = storage.read('token');
-  //
-  //   // Set token in headers
-  //   request.headers['Authorization'] = 'Bearer $token';
-  //
-  //   // Send the request
-  //   var response = await request.send();
-  //
-  //   // Parse the response
-  //   var httpResponse = await http.Response.fromStream(response);
-  //
-  //   // Print the response data
-  //   print('Response status: ${httpResponse.statusCode}');
-  //   print('Response body: ${httpResponse.body}');
-  //
-  //   // Show toast based on response
-  //   if (httpResponse.statusCode == 200) {
-  //     Fluttertoast.showToast(
-  //       msg: "Profile updated successfully!",
-  //       backgroundColor: Colors.green,
-  //       textColor: Colors.white,
-  //       toastLength: Toast.LENGTH_LONG,
-  //       gravity: ToastGravity.CENTER,
-  //     );
-  //   } else {
-  //     Fluttertoast.showToast(
-  //       msg:
-  //       "Failed to update profile. Status code: ${httpResponse.statusCode}",
-  //       backgroundColor: Colors.red,
-  //       textColor: Colors.white,
-  //       toastLength: Toast.LENGTH_LONG,
-  //       gravity: ToastGravity.BOTTOM,
-  //     );
-  //   }
-  //
-  //   return httpResponse;
-  // }
+  ///todo:forgotPassword Api sonali
+  static Future<http.Response?> ForgotPasswordApi1(BuildContext context,String email) async {
+    var prefs = GetStorage();
+    String employeeId = prefs.read("Id").toString();
+   // String token = GetStorage().read("token").toString();
 
-  ///change password api,,,,for employee.......
+    print('forgotUserId:$employeeId');
+    var urll = "${baseUrl}EmployeeApi/EmployeeForgotPassword";
+    var body = jsonEncode({
+      'Email':email
+    });
+
+    print("forgot password body:${body}");
+    try{
+      http.Response response = await http.post(
+        Uri.parse(urll),
+        body: body,
+        headers: {
+         // 'Authorization': 'Bearer $token',
+          "Content-Type": "application/json",
+        },
+      ).timeout(const Duration(seconds: 15), onTimeout: () {
+        throw Exception('Request timed out');
+      });
+      print(response.body);
+      print("forgotPass token: $token");
+      if (response.statusCode == 200) {
+        var responseData = json.decode(response.body);
+        print("forgot pass 200");
+        print("forgotPass:${responseData?.statusCode}");
+        print("forgotPass:${responseData?.body}");
+        // Show loading dialog
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) {
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          },
+        );
+        // Simulate a delay for async operations
+        await Future.delayed(Duration(seconds: 1));
+        // Clear shared preferences
+        SharedPreferences.getInstance().then((prefs) => prefs.clear());
+        // Hide loading dialog
+        Get.back();
+        // Navigate to Login Page
+        Get.offAll(() => Login());
+        // Show success toast
+        Fluttertoast.showToast(
+          msg: "Password changed successfully!",
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.CENTER,
+        );
+      } else if (response.statusCode == 401) {
+        print("printtttttttttttttt");
+        Fluttertoast.showToast(
+          msg: "Unauthorized access. Status code: ${response.statusCode}",
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.BOTTOM,
+        );
+        Get.snackbar('Error', response.body);
+      } else {
+        Fluttertoast.showToast(
+          msg: "Failed to change password. Status code: ${response.statusCode}",
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.BOTTOM,
+        );
+        Get.snackbar('Error', response.body);
+      }
+      return response;
+    }
+    catch(e){
+      print('Network error: $e');
+    Fluttertoast.showToast(
+      msg: "Network error: $e",
+      backgroundColor: Colors.red,
+      textColor: Colors.white,
+      toastLength: Toast.LENGTH_LONG,
+      gravity: ToastGravity.BOTTOM,
+    );
+    }
+    return null;
+  }
+
+  ///todo:ForgotPasswordApi Api
+  static Future<http.Response> ForgotPasswordApi(String email) async {
+  var prefs = GetStorage();
+  String employeeId = prefs.read("Id").toString();
+  // String token = GetStorage().read("token").toString();
+
+  print('forgotUserId:$employeeId');
+  var urll = "${baseUrl}EmployeeApi/EmployeeForgotPassword";
+  var body = jsonEncode({
+    'Email':email
+  });
+
+  http.Response r = await http.post(
+    Uri.parse(urll),
+    body: body,
+    headers: {
+      "Content-Type": "application/json",
+    },
+  );
+  print("body: ${r.body}");
+  if(r.statusCode==200){
+    print("forgotbody: ${r.body}");
+    print("forgotres: ${r.statusCode}");
+    // Show loading dialog
+    // showDialog(
+    //   context: context,
+    //   barrierDismissible: false,
+    //   builder: (context) {
+    //     return Center(
+    //       child:
+          CircularProgressIndicator();
+    //     );
+    //   },
+    // );
+
+    // Simulate a delay for async operations
+    await Future.delayed(Duration(seconds: 1));
+
+    // Clear shared preferences
+    SharedPreferences.getInstance().then((prefs) => prefs.clear());
+
+    // Hide loading dialog
+    Get.back();
+
+  Get.offAll(()=>Login());
+  return r;
+}  else if (r.statusCode == 401) {
+    Get.snackbar('Message', r.body);
+  } else {
+    Get.snackbar('Error', r.body);
+  }
+
+  return r;
+}
+
+  ///todo:ChangePasswordEmployeeApi Api
   static Future<http.Response?> ChangePasswordEmployeeApi(BuildContext context,
       // Added context parameter
       String CurrentPassword,
       String NewPassword,
       String ConfirmPassword) async {
     var prefs = GetStorage();
+    String token = GetStorage().read("token").toString();
 
     // Read saved userId
     String employeeId = prefs.read("Id").toString();
     print('wwwuseridEE:$employeeId');
     //employeeId
 
-    var url = "${baseUrl}App/EmployeeChangePassword";
+    var url = "${baseUrl}EmployeeApi/EmployeeChangePassword";
     var body = jsonEncode({
-      "userId": employeeId,
-      "currentPassword": CurrentPassword,
-      "newPassword": NewPassword,
-      "confirmPassword": ConfirmPassword,
+      // "userId": employeeId,
+      "CurrentPassword": CurrentPassword,
+      "NewPassword": NewPassword,
+      "ConfirmPassword": ConfirmPassword,
     });
 
-    print("loginnnn");
+    print("changePass body:$body");
     print(body);
 
     try {
@@ -1973,6 +2056,7 @@ class ApiProvider {
         Uri.parse(url),
         body: body,
         headers: {
+          'Authorization': 'Bearer $token',
           "Content-Type": "application/json",
         },
       ).timeout(const Duration(seconds: 10));
@@ -1980,14 +2064,10 @@ class ApiProvider {
       print(r.body);
 
       if (r.statusCode == 200) {
+        print("changePass :${r.body}");
+        print("changePass :${r.statusCode}");
+
         var responseData = json.decode(r.body);
-        // var userId = responseData['loginProfile']['id'];
-
-        // Save user ID (assuming 'Id' is part of the response JSON)
-        // prefs.write("Id", userId);
-        //  print('Saved userId: $userId');
-
-        // Show loading dialog
         showDialog(
           context: context,
           barrierDismissible: false,
@@ -2077,8 +2157,212 @@ class ApiProvider {
     }
   }
 
-  ///payment get api......
+  ///todo:CompanyLocation Api
+  static Future<CompanyLocationModel?> CompanyLocation() async {
+    String token = GetStorage().read("token").toString();
+    var companyUrl = "${baseUrl}EmployeeApi/GetCompanyLoction";
+    try {
+      Map<String, String> headers = {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json'
+      };
+      http.Response response = await http.get(Uri.parse(companyUrl), headers: headers);
+      print(response.body);
+      if(response.statusCode==200){
+        var getCompanyLocation = companyLocationModelFromJson(response.body);
+        return getCompanyLocation;
+      } else {
+        print('Failed to load company location. Status code: ${response.statusCode}');
+        return null;
+      }
+    } catch(e){
+      print('Error: $e');
+      Get.snackbar('Error', 'An error occurred while fetching company location');
+      return null;
+    }
+    // return null;
+  }
 
+  ///todo:check-in Api
+  static Future<http.Response?> CheckInApiii
+      (String CurrentLat,String Currentlong,
+    //  int Userid
+      ) async {
+    var prefs = GetStorage();
+
+    // Read saved user id and token
+    userId = prefs.read("userid").toString();
+    print('wwwuserid: $userId');
+
+    String token = GetStorage().read("token").toString();
+    var checkInUrl = "${baseUrl}EmployeeApi/EmployeeCheckIn";
+    // String employeeId = prefs.read("userid").toString();
+    print('useridddd:$userId');
+    var body = jsonEncode({
+      "CurrentLat": CurrentLat,
+      "Currentlong": Currentlong,
+      "Userid": userId,
+    });
+    print("checkin body:$body");
+    try{
+      http.Response r = await http.post(
+        Uri.parse(checkInUrl),
+        body: body,
+        headers: {
+          'Authorization': 'Bearer $token',
+          "Content-Type": "application/json",
+        },
+      );
+      print(r.body);
+      if(r.statusCode ==200){
+        print("checkIn Body :${r.body}");
+        print("checkIn :${r.statusCode}");
+        var responseData = json.decode(r.body);
+        await Future.delayed(Duration(seconds: 1));
+        Get.offAll(() => Attendance(id: "13"));
+
+        // Show success toast
+        Fluttertoast.showToast(
+          msg: "Check In Successfully!",
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.CENTER,
+        );
+      }else if (r.statusCode == 401) {
+        Fluttertoast.showToast(
+          msg: "Unauthorized access. Status code: ${r.statusCode}",
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.BOTTOM,
+        );
+        print('CheckInApi elseeeIf');
+
+        Get.snackbar('Error', r.body);
+      } else if(r.statusCode ==409){
+        Get.offAll(() => Attendance(id: "13"));
+
+        // Show success toast
+        Fluttertoast.showToast(
+          msg: "You are already Check-In",
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.CENTER,
+        );
+      } else {
+        Fluttertoast.showToast(
+          msg: "Failed to check-in. Status code: ${r.statusCode}",
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.BOTTOM,
+        );
+        print('CheckInApi elseee');
+        Get.snackbar('Error', r.body);
+      }
+      return r;
+    } catch(error) { print('Network error: $error');
+
+    Fluttertoast.showToast(
+      msg: "Network error: $error",
+      backgroundColor: Colors.red,
+      textColor: Colors.white,
+      toastLength: Toast.LENGTH_LONG,
+      gravity: ToastGravity.BOTTOM,
+    );
+
+    return null;}
+  }
+
+  ///todo:check-out Api
+  static Future<http.Response?>? CheckOutApiii(String CurrentLat,String Currentlong,) async {
+  var prefs = GetStorage();
+  userId = prefs.read("userid").toString();
+  print('useridOut: $userId');
+  String token = GetStorage().read("token").toString();
+  var checkInUrl = "${baseUrl}EmployeeApi/EmployeeCheckOut";
+  print('useridddd:$userId');
+  var body = jsonEncode({
+  "CurrentLat": CurrentLat,
+  "Currentlong": Currentlong,
+  "Userid": userId,
+  });
+  print("checkout body:$body");
+  try{
+  http.Response r = await http.post(
+  Uri.parse(checkInUrl),
+  body: body,
+  headers: {
+  'Authorization': 'Bearer $token',
+  "Content-Type": "application/json",
+  },
+  );
+  print(r.body);
+  if(r.statusCode ==200){
+  print("checkOutt Body 200:${r.body}");
+  print("checkOutt :${r.statusCode}");
+  var responseData = json.decode(r.body);
+  await Future.delayed(Duration(seconds: 1));
+  Get.offAll(() => Attendance(id: "13"));
+
+  // Show success toast
+  Fluttertoast.showToast(
+  msg: "Check Out Successfully!",
+  backgroundColor: Colors.green,
+  textColor: Colors.white,
+  toastLength: Toast.LENGTH_LONG,
+  gravity: ToastGravity.CENTER,
+  );
+  }else if (r.statusCode == 401) {
+  Fluttertoast.showToast(
+  msg: "Unauthorized access. Status code: ${r.statusCode}",
+  backgroundColor: Colors.red,
+  textColor: Colors.white,
+  toastLength: Toast.LENGTH_LONG,
+  gravity: ToastGravity.BOTTOM,
+  );
+  print('CheckOutApi elseeeIf');
+
+  Get.snackbar('Error', r.body);
+  } else if(r.statusCode ==409){
+  Get.offAll(() => Attendance(id: "13"));
+
+  // Show success toast
+  Fluttertoast.showToast(
+  msg: "You are already Check-Out",
+  backgroundColor: Colors.green,
+  textColor: Colors.white,
+  toastLength: Toast.LENGTH_LONG,
+  gravity: ToastGravity.CENTER,
+  );
+  } else {
+  Fluttertoast.showToast(
+  msg: "Failed to check-out. Status code: ${r.statusCode}",
+  backgroundColor: Colors.red,
+  textColor: Colors.white,
+  toastLength: Toast.LENGTH_LONG,
+  gravity: ToastGravity.BOTTOM,
+  );
+  print('CheckOutttApi elseee');
+  Get.snackbar('Error', r.body);
+  }
+  return r;
+  } catch(error) { print('Network error: $error');
+
+  Fluttertoast.showToast(
+  msg: "Network error: $error",
+  backgroundColor: Colors.red,
+  textColor: Colors.white,
+  toastLength: Toast.LENGTH_LONG,
+  gravity: ToastGravity.BOTTOM,
+  );
+
+  return null;}
+  }
+
+  ///payment get api......
   static EmployeePaymentGetApi() async {
     var prefs = GetStorage();
     // Read saved user id and token

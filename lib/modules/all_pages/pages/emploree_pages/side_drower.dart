@@ -25,6 +25,7 @@ import '../../../../constants/app_colorss/app_colorss.dart';
 import '../../../../constants/reusable_customdilog.dart';
 import '../../../../constants/static_text.dart';
 import '../../../../controllers/employee_controller/profile_controller/profile_info_employee_controller.dart';
+import '../../../../controllers/employeee_controllersss/employee_dashboard_controller/employee_dashboardcontroller.dart';
 import '../../../../controllers/employeee_controllersss/employee_edit_profile_controller/employee_update_personal_controller.dart';
 import '../../../../controllers/employeee_controllersss/employee_login_controllers/employee_login_controllers.dart';
 import '../../../../controllers/employeee_controllersss/employee_offer_appointment/offer_apt_employee_controller.dart';
@@ -42,32 +43,18 @@ import 'leaves_employee/single_day.dart';
 class EmployeeNavBar extends StatelessWidget {
   EmployeeNavBar({Key? key}) : super(key: key);
 
-  AptOfferEmployeeController _aptOfferEmployeeController =
-      Get.put(AptOfferEmployeeController());
-  final ProfileEmployeeController _getprofileebnk =
-      Get.put(ProfileEmployeeController());
+  AptOfferEmployeeController _aptOfferEmployeeController = Get.put(AptOfferEmployeeController());
+  final ProfileEmployeeController _getprofileebnk = Get.put(ProfileEmployeeController());
 
-  ProfileEmployeeController _profileEmployeeController =
-      Get.put(ProfileEmployeeController());
+  ProfileEmployeeController _profileEmployeeController = Get.put(ProfileEmployeeController());
 
-  PaymentEmployeeController _employeeController = Get.find();
-  EmployeeLoginController _employeeloginController =
-      Get.put(EmployeeLoginController());
+  EmployeeLoginController _employeeloginController = Get.put(EmployeeLoginController());
 
-  AllSalarySlipController _allsalaryslipController =
-      Get.put(AllSalarySlipController());
+  AllSalarySlipController _allsalaryslipController = Get.put(AllSalarySlipController());
 
-  SupportEmployeeController _supportEmployeeController =
-      Get.put(SupportEmployeeController());
-  final EmployeeUpdatePersonalController _employeeUpdatePersonalController =
-      Get.put(EmployeeUpdatePersonalController());
-
-  //AllSavedJobController _savedJobController = Get.put(AllSavedJobController());
-  // AllAppliedJobController _allappliedController =
-  //Get.put(AllAppliedJobController());
-  // HomePageController _homePageController = Get.find();
-  //final RegistrationController _registrationController =
-  //Get.put(RegistrationController());
+  SupportEmployeeController _supportEmployeeController = Get.put(SupportEmployeeController());
+  final EmployeeUpdatePersonalController _employeeUpdatePersonalController = Get.put(EmployeeUpdatePersonalController());
+  HomedashboardController _homedashboardController = Get.put(HomedashboardController());
 
   final snackBarDuration = Duration(seconds: 3); // Define your desired duration
   bool loading = false;
@@ -438,18 +425,25 @@ class EmployeeNavBar extends StatelessWidget {
                 onTap: () async {
                   Get.dialog(CustomThreeInOutLoader(),
                       barrierDismissible: false);
-
-                  await _aptOfferEmployeeController.ampofferemployeeApi();
-                  _aptOfferEmployeeController.update();
-                  //   await Future.delayed(Duration(seconds: 2));
+                  await _homedashboardController.dashboarddApi();
+                  _homedashboardController.update();
                   Get.back();
-                  if (_aptOfferEmployeeController.aptLetter.isNotEmpty) {
-                    await _aptOfferEmployeeController.openDocument(
-                        _aptOfferEmployeeController.offLetter.value);
+                  if(_homedashboardController.offLetter.isNotEmpty){
+                    await _homedashboardController.openDocument(_homedashboardController.offLetter.value);
                   } else {
-                    // Handle the case where `aptLetter` is empty
-                    Get.snackbar("Error", "No document found to open.");
+                    Get.snackbar("Error", "No document found to open.",backgroundColor: Colors.red,colorText: Colors.white);
                   }
+                  // await _aptOfferEmployeeController.ampofferemployeeApi();
+                  // _aptOfferEmployeeController.update();
+                  // //   await Future.delayed(Duration(seconds: 2));
+                  // Get.back();
+                  // if (_aptOfferEmployeeController.aptLetter.isNotEmpty) {
+                  //   await _aptOfferEmployeeController.openDocument(
+                  //       _aptOfferEmployeeController.offLetter.value);
+                  // } else {
+                  //   // Handle the case where `aptLetter` is empty
+                  //   Get.snackbar("Error", "No document found to open.");
+                  // }
                 },
               ),
               ListTile(
@@ -459,17 +453,24 @@ class EmployeeNavBar extends StatelessWidget {
                   Get.dialog(CustomThreeInOutLoader(),
                       barrierDismissible: false);
 
-                  await _aptOfferEmployeeController.ampofferemployeeApi();
-                  _aptOfferEmployeeController.update();
+                  // await _aptOfferEmployeeController.ampofferemployeeApi();
+                  // _aptOfferEmployeeController.update();
                   //   await Future.delayed(Duration(seconds: 2));
+                  await _homedashboardController.dashboarddApi();
+                  _homedashboardController.update();
                   Get.back();
-                  if (_aptOfferEmployeeController.aptLetter.isNotEmpty) {
-                    await _aptOfferEmployeeController.openDocument(
-                        _aptOfferEmployeeController.aptLetter.value);
+                  if(_homedashboardController.aptLetter.isNotEmpty){
+                    await _homedashboardController.openDocument(_homedashboardController.aptLetter.value);
                   } else {
-                    // Handle the case where `aptLetter` is empty
-                    Get.snackbar("Error", "No document found to open.");
+                    Get.snackbar("Error", "No document found to open.",backgroundColor: Colors.red,colorText: Colors.white);
                   }
+                  // if (_aptOfferEmployeeController.aptLetter.isNotEmpty) {
+                  //   await _aptOfferEmployeeController.openDocument(
+                  //       _aptOfferEmployeeController.aptLetter.value);
+                  // } else {
+                  //   // Handle the case where `aptLetter` is empty
+                  //   Get.snackbar("Error", "No document found to open.");
+                  // }
                 },
               ),
               // ListTile(

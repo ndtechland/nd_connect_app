@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../../../components/styles.dart';
-import '../../../../controllers/bottom_nav_controller.dart';
+import '../../../components/styles.dart';
+import '../../../controllers/bottom_nav_controller.dart';
 
 class TaskDetailPage extends StatefulWidget {
   final String taskId;

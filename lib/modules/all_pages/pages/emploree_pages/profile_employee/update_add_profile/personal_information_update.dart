@@ -74,6 +74,8 @@ class _PersonalUpdateProfileState extends State<PersonalUpdateProfile> {
   //final _aadharFilePathController = TextEditingController();  // TextController for showing the file name
 
   Uint8List? _panFileContent;
+  Uint8List? _aadhar1FileContent;
+  Uint8List? _aadhar2FileContent;
 
 
   //List<Uint8List> _aadharImages = [];
@@ -81,6 +83,7 @@ class _PersonalUpdateProfileState extends State<PersonalUpdateProfile> {
   @override
   void initState() {
     super.initState();
+    _getprofileepersonal.getCoordinatesFromAddress();
     if (_getprofileepersonal.getprofileemployeeModel != null) {
       _employeeUpdatePersonalController
           .selectedState.value;
@@ -116,6 +119,7 @@ class _PersonalUpdateProfileState extends State<PersonalUpdateProfile> {
       _pannoController.text =
           _getprofileepersonal.getprofileemployeeModel?.data?.panNo.toString() ??
               "";
+      print("pannnn:${_pannoController.text}");
       _address1Controller.text = _getprofileepersonal
               .getprofileemployeeModel?.data?.address1
               .toString() ??
@@ -144,6 +148,7 @@ class _PersonalUpdateProfileState extends State<PersonalUpdateProfile> {
               .getprofileemployeeModel?.data?.companyLocationName
               .toString() ??
           "";
+      print("_companyLocController:${_companyLocController.text}");
       _companynameController.text = _getprofileepersonal
               .getprofileemployeeModel?.data?.companyName
               .toString() ??
@@ -379,8 +384,8 @@ class _PersonalUpdateProfileState extends State<PersonalUpdateProfile> {
               _aadharFileNames.add(file.name);
               selectedAdhar1Image.value = file.bytes; // Update the selected image
               selectedAdhar2Image.value = file.bytes; // Add file name
-print("_aadharImages:$_aadharImages");
-print("_aadharFileNames:$_aadharFileNames");
+              print("_aadharImages:$_aadharImages");
+              print("_aadharFileNames:$_aadharFileNames");
               // Save file name to the respective controller
               if (i == 0) {
                 _aadharFilePath1Controller.text = file.name;
@@ -499,6 +504,219 @@ print("_aadharFileNames:$_aadharFileNames");
 
             _panFileContent = file.bytes!;
             print('File size: ${_panFileContent!.length} bytes');
+          } else {
+            print('Failed to read file content: File bytes are null');
+          }
+        } else {
+          Fluttertoast.showToast(
+              msg: "Selected file exceeds 20MB limit",
+              toastLength: Toast.LENGTH_LONG,
+              gravity: ToastGravity.CENTER,
+              timeInSecForIosWeb: 1,
+              backgroundColor: Colors.red,
+              textColor: Colors.white,
+              fontSize: 16.0);
+        }
+      } else {
+        print('No file selected');
+      }
+    } catch (e) {
+      print('Error picking file: $e');
+    }
+  }
+
+  Future<void> _showAdhar1FileDialog(BuildContext context) async {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Choose Option'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                GestureDetector(
+                  child: Row(
+                    children: [
+                      Icon(Icons.camera),
+                      SizedBox(width: 10),
+                      Text('Take Photo'),
+                    ],
+                  ),
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    _pickImageAdhar1FromCamera();
+                  },
+                ),
+                Padding(padding: EdgeInsets.all(8.0)),
+                GestureDetector(
+                  child: Row(
+                    children: [
+                      Icon(Icons.image),
+                      SizedBox(width: 10),
+                      Text('Choose from Gallery'),
+                    ],
+                  ),
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    _selectAdhar1File(context);
+                  },
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+// Function to pick image from camera
+  Future<void> _pickImageAdhar1FromCamera() async {
+    try {
+      final ImagePicker picker = ImagePicker();
+      final XFile? image = await picker.pickImage(source: ImageSource.camera);
+
+      if (image != null) {
+        // Convert the selected image to bytes
+        final bytes = await image.readAsBytes();
+
+        // Update the selected image and file content
+        selectedAdhar1Image.value = bytes;
+        _aadhar1FileContent = bytes;
+
+        // Update the TextField controller with the file name
+        _aadharFilePath1Controller.text = image.name;
+      }
+    } catch (e) {
+      print('Error capturing image: $e');
+    }
+  }
+
+  Future<void> _selectAdhar1File(BuildContext context) async {
+    try {
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['jpg', 'jpeg', 'png', 'pdf'],
+        withData: true, // Ensure the file picker reads the file data
+      );
+      if (result != null && result.files.isNotEmpty) {
+        PlatformFile file = result.files.first;
+        print('Selected file: ${file.name}, path: ${file.path}');
+
+        if (file.size! <= 20 * 1024 * 1024) {
+          // Check if file size is less than or equal to 10MB
+          if (file.bytes != null) {
+            _aadharFilePath1Controller.text = file.name;
+            selectedAdhar1Image.value = file.bytes; // Update the selected image
+
+            _aadhar1FileContent = file.bytes!;
+            print('File size: ${_aadhar1FileContent!.length} bytes');
+          } else {
+            print('Failed to read file content: File bytes are null');
+          }
+        } else {
+          Fluttertoast.showToast(
+              msg: "Selected file exceeds 20MB limit",
+              toastLength: Toast.LENGTH_LONG,
+              gravity: ToastGravity.CENTER,
+              timeInSecForIosWeb: 1,
+              backgroundColor: Colors.red,
+              textColor: Colors.white,
+              fontSize: 16.0);
+        }
+      } else {
+        print('No file selected');
+      }
+    } catch (e) {
+      print('Error picking file: $e');
+    }
+  }
+
+
+  Future<void> _showAdhar2FileDialog(BuildContext context) async {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Choose Option'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                GestureDetector(
+                  child: Row(
+                    children: [
+                      Icon(Icons.camera),
+                      SizedBox(width: 10),
+                      Text('Take Photo'),
+                    ],
+                  ),
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    _pickImageAdhar2FromCamera();
+                  },
+                ),
+                Padding(padding: EdgeInsets.all(8.0)),
+                GestureDetector(
+                  child: Row(
+                    children: [
+                      Icon(Icons.image),
+                      SizedBox(width: 10),
+                      Text('Choose from Gallery'),
+                    ],
+                  ),
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    _selectAdhar2File(context);
+                  },
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+// Function to pick image from camera
+  Future<void> _pickImageAdhar2FromCamera() async {
+    try {
+      final ImagePicker picker = ImagePicker();
+      final XFile? image = await picker.pickImage(source: ImageSource.camera);
+
+      if (image != null) {
+        // Convert the selected image to bytes
+        final bytes = await image.readAsBytes();
+
+        // Update the selected image and file content
+        selectedAdhar2Image.value = bytes;
+        _aadhar2FileContent = bytes;
+
+        // Update the TextField controller with the file name
+        _aadharFilePath2Controller.text = image.name;
+      }
+    } catch (e) {
+      print('Error capturing image: $e');
+    }
+  }
+
+  Future<void> _selectAdhar2File(BuildContext context) async {
+    try {
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['jpg', 'jpeg', 'png', 'pdf'],
+        withData: true, // Ensure the file picker reads the file data
+      );
+      if (result != null && result.files.isNotEmpty) {
+        PlatformFile file = result.files.first;
+        print('Selected file: ${file.name}, path: ${file.path}');
+
+        if (file.size! <= 20 * 1024 * 1024) {
+          // Check if file size is less than or equal to 10MB
+          if (file.bytes != null) {
+            _aadharFilePath2Controller.text = file.name;
+            selectedAdhar2Image.value = file.bytes; // Update the selected image
+
+            _aadhar2FileContent = file.bytes!;
+            print('File size: ${_aadhar2FileContent!.length} bytes');
           } else {
             print('Failed to read file content: File bytes are null');
           }
@@ -712,7 +930,7 @@ print("_aadharFileNames:$_aadharFileNames");
 
     return Scaffold(
       extendBodyBehindAppBar: true,
-      backgroundColor: backgroundColor,
+      backgroundColor: appColor2,
       body:
      Obx(() =>
         (_getprofileepersonal.isLoading.value)
@@ -724,980 +942,948 @@ print("_aadharFileNames:$_aadharFileNames");
 
             return true;
           },
-          child: Form(
-                  key: _employeeUpdatePersonalController.personalinfoFormKey,
-                  autovalidateMode: AutovalidateMode.onUserInteraction,
-                  child: SingleChildScrollView(
-                    child: Column(
-                      children: [
-                        _buildHeader(context),
-                        const SizedBox(height: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 16),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              blackHeadingSmall(
-                                  'Informations'.toUpperCase()),
-                              // GestureDetector(
-                              //     onTap: () async {
-                              //       await _profileEmployeeController
-                              //           .profileemployeeApi();
-                              //       await _profileEmployeeController
-                              //           .profileBasicemployeeApi();
-                              //       await _profileEmployeeController
-                              //           .profileEmployeBankApi();
-                              //
-                              //       //profileBasicemployeeApi();
-                              //       //     profileEmployeBankApi();
-                              //
-                              //       _profileEmployeeController.update();
-                              //       // await _profileController.profileApi();
-                              //       // _profileController.update();
-                              //       Navigator.pop(context);
-                              //       //await Get.off(EmployeeProfileNd());
-                              //       // await Navigator.push(
-                              //       //     context,
-                              //       //     MaterialPageRoute(
-                              //       //         builder: (context) =>
-                              //       //             EmployeeProfile()));
-                              //     },
-                              //     child: appcolorText('View'))
-                            ],
-                          ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 0, horizontal: 16),
-                          margin: const EdgeInsets.symmetric(
-                              vertical: 0, horizontal: 16),
-                          decoration: const BoxDecoration(
-                            color: Colors.white,
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black12,
-                                blurRadius: 20.0,
+          child: SafeArea(
+            child: Form(
+                    key: _employeeUpdatePersonalController.personalinfoFormKey,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    child: SingleChildScrollView(
+                      child: Container(
+                        color: Colors.white,
+                        child: Column(
+                          children: [
+                            _buildHeader(context),
+                            const SizedBox(height: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 16),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  blackHeadingSmall(
+                                      'Informations'.toUpperCase()),
+                                  // GestureDetector(
+                                  //     onTap: () async {
+                                  //       await _profileEmployeeController
+                                  //           .profileemployeeApi();
+                                  //       await _profileEmployeeController
+                                  //           .profileBasicemployeeApi();
+                                  //       await _profileEmployeeController
+                                  //           .profileEmployeBankApi();
+                                  //
+                                  //       //profileBasicemployeeApi();
+                                  //       //     profileEmployeBankApi();
+                                  //
+                                  //       _profileEmployeeController.update();
+                                  //       // await _profileController.profileApi();
+                                  //       // _profileController.update();
+                                  //       Navigator.pop(context);
+                                  //       //await Get.off(EmployeeProfileNd());
+                                  //       // await Navigator.push(
+                                  //       //     context,
+                                  //       //     MaterialPageRoute(
+                                  //       //         builder: (context) =>
+                                  //       //             EmployeeProfile()));
+                                  //     },
+                                  //     child: appcolorText('View'))
+                                ],
                               ),
-                            ],
-                            borderRadius: BorderRadius.all(Radius.circular(6.0)),
-                          ),
-                          child: Column(
-                            children: [
-                              Container(
-                                padding: EdgeInsets.symmetric(vertical: 0),
-                                child: TextFormField(
-                                  readOnly: true,
-                                  controller: _nameController,
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return 'Please enter Name';
-                                    }
-                                    return null;
-                                  },
-                                  decoration: InputDecoration(
-                                    //fillColor: Colors.grey.shade200,
-                                    //filled: true,
-                                    labelText: "Name",
-                                    hintStyle: (TextStyle(
-                                      fontSize: 13,
-                                    )),
-                                    labelStyle: const TextStyle(
-                                        color: Colors.black54, fontSize: 13),
-                                    focusedBorder: const UnderlineInputBorder(
-                                      borderSide: BorderSide(color: appColor),
-                                    ),
-                                    enabledBorder: const UnderlineInputBorder(
-                                      borderSide:
-                                          BorderSide(color: Colors.black12),
-                                    ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 0, horizontal: 16),
+                              margin: const EdgeInsets.symmetric(
+                                  vertical: 0, horizontal: 16),
+                              decoration: const BoxDecoration(
+                                color: Colors.white,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black12,
+                                    blurRadius: 20.0,
                                   ),
-                                ),
+                                ],
+                                borderRadius: BorderRadius.all(Radius.circular(6.0)),
                               ),
-
-                              Container(
-                                padding: EdgeInsets.symmetric(vertical: 0),
-                                child: TextFormField(
-                                  controller: _emailController,
-                                 decoration: InputDecoration(
-                                    labelText: "Personal Email Id",
-                                    hintStyle: (TextStyle(
-                                      fontSize: 13,
-                                    )),
-                                    labelStyle: const TextStyle(
-                                        color: Colors.black54, fontSize: 13),
-                                    focusedBorder: const UnderlineInputBorder(
-                                      borderSide: BorderSide(color: appColor),
-                                    ),
-                                    enabledBorder: const UnderlineInputBorder(
-                                      borderSide:
-                                          BorderSide(color: Colors.black12),
-                                    ),
-                                  ),
-                                ),
-                              ),
-
-                              Container(
-                                padding: EdgeInsets.symmetric(vertical: 0),
-                                child: TextFormField(
-                                  keyboardType: TextInputType.phone,
-                                  inputFormatters: [
-                                    LengthLimitingTextInputFormatter(10)
-                                  ],
-                                  controller: _mobileNumberController,
-                               decoration: InputDecoration(
-                                    labelText: "Phone Number",
-                                    hintStyle: (TextStyle(
-                                      fontSize: 13,
-                                    )),
-                                    labelStyle: const TextStyle(
-                                        color: Colors.black54, fontSize: 13),
-                                    focusedBorder: const UnderlineInputBorder(
-                                      borderSide: BorderSide(color: appColor),
-                                    ),
-                                    enabledBorder: const UnderlineInputBorder(
-                                      borderSide:
-                                          BorderSide(color: Colors.black12),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              Container(
-                                padding: EdgeInsets.symmetric(vertical: 0),
-                                child: TextFormField(
-                                  //readOnly: true,
-                                  controller: _dateOfBirthController,
-                                decoration: InputDecoration(
-                                    labelText: "Date Of Birth",
-                                    hintStyle: (TextStyle(
-                                      fontSize: 13,
-                                    )),
-                                    labelStyle: const TextStyle(
-                                        color: Colors.black54, fontSize: 13),
-                                    focusedBorder: const UnderlineInputBorder(
-                                      borderSide: BorderSide(color: appColor),
-                                    ),
-                                    enabledBorder: const UnderlineInputBorder(
-                                      borderSide:
-                                          BorderSide(color: Colors.black12),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              Container(
-                                padding: EdgeInsets.symmetric(vertical: 0),
-                                child: TextFormField(
-                                  controller: _fathernameController,
-                                  decoration: InputDecoration(
-                                    labelText: "Father Name",
-                                    hintStyle: (TextStyle(
-                                      fontSize: 13,
-                                    )),
-                                    labelStyle: const TextStyle(
-                                        color: Colors.black54, fontSize: 13),
-                                    focusedBorder: const UnderlineInputBorder(
-                                      borderSide: BorderSide(color: appColor),
-                                    ),
-                                    enabledBorder: const UnderlineInputBorder(
-                                      borderSide:
-                                          BorderSide(color: Colors.black12),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              Container(
-                                padding: EdgeInsets.symmetric(vertical: 0),
-                                child: TextFormField(
-                                  controller: _companynameController,
-                                  decoration: InputDecoration(
-                                    labelText: "Company Name",
-                                    hintStyle: (TextStyle(
-                                      fontSize: 13,
-                                    )),
-                                    labelStyle: const TextStyle(
-                                        color: Colors.black54, fontSize: 13),
-                                    focusedBorder: const UnderlineInputBorder(
-                                      borderSide: BorderSide(color: appColor),
-                                    ),
-                                    enabledBorder: const UnderlineInputBorder(
-                                      borderSide:
-                                          BorderSide(color: Colors.black12),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              Container(
-                                padding: EdgeInsets.symmetric(vertical: 0),
-                                child: TextFormField(
-                                  controller: _workEmailController,
-                                  decoration: InputDecoration(
-                                    labelText: "Work Email",
-                                    hintStyle: (TextStyle(
-                                      fontSize: 13,
-                                    )),
-                                    labelStyle: const TextStyle(
-                                        color: Colors.black54, fontSize: 13),
-                                    focusedBorder: const UnderlineInputBorder(
-                                      borderSide: BorderSide(color: appColor),
-                                    ),
-                                    enabledBorder: const UnderlineInputBorder(
-                                      borderSide:
-                                          BorderSide(color: Colors.black12),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              Container(
-                                padding: EdgeInsets.symmetric(vertical: 0),
-                                child: TextFormField(
-                                  controller: _joiningDateController,
-                                  decoration: InputDecoration(
-                                    labelText: "Joining Date",
-                                    hintStyle: (TextStyle(
-                                      fontSize: 13,
-                                    )),
-                                    labelStyle: const TextStyle(
-                                        color: Colors.black54, fontSize: 13),
-                                    focusedBorder: const UnderlineInputBorder(
-                                      borderSide: BorderSide(color: appColor),
-                                    ),
-                                    enabledBorder: const UnderlineInputBorder(
-                                      borderSide:
-                                          BorderSide(color: Colors.black12),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              Container(
-                                padding: EdgeInsets.symmetric(vertical: 0),
-                                child: TextFormField(
-                                  controller: _shiftController,
-                                  decoration: InputDecoration(
-                                    labelText: "Current Shift",
-                                    hintStyle: (TextStyle(
-                                      fontSize: 13,
-                                    )),
-                                    labelStyle: const TextStyle(
-                                        color: Colors.black54, fontSize: 13),
-                                    focusedBorder: const UnderlineInputBorder(
-                                      borderSide: BorderSide(color: appColor),
-                                    ),
-                                    enabledBorder: const UnderlineInputBorder(
-                                      borderSide:
-                                          BorderSide(color: Colors.black12),
-                                    ),
-                                  ),
-                                ),
-                              ),
-
-                              ///
-
-                              const SizedBox(height: 10),
-                            ],
-                          ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 16),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              blackHeadingSmall('Location'.toUpperCase()),
-                            ],
-                          ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 0, horizontal: 16),
-                          margin: const EdgeInsets.symmetric(
-                              vertical: 0, horizontal: 16),
-                          decoration: const BoxDecoration(
-                            color: Colors.white,
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black12,
-                                blurRadius: 20.0,
-                              ),
-                            ],
-                            borderRadius: BorderRadius.all(Radius.circular(6.0)),
-                          ),
-                          child: Column(
-                            children: [
-
-                              Container(
-                                padding: EdgeInsets.symmetric(vertical: 0),
-                                child: Obx(
-                                      () => DropdownButtonFormField<StateModelss>(
-                                    value: _employeeUpdatePersonalController.selectedState.value,
-                                    decoration: InputDecoration(
-                                      labelText: 'State',
-                                      labelStyle: const TextStyle(color: Colors.black54, fontSize: 15),
-                                      focusedBorder: const UnderlineInputBorder(
-                                        borderSide: BorderSide(color: appColor),
-                                      ),
-                                    ),
-                                    hint: Text(
-                                      _getprofileepersonal.getprofileemployeeModel?.data?.stateName ?? "",
-                                      style: TextStyle(color: Colors.black),
-                                    ),
-                                    items: _employeeUpdatePersonalController.states.map((StateModelss items) {
-                                      // Debugging print to see the state items
-                                      print("State item id: ${items.id}, name: ${items.sName}");
-                                      return DropdownMenuItem(
-                                        value: items,
-                                        child: Text(
-                                          items.sName!,
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.w600,
-                                            fontSize: size.height * 0.015,
-                                          ),
-                                        ),
-                                      );
-                                    }).toList(),
-                                    onChanged: (StateModelss? newValue) {
-                                      print("Selected state id: ${newValue?.id}, name: ${newValue?.sName}");
-                                      _employeeUpdatePersonalController.selectedState.value = newValue!;
-                                      _employeeUpdatePersonalController.selectedCity.value = null;
-                                    },
-                                  ),
-                                ),
-                              ),
-
-                              Container(
-                                padding: EdgeInsets.symmetric(vertical: 0),
-                                child: Obx(
-                                  () => DropdownButtonFormField<CityModell>(
-                                      value: _employeeUpdatePersonalController
-                                          .selectedCity.value,
+                              child: Column(
+                                children: [
+                                  Container(
+                                    padding: EdgeInsets.symmetric(vertical: 0),
+                                    child: TextFormField(
+                                      readOnly: true,
+                                      controller: _nameController,
+                                      validator: (value) {
+                                        if (value == null || value.isEmpty) {
+                                          return 'Please enter Name';
+                                        }
+                                        return null;
+                                      },
                                       decoration: InputDecoration(
-                                        labelText: 'City',
-                                        // suffixIcon: Icon(
-                                        //   Icons.place_outlined,
-                                        //   size: 23,
-                                        //   color: Colors.black12,
-                                        // ),
+                                        //fillColor: Colors.grey.shade200,
+                                        //filled: true,
+                                        labelText: "Name",
+                                        hintStyle: (TextStyle(
+                                          fontSize: 13,
+                                        )),
                                         labelStyle: const TextStyle(
-                                            color: Colors.black54, fontSize: 15),
+                                            color: Colors.black54, fontSize: 13),
                                         focusedBorder: const UnderlineInputBorder(
                                           borderSide: BorderSide(color: appColor),
                                         ),
+                                        enabledBorder: const UnderlineInputBorder(
+                                          borderSide:
+                                              BorderSide(color: Colors.black12),
+                                        ),
                                       ),
-                                      hint: Text(
-                                        _getprofileepersonal
-                                                .getprofileemployeeModel
-                                                ?.data
-                                                ?.cityName ??
-                                            "",
-                                        style: TextStyle(color: Colors.black),
+                                    ),
+                                  ),
+
+                                  Container(
+                                    padding: EdgeInsets.symmetric(vertical: 0),
+                                    child: TextFormField(
+                                      controller: _emailController,
+                                     decoration: InputDecoration(
+                                        labelText: "Personal Email Id",
+                                        hintStyle: (TextStyle(
+                                          fontSize: 13,
+                                        )),
+                                        labelStyle: const TextStyle(
+                                            color: Colors.black54, fontSize: 13),
+                                        focusedBorder: const UnderlineInputBorder(
+                                          borderSide: BorderSide(color: appColor),
+                                        ),
+                                        enabledBorder: const UnderlineInputBorder(
+                                          borderSide:
+                                              BorderSide(color: Colors.black12),
+                                        ),
                                       ),
-                                      items: _employeeUpdatePersonalController
-                                          .cities
-                                          .map((CityModell items) {
-                                        return DropdownMenuItem(
-                                          value: items,
-                                          child: Text(
-                                            items.cityName,
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.w600,
-                                              fontSize: size.height * 0.015,
+                                    ),
+                                  ),
+
+                                  Container(
+                                    padding: EdgeInsets.symmetric(vertical: 0),
+                                    child: TextFormField(
+                                      keyboardType: TextInputType.phone,
+                                      inputFormatters: [
+                                        LengthLimitingTextInputFormatter(10)
+                                      ],
+                                      controller: _mobileNumberController,
+                                   decoration: InputDecoration(
+                                        labelText: "Phone Number",
+                                        hintStyle: (TextStyle(
+                                          fontSize: 13,
+                                        )),
+                                        labelStyle: const TextStyle(
+                                            color: Colors.black54, fontSize: 13),
+                                        focusedBorder: const UnderlineInputBorder(
+                                          borderSide: BorderSide(color: appColor),
+                                        ),
+                                        enabledBorder: const UnderlineInputBorder(
+                                          borderSide:
+                                              BorderSide(color: Colors.black12),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  Container(
+                                    padding: EdgeInsets.symmetric(vertical: 0),
+                                    child: TextFormField(
+                                      //readOnly: true,
+                                      controller: _dateOfBirthController,
+                                    decoration: InputDecoration(
+                                        labelText: "Date Of Birth",
+                                        hintStyle: (TextStyle(
+                                          fontSize: 13,
+                                        )),
+                                        labelStyle: const TextStyle(
+                                            color: Colors.black54, fontSize: 13),
+                                        focusedBorder: const UnderlineInputBorder(
+                                          borderSide: BorderSide(color: appColor),
+                                        ),
+                                        enabledBorder: const UnderlineInputBorder(
+                                          borderSide:
+                                              BorderSide(color: Colors.black12),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  Container(
+                                    padding: EdgeInsets.symmetric(vertical: 0),
+                                    child: TextFormField(
+                                      controller: _fathernameController,
+                                      decoration: InputDecoration(
+                                        labelText: "Father Name",
+                                        hintStyle: (TextStyle(
+                                          fontSize: 13,
+                                        )),
+                                        labelStyle: const TextStyle(
+                                            color: Colors.black54, fontSize: 13),
+                                        focusedBorder: const UnderlineInputBorder(
+                                          borderSide: BorderSide(color: appColor),
+                                        ),
+                                        enabledBorder: const UnderlineInputBorder(
+                                          borderSide:
+                                              BorderSide(color: Colors.black12),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  Container(
+                                    padding: EdgeInsets.symmetric(vertical: 0),
+                                    child: TextFormField(
+                                      controller: _companynameController,
+                                      decoration: InputDecoration(
+                                        labelText: "Company Name",
+                                        hintStyle: (TextStyle(
+                                          fontSize: 13,
+                                        )),
+                                        labelStyle: const TextStyle(
+                                            color: Colors.black54, fontSize: 13),
+                                        focusedBorder: const UnderlineInputBorder(
+                                          borderSide: BorderSide(color: appColor),
+                                        ),
+                                        enabledBorder: const UnderlineInputBorder(
+                                          borderSide:
+                                              BorderSide(color: Colors.black12),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  Container(
+                                    padding: EdgeInsets.symmetric(vertical: 0),
+                                    child: TextFormField(
+                                      controller: _workEmailController,
+                                      decoration: InputDecoration(
+                                        labelText: "Work Email",
+                                        hintStyle: (TextStyle(
+                                          fontSize: 13,
+                                        )),
+                                        labelStyle: const TextStyle(
+                                            color: Colors.black54, fontSize: 13),
+                                        focusedBorder: const UnderlineInputBorder(
+                                          borderSide: BorderSide(color: appColor),
+                                        ),
+                                        enabledBorder: const UnderlineInputBorder(
+                                          borderSide:
+                                              BorderSide(color: Colors.black12),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  Container(
+                                    padding: EdgeInsets.symmetric(vertical: 0),
+                                    child: TextFormField(
+                                      controller: _joiningDateController,
+                                      decoration: InputDecoration(
+                                        labelText: "Joining Date",
+                                        hintStyle: (TextStyle(
+                                          fontSize: 13,
+                                        )),
+                                        labelStyle: const TextStyle(
+                                            color: Colors.black54, fontSize: 13),
+                                        focusedBorder: const UnderlineInputBorder(
+                                          borderSide: BorderSide(color: appColor),
+                                        ),
+                                        enabledBorder: const UnderlineInputBorder(
+                                          borderSide:
+                                              BorderSide(color: Colors.black12),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  Container(
+                                    padding: EdgeInsets.symmetric(vertical: 0),
+                                    child: TextFormField(
+                                      controller: _shiftController,
+                                      decoration: InputDecoration(
+                                        labelText: "Current Shift",
+                                        hintStyle: (TextStyle(
+                                          fontSize: 13,
+                                        )),
+                                        labelStyle: const TextStyle(
+                                            color: Colors.black54, fontSize: 13),
+                                        focusedBorder: const UnderlineInputBorder(
+                                          borderSide: BorderSide(color: appColor),
+                                        ),
+                                        enabledBorder: const UnderlineInputBorder(
+                                          borderSide:
+                                              BorderSide(color: Colors.black12),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+
+                                  ///
+
+                                  const SizedBox(height: 10),
+                                ],
+                              ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 16),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  blackHeadingSmall('Location'.toUpperCase()),
+                                ],
+                              ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 0, horizontal: 16),
+                              margin: const EdgeInsets.symmetric(
+                                  vertical: 0, horizontal: 16),
+                              decoration: const BoxDecoration(
+                                color: Colors.white,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black12,
+                                    blurRadius: 20.0,
+                                  ),
+                                ],
+                                borderRadius: BorderRadius.all(Radius.circular(6.0)),
+                              ),
+                              child: Column(
+                                children: [
+
+                                  Container(
+                                    padding: EdgeInsets.symmetric(vertical: 0),
+                                    child: Obx(
+                                          () => DropdownButtonFormField<StateModelss>(
+                                        value: _employeeUpdatePersonalController.selectedState.value,
+                                        decoration: InputDecoration(
+                                          labelText: 'State',
+                                          labelStyle: const TextStyle(color: Colors.black54, fontSize: 15),
+                                          focusedBorder: const UnderlineInputBorder(
+                                            borderSide: BorderSide(color: appColor),
+                                          ),
+                                        ),
+                                        hint: Text(
+                                          _getprofileepersonal.getprofileemployeeModel?.data?.stateName ?? "",
+                                          style: TextStyle(color: Colors.black),
+                                        ),
+                                        items: _employeeUpdatePersonalController.states.map((StateModelss items) {
+                                          // Debugging print to see the state items
+                                          print("State item id: ${items.id}, name: ${items.sName}");
+                                          return DropdownMenuItem(
+                                            value: items,
+                                            child: Text(
+                                              items.sName!,
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.w600,
+                                                fontSize: size.height * 0.015,
+                                              ),
+                                            ),
+                                          );
+                                        }).toList(),
+                                        onChanged: (StateModelss? newValue) {
+                                          print("Selected state id: ${newValue?.id}, name: ${newValue?.sName}");
+                                          _employeeUpdatePersonalController.selectedState.value = newValue!;
+                                          _employeeUpdatePersonalController.selectedCity.value = null;
+                                        },
+                                      ),
+                                    ),
+                                  ),
+
+                                  Container(
+                                    padding: EdgeInsets.symmetric(vertical: 0),
+                                    child: Obx(
+                                      () => DropdownButtonFormField<CityModell>(
+                                          value: _employeeUpdatePersonalController
+                                              .selectedCity.value,
+                                          decoration: InputDecoration(
+                                            labelText: 'City',
+                                            // suffixIcon: Icon(
+                                            //   Icons.place_outlined,
+                                            //   size: 23,
+                                            //   color: Colors.black12,
+                                            // ),
+                                            labelStyle: const TextStyle(
+                                                color: Colors.black54, fontSize: 15),
+                                            focusedBorder: const UnderlineInputBorder(
+                                              borderSide: BorderSide(color: appColor),
                                             ),
                                           ),
-                                        );
-                                      }).toList(),
-                                      onTap: () {
-                                        print("onTappCity");
-                                        _employeeUpdatePersonalController
-                                            .refresh();
-                                      },
-                                      // validator: (value) =>
-                                      //     value == null ? 'Select City' : null,
-                                      onChanged: (CityModell? newValue) {
-                                        _employeeUpdatePersonalController
-                                            .selectedCity.value = newValue!;
-                                      }),
-                                ),
-                              ),
-                              // Obx(() {
-                              //   return DropdownButtonFormField<StateModelss>(
-                              //     hint: Text(_getprofileepersonal.getprofileemployeeModel?.data?.stateName ?? "",
-                              //       style: TextStyle(color: Colors.black),),
-                              //     value: _employeeUpdatePersonalController.selectedState.value,
-                              //     onChanged: (StateModelss? newValue) {
-                              //       _employeeUpdatePersonalController.selectedState.value = newValue;
-                              //     },
-                              //     items: _employeeUpdatePersonalController.states
-                              //         .map<DropdownMenuItem<StateModelss>>((StateModelss state) {
-                              //       return DropdownMenuItem<StateModelss>(
-                              //         value: state,
-                              //         child: Text(state.sName ?? ''),
-                              //       );
-                              //     }).toList(),
-                              //   );
-                              // }),
+                                          hint: Text(
+                                            _getprofileepersonal
+                                                    .getprofileemployeeModel
+                                                    ?.data
+                                                    ?.cityName ??
+                                                "",
+                                            style: TextStyle(color: Colors.black),
+                                          ),
+                                          items: _employeeUpdatePersonalController
+                                              .cities
+                                              .map((CityModell items) {
+                                            return DropdownMenuItem(
+                                              value: items,
+                                              child: Text(
+                                                items.cityName,
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.w600,
+                                                  fontSize: size.height * 0.015,
+                                                ),
+                                              ),
+                                            );
+                                          }).toList(),
+                                          onTap: () {
+                                            print("onTappCity");
+                                            _employeeUpdatePersonalController
+                                                .refresh();
+                                          },
+                                          // validator: (value) =>
+                                          //     value == null ? 'Select City' : null,
+                                          onChanged: (CityModell? newValue) {
+                                            _employeeUpdatePersonalController
+                                                .selectedCity.value = newValue!;
+                                          }),
+                                    ),
+                                  ),
+                                  // Obx(() {
+                                  //   return DropdownButtonFormField<StateModelss>(
+                                  //     hint: Text(_getprofileepersonal.getprofileemployeeModel?.data?.stateName ?? "",
+                                  //       style: TextStyle(color: Colors.black),),
+                                  //     value: _employeeUpdatePersonalController.selectedState.value,
+                                  //     onChanged: (StateModelss? newValue) {
+                                  //       _employeeUpdatePersonalController.selectedState.value = newValue;
+                                  //     },
+                                  //     items: _employeeUpdatePersonalController.states
+                                  //         .map<DropdownMenuItem<StateModelss>>((StateModelss state) {
+                                  //       return DropdownMenuItem<StateModelss>(
+                                  //         value: state,
+                                  //         child: Text(state.sName ?? ''),
+                                  //       );
+                                  //     }).toList(),
+                                  //   );
+                                  // }),
 
-                              // SizedBox(height: 20),
-                              //
-                              // // City Dropdown
-                              // Obx(() {
-                              //   return _employeeUpdatePersonalController.isLoading.value
-                              //       ? CircularProgressIndicator()  // Show loader if loading
-                              //       : DropdownButtonFormField<CityModell>(
-                              //     hint: Text( _getprofileepersonal
-                              //         .getprofileemployeeModel
-                              //         ?.data
-                              //         ?.cityName ??
-                              //         "",
-                              //       style: TextStyle(color: Colors.black),),
-                              //     value: _employeeUpdatePersonalController.selectedCity.value,
-                              //     onChanged: _employeeUpdatePersonalController.cities.isNotEmpty
-                              //         ? (CityModell? newValue) {
-                              //       _employeeUpdatePersonalController.selectedCity.value = newValue;
-                              //     }
-                              //         : null,  // Disable dropdown if no cities are available
-                              //     items: _employeeUpdatePersonalController.cities.isNotEmpty
-                              //         ? _employeeUpdatePersonalController.cities.map<DropdownMenuItem<CityModell>>((CityModell city) {
-                              //       print("cityyy:${city.cityName}"); // Ensure city names are printed
-                              //       return DropdownMenuItem<CityModell>(
-                              //         value: city,
-                              //         child: Text(city.cityName), // Display city name
-                              //       );
-                              //     }).toList()
-                              //         : [],
-                              //   );
-                              // }),
+                                  // SizedBox(height: 20),
+                                  //
+                                  // // City Dropdown
+                                  // Obx(() {
+                                  //   return _employeeUpdatePersonalController.isLoading.value
+                                  //       ? CircularProgressIndicator()  // Show loader if loading
+                                  //       : DropdownButtonFormField<CityModell>(
+                                  //     hint: Text( _getprofileepersonal
+                                  //         .getprofileemployeeModel
+                                  //         ?.data
+                                  //         ?.cityName ??
+                                  //         "",
+                                  //       style: TextStyle(color: Colors.black),),
+                                  //     value: _employeeUpdatePersonalController.selectedCity.value,
+                                  //     onChanged: _employeeUpdatePersonalController.cities.isNotEmpty
+                                  //         ? (CityModell? newValue) {
+                                  //       _employeeUpdatePersonalController.selectedCity.value = newValue;
+                                  //     }
+                                  //         : null,  // Disable dropdown if no cities are available
+                                  //     items: _employeeUpdatePersonalController.cities.isNotEmpty
+                                  //         ? _employeeUpdatePersonalController.cities.map<DropdownMenuItem<CityModell>>((CityModell city) {
+                                  //       print("cityyy:${city.cityName}"); // Ensure city names are printed
+                                  //       return DropdownMenuItem<CityModell>(
+                                  //         value: city,
+                                  //         child: Text(city.cityName), // Display city name
+                                  //       );
+                                  //     }).toList()
+                                  //         : [],
+                                  //   );
+                                  // }),
 
-                              Container(
-                                padding: EdgeInsets.symmetric(vertical: 0),
-                                child: TextFormField(
-                                  controller: _address1Controller,
-                                  // validator: (value) {
-                                  //   if (value == null || value.isEmpty) {
-                                  //     return 'Please enter address 1';
-                                  //   }
-                                  //   return null;
-                                  // },
-                                  decoration: InputDecoration(
-                                    labelText: "Address:",
-                                    hintStyle: (TextStyle(
-                                      fontSize: 13,
-                                    )),
-                                    labelStyle: const TextStyle(
-                                        color: Colors.black54, fontSize: 13),
-                                    focusedBorder: const UnderlineInputBorder(
-                                      borderSide: BorderSide(color: appColor),
-                                    ),
-                                    enabledBorder: const UnderlineInputBorder(
-                                      borderSide:
-                                          BorderSide(color: Colors.black12),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              Container(
-                                padding: EdgeInsets.symmetric(vertical: 0),
-                                child: TextFormField(
-                                  controller: _address2Controller,
-                                  // validator: (value) {
-                                  //   if (value == null || value.isEmpty) {
-                                  //     return 'Please enter address 2';
-                                  //   }
-                                  //   return null;
-                                  // },
-                                  decoration: InputDecoration(
-                                    labelText: "Permanent Address:",
-                                    hintStyle: (TextStyle(
-                                      fontSize: 13,
-                                    )),
-                                    labelStyle: const TextStyle(
-                                        color: Colors.black54, fontSize: 13),
-                                    focusedBorder: const UnderlineInputBorder(
-                                      borderSide: BorderSide(color: appColor),
-                                    ),
-                                    enabledBorder: const UnderlineInputBorder(
-                                      borderSide:
-                                          BorderSide(color: Colors.black12),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              Container(
-                                padding: EdgeInsets.symmetric(vertical: 0),
-                                child: TextFormField(
-                                  controller: _pincodeController,
-                                  // validator: (value) {
-                                  //   if (value == null || value.isEmpty) {
-                                  //     return 'Please enter pin';
-                                  //   }
-                                  //   return null;
-                                  // },
-                                  decoration: InputDecoration(
-                                    labelText: "Pin Code",
-                                    hintStyle: (TextStyle(
-                                      fontSize: 13,
-                                    )),
-                                    labelStyle: const TextStyle(
-                                        color: Colors.black54, fontSize: 13),
-                                    focusedBorder: const UnderlineInputBorder(
-                                      borderSide: BorderSide(color: appColor),
-                                    ),
-                                    enabledBorder: const UnderlineInputBorder(
-                                      borderSide:
-                                          BorderSide(color: Colors.black12),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              Container(
-                                padding: EdgeInsets.symmetric(vertical: 0),
-                                child: TextFormField(
-                                  controller: _companyLocController,
-                                  // validator: (value) {
-                                  //   if (value == null || value.isEmpty) {
-                                  //     return 'Please enter pin';
-                                  //   }
-                                  //   return null;
-                                  // },
-                                  decoration: InputDecoration(
-                                    labelText: "Company Location",
-                                    hintStyle: (TextStyle(
-                                      fontSize: 13,
-                                    )),
-                                    labelStyle: const TextStyle(
-                                        color: Colors.black54, fontSize: 13),
-                                    focusedBorder: const UnderlineInputBorder(
-                                      borderSide: BorderSide(color: appColor),
-                                    ),
-                                    enabledBorder: const UnderlineInputBorder(
-                                      borderSide:
-                                          BorderSide(color: Colors.black12),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(height: 10),
-                            ],
-                          ),
-                        ),
-
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 16),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              blackHeadingSmall('Documents'.toUpperCase()),
-                            ],
-                          ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 0, horizontal: 16),
-                          margin: const EdgeInsets.symmetric(
-                              vertical: 0, horizontal: 16),
-                          decoration: const BoxDecoration(
-                            color: Colors.white,
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black12,
-                                blurRadius: 20.0,
-                              ),
-                            ],
-                            borderRadius: BorderRadius.all(Radius.circular(6.0)),
-                          ),
-                          child: Column(
-                            children: [
-                              Container(
-                                padding: EdgeInsets.symmetric(vertical: 0),
-                                child: TextFormField(
-                                  controller: _pannoController,
-                                  keyboardType: TextInputType.text,
-                                  // inputFormatters: [
-                                  //   FilteringTextInputFormatter.allow(RegExp(
-                                  //       r'[A-Z0-9]')), // Allow only uppercase letters and digits
-                                  // ],
-                                  // validator: (value) {
-                                  //   if (value == null || value.isEmpty) {
-                                  //     return 'Please enter PAN number.';
-                                  //   }
-                                  //   // Regular expression for PAN number format
-                                  //   final panRegex =
-                                  //       RegExp(r'^[A-Z]{5}[0-9]{4}[A-Z]{1}$');
-                                  //   if (!panRegex.hasMatch(value)) {
-                                  //     return 'PAN number should be in the format ABCDE1234F';
-                                  //   }
-                                  //   return null;
-                                  // },
-                                  decoration: InputDecoration(
-                                    labelText: "Pan No",
-                                    hintStyle: (TextStyle(
-                                      fontSize: 13,
-                                    )),
-                                    labelStyle: const TextStyle(
-                                        color: Colors.black54, fontSize: 13),
-                                    focusedBorder: const UnderlineInputBorder(
-                                      borderSide: BorderSide(color: appColor),
-                                    ),
-                                    enabledBorder: const UnderlineInputBorder(
-                                      borderSide:
-                                          BorderSide(color: Colors.black12),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              Container(
-                                padding: EdgeInsets.symmetric(vertical: 0),
-                                child: TextFormField(
-                                  controller: _aadharnoController,
-                                  keyboardType: TextInputType.number,
-                                  inputFormatters: [
-                                    FilteringTextInputFormatter
-                                        .digitsOnly, // Allow only digits
-                                  ],
-                                  // validator: (value) {
-                                  //   if (value == null || value.isEmpty) {
-                                  //     return 'Please enter Aadhaar number.';
-                                  //   }
-                                  //   // Check if the input is exactly 12 digits
-                                  //   if (value.length != 12) {
-                                  //     return 'Aadhaar number should be exactly 12 digits long';
-                                  //   }
-                                  //   return null;
-                                  // },
-                                  decoration: InputDecoration(
-                                    labelText: "Aadhar No.",
-                                    hintStyle: (TextStyle(
-                                      fontSize: 13,
-                                    )),
-                                    labelStyle: const TextStyle(
-                                        color: Colors.black54, fontSize: 13),
-                                    focusedBorder: const UnderlineInputBorder(
-                                      borderSide: BorderSide(color: appColor),
-                                    ),
-                                    enabledBorder: const UnderlineInputBorder(
-                                      borderSide:
-                                          BorderSide(color: Colors.black12),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              SizedBox(height: 8,),
-                              // Container(
-                              //   padding: EdgeInsets.symmetric(vertical: 0),
-                              //   child: Row(
-                              //     children: [
-                              //       // Expanded widget to ensure the TextField takes the remaining width
-                              //       // Expanded(
-                              //       //   child: TextFormField(
-                              //       //     readOnly: true,
-                              //       //     // validator: (value) {
-                              //       //     //   if (value == null || value.isEmpty) {
-                              //       //     //     return 'Please select your Aadhaar';
-                              //       //     //   }
-                              //       //     //   return null;
-                              //       //     // },
-                              //       //     controller: _aadharFilePathController,
-                              //       //     decoration: InputDecoration(
-                              //       //         labelText: 'Aadhar Image'),
-                              //       //     enabled: false,
-                              //       //   ),
-                              //       // ),
-                              //       GestureDetector(
-                              //         onTap: () {
-                              //           Navigator.push(context, MaterialPageRoute(builder: (_) {
-                              //             return FrontAadharpage();
-                              //           }));
-                              //         },
-                              //         child: Container(
-                              //           height: 80,
-                              //           width: 80,
-                              //           decoration: BoxDecoration(
-                              //             border: Border.all(width: 2, color: Colors.grey),
-                              //               borderRadius: BorderRadius.circular(12.0),
-                              //           ),
-                              //           child:Obx(() {
-                              //             return Hero(
-                              //               tag: 'aadharImg',
-                              //               child: selectedAdhar1Image.value != null
-                              //                   ? ClipRRect(
-                              //                 borderRadius: BorderRadius.circular(10.0),
-                              //                     child: Image.memory(
-                              //                   selectedAdhar1Image.value!,
-                              //                   fit: BoxFit.contain,
-                              //                   width: double.infinity,
-                              //                   height: double.infinity,
-                              //                 ),
-                              //                   )
-                              //                   : (_getprofileepersonal.getprofileemployeeModel?.data?.aadharOne != null
-                              //                   ? ClipRRect(
-                              //                 borderRadius: BorderRadius.circular(10.0),
-                              //                     child: Image.network(
-                              //                  "${FixedText.imageUrlll}${_getprofileepersonal.getprofileemployeeModel?.data?.aadharOne}",
-                              //                  fit: BoxFit.cover,
-                              //                  errorBuilder: (context, error, stackTrace) {
-                              //                     return Image.network(
-                              //                       'https://cdn.pixabay.com/photo/2022/11/09/00/44/aadhaar-card-7579588_1280.png',
-                              //                       fit: BoxFit.contain,
-                              //                     );
-                              //                        },
-                              //                      ),
-                              //                   )
-                              //                   : ClipRRect(
-                              //                 borderRadius: BorderRadius.circular(10.0),
-                              //                     child: Image.asset(
-                              //                     'https://cdn.pixabay.com/photo/2022/11/09/00/44/aadhaar-card-7579588_1280.png',
-                              //                     fit: BoxFit.contain,
-                              //                   ),
-                              //                   )),
-                              //             );
-                              //           }),),
-                              //       ),
-                              //       SizedBox(width: 6), // Add some spacing between the TextField and the Button
-                              //
-                              //       GestureDetector(
-                              //         onTap: () {
-                              //         Navigator.push(context, MaterialPageRoute(builder: (_) {
-                              //           return BackAadharpage();
-                              //         }));
-                              //       },
-                              //
-                              //         child: Container(
-                              //           height: 80,
-                              //           width: 80,
-                              //           decoration: BoxDecoration(
-                              //               borderRadius: BorderRadius.circular(12.0),
-                              //             border: Border.all(width: 2, color: Colors.grey),
-                              //
-                              //           ),
-                              //           child:Obx(() {
-                              //             return Hero(
-                              //               tag: 'aadharImg1',
-                              //               child: selectedAdhar2Image.value != null
-                              //                   ? ClipRRect(
-                              //                 borderRadius: BorderRadius.circular(10.0),
-                              //                     child: Image.memory(
-                              //                      selectedAdhar2Image.value!,
-                              //                      fit: BoxFit.contain,
-                              //                      width: double.infinity,
-                              //                      height: double.infinity,
-                              //                    ),
-                              //                   )
-                              //                   : (_getprofileepersonal.getprofileemployeeModel?.data?.aadharTwo != null
-                              //                   ? ClipRRect(
-                              //                 borderRadius: BorderRadius.circular(10.0),
-                              //                     child: Image.network(
-                              //                  "${FixedText.imageUrlll}${_getprofileepersonal.getprofileemployeeModel?.data?.aadharTwo}",
-                              //                  fit: BoxFit.cover,
-                              //                  errorBuilder: (context, error, stackTrace) {
-                              //                     return Image.network(
-                              //                       'https://cdn.pixabay.com/photo/2022/11/09/00/44/aadhaar-card-7579588_1280.png',
-                              //                       fit: BoxFit.contain,
-                              //                     );
-                              //                     },
-                              //                   ),
-                              //                   )
-                              //                   : ClipRRect(
-                              //                     borderRadius: BorderRadius.circular(10.0),
-                              //               child: Image.asset(
-                              //                   'https://cdn.pixabay.com/photo/2022/11/09/00/44/aadhaar-card-7579588_1280.png',
-                              //                   fit: BoxFit.contain,
-                              //                 ),
-                              //                   )),
-                              //             );
-                              //           }),),
-                              //       ),
-                              //       // SizedBox(width: 10), // Add some spacing between the TextField and the Button4
-                              //       Spacer(),
-                              //       GestureDetector(
-                              //         onTap: (){
-                              //           _selectaadhaarFile(context);
-                              //         },
-                              //         child: Container(
-                              //           alignment: Alignment.center,
-                              //           width: 80,
-                              //           height: 50,
-                              //           decoration: BoxDecoration(
-                              //             color: appColorr2,
-                              //             borderRadius: BorderRadius.circular(10),
-                              //           ),
-                              //           child: Text(
-                              //             'Aadhar',
-                              //             textAlign: TextAlign.center,
-                              //             style: TextStyle(
-                              //               fontSize: 13,
-                              //               fontWeight: FontWeight.bold,
-                              //               color: Colors.white
-                              //             ),
-                              //           ),
-                              //         ),
-                              //       ),
-                              //     ],
-                              //   ),
-                              // ),
-                    Container(
-                      padding: EdgeInsets.symmetric(vertical: 0),
-                      child: Row(
-                        children: [
-                          // First Aadhaar Image (Front)
-                          GestureDetector(
-                            onTap: () {
-                              Navigator.push(context, MaterialPageRoute(builder: (_) {
-                                return FrontAadharpage();
-                              }));
-                            },
-                            child: Container(
-                              height: 80,
-                              width: 80,
-                              decoration: BoxDecoration(
-                                border: Border.all(width: 2, color: Colors.grey),
-                                borderRadius: BorderRadius.circular(12.0),
-                              ),
-                              child: Obx(() {
-                                return Hero(
-                                  tag: 'aadharImg1',
-                                  child: selectedAdhar1Image.value != null
-                                      ? ClipRRect(
-                                    borderRadius: BorderRadius.circular(10.0),
-                                    child: selectedAdhar1Image.value!.isNotEmpty
-                                        ? Image.memory(
-                                      _aadharImages.isNotEmpty ? _aadharImages[0] : Uint8List(0),
-                                      fit: BoxFit.cover,
-                                      width: double.infinity,
-                                      height: double.infinity,
-                                    )
-                                        : ClipRRect(
-                                      borderRadius: BorderRadius.circular(10.0),
-                                      child: Image.asset(
-                                        'https://cdn.pixabay.com/photo/2022/11/09/00/44/aadhaar-card-7579588_1280.png',
-                                        fit: BoxFit.contain,
+                                  Container(
+                                    padding: EdgeInsets.symmetric(vertical: 0),
+                                    child: TextFormField(
+                                      controller: _address1Controller,
+                                      // validator: (value) {
+                                      //   if (value == null || value.isEmpty) {
+                                      //     return 'Please enter address 1';
+                                      //   }
+                                      //   return null;
+                                      // },
+                                      decoration: InputDecoration(
+                                        labelText: "Address:",
+                                        hintStyle: (TextStyle(
+                                          fontSize: 13,
+                                        )),
+                                        labelStyle: const TextStyle(
+                                            color: Colors.black54, fontSize: 13),
+                                        focusedBorder: const UnderlineInputBorder(
+                                          borderSide: BorderSide(color: appColor),
+                                        ),
+                                        enabledBorder: const UnderlineInputBorder(
+                                          borderSide:
+                                              BorderSide(color: Colors.black12),
+                                        ),
                                       ),
                                     ),
-                                  )
-                                      : (_getprofileepersonal.getprofileemployeeModel?.data?.aadharOne != null
-                                      ? ClipRRect(
-                                    borderRadius: BorderRadius.circular(10.0),
-                                    child: Image.network(
-                                      "${FixedText.imageUrlll}${_getprofileepersonal.getprofileemployeeModel?.data?.aadharOne}",
-                                      fit: BoxFit.cover,
-                                      errorBuilder: (context, error, stackTrace) {
-                                        return Image.network(
-                                          'https://cdn.pixabay.com/photo/2022/11/09/00/44/aadhaar-card-7579588_1280.png',
-                                          fit: BoxFit.contain,
-                                        );
-                                      },
+                                  ),
+                                  Container(
+                                    padding: EdgeInsets.symmetric(vertical: 0),
+                                    child: TextFormField(
+                                      controller: _address2Controller,
+                                      // validator: (value) {
+                                      //   if (value == null || value.isEmpty) {
+                                      //     return 'Please enter address 2';
+                                      //   }
+                                      //   return null;
+                                      // },
+                                      decoration: InputDecoration(
+                                        labelText: "Permanent Address:",
+                                        hintStyle: (TextStyle(
+                                          fontSize: 13,
+                                        )),
+                                        labelStyle: const TextStyle(
+                                            color: Colors.black54, fontSize: 13),
+                                        focusedBorder: const UnderlineInputBorder(
+                                          borderSide: BorderSide(color: appColor),
+                                        ),
+                                        enabledBorder: const UnderlineInputBorder(
+                                          borderSide:
+                                              BorderSide(color: Colors.black12),
+                                        ),
+                                      ),
                                     ),
-                                  )
-                                      : ClipRRect(
-                                    borderRadius: BorderRadius.circular(10.0),
-                                    child: Image.asset(
-                                      'https://cdn.pixabay.com/photo/2022/11/09/00/44/aadhaar-card-7579588_1280.png',
-                                      fit: BoxFit.contain,
+                                  ),
+                                  Container(
+                                    padding: EdgeInsets.symmetric(vertical: 0),
+                                    child: TextFormField(
+                                      controller: _pincodeController,
+                                      // validator: (value) {
+                                      //   if (value == null || value.isEmpty) {
+                                      //     return 'Please enter pin';
+                                      //   }
+                                      //   return null;
+                                      // },
+                                      decoration: InputDecoration(
+                                        labelText: "Pin Code",
+                                        hintStyle: (TextStyle(
+                                          fontSize: 13,
+                                        )),
+                                        labelStyle: const TextStyle(
+                                            color: Colors.black54, fontSize: 13),
+                                        focusedBorder: const UnderlineInputBorder(
+                                          borderSide: BorderSide(color: appColor),
+                                        ),
+                                        enabledBorder: const UnderlineInputBorder(
+                                          borderSide:
+                                              BorderSide(color: Colors.black12),
+                                        ),
+                                      ),
                                     ),
-                                  )),
-                                );
-                              }),
-                            ),
-                          ),
-                          SizedBox(width: 6),
-                          // Second Aadhaar Image (Back)
-                          GestureDetector(
-                            onTap: () {
-                              Navigator.push(context, MaterialPageRoute(builder: (_) {
-                                return BackAadharpage();
-                              }));
-                            },
-                            child: Container(
-                              height: 80,
-                              width: 80,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(12.0),
-                                border: Border.all(width: 2, color: Colors.grey),
+                                  ),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: [
+                                      Container(
+                                        width: 200,
+                                        padding: EdgeInsets.symmetric(vertical: 0),
+                                        child: TextFormField(
+                                          controller: _companyLocController,
+                                          // validator: (value) {
+                                          //   if (value == null || value.isEmpty) {
+                                          //     return 'Please enter pin';
+                                          //   }
+                                          //   return null;
+                                          // },
+                                          decoration: InputDecoration(
+                                            labelText: "Company Location",
+                                            hintStyle: (TextStyle(
+                                              fontSize: 13,
+                                            )),
+                                            labelStyle: const TextStyle(
+                                                color: Colors.black54, fontSize: 13),
+                                            focusedBorder: const UnderlineInputBorder(
+                                              borderSide: BorderSide(color: appColor),
+                                            ),
+                                            enabledBorder: const UnderlineInputBorder(
+                                              borderSide:
+                                                  BorderSide(color: Colors.black12),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      Spacer(),
+                                      GestureDetector(
+                                        onTap: () {
+                                          print("trackkkk");
+                                        _getprofileepersonal.launchMaps();
+                                          // _selectaadhaarFile(context); // Call the updated function
+                                        },
+                                        child: Container(
+                                          alignment: Alignment.center,
+                                          width: 80,
+                                          height: 30,
+                                          decoration: BoxDecoration(
+                                            color: appColorr2,
+                                            borderRadius: BorderRadius.circular(10),
+                                          ),
+                                          child: Text(
+                                            'Track',
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.white),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 10),
+                                ],
                               ),
-                              child: Obx(() {
-                                print("selectedAdhar2Image:${selectedAdhar2Image.value}");
-                                return Hero(
-                                  tag: 'aadharImg2',
-                                  child: selectedAdhar2Image.value != null
-                                      ? ClipRRect(
-                                    borderRadius: BorderRadius.circular(10.0),
-                                    child:
-                                   // selectedAdhar2Image.value!.isNotEmpty ?
-                                    Image.memory(
-                                      selectedAdhar2Image.value!,
-                                     // _aadharImages.length > 1 ? _aadharImages[1] : Uint8List(0),
-                                      fit: BoxFit.cover,
-                                      width: double.infinity,
-                                      height: double.infinity,
-                                    )
-                                    //     : ClipRRect(
-                                    //   borderRadius: BorderRadius.circular(10.0),
-                                    //   child: Image.asset(
-                                    //     'https://cdn.pixabay.com/photo/2022/11/09/00/44/aadhaar-card-7579588_1280.png',
-                                    //     fit: BoxFit.contain,
-                                    //   ),
-                                    // ),
-                                  )
-                                      : (_getprofileepersonal.getprofileemployeeModel?.data?.aadharTwo != null
-                                      ? ClipRRect(
-                                    borderRadius: BorderRadius.circular(10.0),
-                                    child: Image.network(
-                                      "${FixedText.imageUrlll}${_getprofileepersonal.getprofileemployeeModel?.data?.aadharTwo}",
-                                      fit: BoxFit.cover,
-                                      errorBuilder: (context, error, stackTrace) {
-                                        return Image.network(
-                                          'https://cdn.pixabay.com/photo/2022/11/09/00/44/aadhaar-card-7579588_1280.png',
-                                          fit: BoxFit.contain,
-                                        );
-                                      },
-                                    ),
-                                  )
-                                      : ClipRRect(
-                                    borderRadius: BorderRadius.circular(10.0),
-                                    child: Image.asset(
-                                      'https://cdn.pixabay.com/photo/2022/11/09/00/44/aadhaar-card-7579588_1280.png',
-                                      fit: BoxFit.contain,
-                                    ),
-                                  )),
-                                );
-                              }),
                             ),
-                          ),
-                          Spacer(),
-                          GestureDetector(
-                            onTap: () {
-                              _showAadharFileDialog(context);
-                             // _selectaadhaarFile(context); // Call the updated function
-                            },
-                            child: Container(
-                              alignment: Alignment.center,
-                              width: 80,
-                              height: 50,
-                              decoration: BoxDecoration(
-                                color: appColorr2,
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Text(
-                                'Aadhar',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.white),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
 
-                    SizedBox(height: 8,),
-                              Container(
-                                padding: EdgeInsets.symmetric(vertical: 0),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                           GestureDetector(
-                                    onTap: () {
-                              Navigator.push(context, MaterialPageRoute(builder: (_) {
-                              return PancardPage();
-                              }));
-                              },
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 16),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  blackHeadingSmall('Documents'.toUpperCase()),
+                                ],
+                              ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 0, horizontal: 16),
+                              margin: const EdgeInsets.symmetric(
+                                  vertical: 0, horizontal: 16),
+                              decoration: const BoxDecoration(
+                                color: Colors.white,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black12,
+                                    blurRadius: 20.0,
+                                  ),
+                                ],
+                                borderRadius: BorderRadius.all(Radius.circular(6.0)),
+                              ),
+                              child: Column(
+                                children: [
+                                  Container(
+                                    padding: EdgeInsets.symmetric(vertical: 0),
+                                    child: TextFormField(
+                                      controller: _pannoController,
+                                      keyboardType: TextInputType.text,
+                                      // inputFormatters: [
+                                      //   FilteringTextInputFormatter.allow(RegExp(
+                                      //       r'[A-Z0-9]')), // Allow only uppercase letters and digits
+                                      // ],
+                                      // validator: (value) {
+                                      //   if (value == null || value.isEmpty) {
+                                      //     return 'Please enter PAN number.';
+                                      //   }
+                                      //   // Regular expression for PAN number format
+                                      //   final panRegex =
+                                      //       RegExp(r'^[A-Z]{5}[0-9]{4}[A-Z]{1}$');
+                                      //   if (!panRegex.hasMatch(value)) {
+                                      //     return 'PAN number should be in the format ABCDE1234F';
+                                      //   }
+                                      //   return null;
+                                      // },
+                                      decoration: InputDecoration(
+                                        labelText: "Pan No",
+                                        hintStyle: (TextStyle(
+                                          fontSize: 13,
+                                        )),
+                                        labelStyle: const TextStyle(
+                                            color: Colors.black54, fontSize: 13),
+                                        focusedBorder: const UnderlineInputBorder(
+                                          borderSide: BorderSide(color: appColor),
+                                        ),
+                                        enabledBorder: const UnderlineInputBorder(
+                                          borderSide:
+                                              BorderSide(color: Colors.black12),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  Container(
+                                    padding: EdgeInsets.symmetric(vertical: 0),
+                                    child: TextFormField(
+                                      controller: _aadharnoController,
+                                      keyboardType: TextInputType.number,
+                                      inputFormatters: [
+                                        FilteringTextInputFormatter
+                                            .digitsOnly, // Allow only digits
+                                      ],
+                                      // validator: (value) {
+                                      //   if (value == null || value.isEmpty) {
+                                      //     return 'Please enter Aadhaar number.';
+                                      //   }
+                                      //   // Check if the input is exactly 12 digits
+                                      //   if (value.length != 12) {
+                                      //     return 'Aadhaar number should be exactly 12 digits long';
+                                      //   }
+                                      //   return null;
+                                      // },
+                                      decoration: InputDecoration(
+                                        labelText: "Aadhar No.",
+                                        hintStyle: (TextStyle(
+                                          fontSize: 13,
+                                        )),
+                                        labelStyle: const TextStyle(
+                                            color: Colors.black54, fontSize: 13),
+                                        focusedBorder: const UnderlineInputBorder(
+                                          borderSide: BorderSide(color: appColor),
+                                        ),
+                                        enabledBorder: const UnderlineInputBorder(
+                                          borderSide:
+                                              BorderSide(color: Colors.black12),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(height: 8,),
+                                  // Container(
+                                  //   padding: EdgeInsets.symmetric(vertical: 0),
+                                  //   child: Row(
+                                  //     children: [
+                                  //       // Expanded widget to ensure the TextField takes the remaining width
+                                  //       // Expanded(
+                                  //       //   child: TextFormField(
+                                  //       //     readOnly: true,
+                                  //       //     // validator: (value) {
+                                  //       //     //   if (value == null || value.isEmpty) {
+                                  //       //     //     return 'Please select your Aadhaar';
+                                  //       //     //   }
+                                  //       //     //   return null;
+                                  //       //     // },
+                                  //       //     controller: _aadharFilePathController,
+                                  //       //     decoration: InputDecoration(
+                                  //       //         labelText: 'Aadhar Image'),
+                                  //       //     enabled: false,
+                                  //       //   ),
+                                  //       // ),
+                                  //       GestureDetector(
+                                  //         onTap: () {
+                                  //           Navigator.push(context, MaterialPageRoute(builder: (_) {
+                                  //             return FrontAadharpage();
+                                  //           }));
+                                  //         },
+                                  //         child: Container(
+                                  //           height: 80,
+                                  //           width: 80,
+                                  //           decoration: BoxDecoration(
+                                  //             border: Border.all(width: 2, color: Colors.grey),
+                                  //               borderRadius: BorderRadius.circular(12.0),
+                                  //           ),
+                                  //           child:Obx(() {
+                                  //             return Hero(
+                                  //               tag: 'aadharImg',
+                                  //               child: selectedAdhar1Image.value != null
+                                  //                   ? ClipRRect(
+                                  //                 borderRadius: BorderRadius.circular(10.0),
+                                  //                     child: Image.memory(
+                                  //                   selectedAdhar1Image.value!,
+                                  //                   fit: BoxFit.contain,
+                                  //                   width: double.infinity,
+                                  //                   height: double.infinity,
+                                  //                 ),
+                                  //                   )
+                                  //                   : (_getprofileepersonal.getprofileemployeeModel?.data?.aadharOne != null
+                                  //                   ? ClipRRect(
+                                  //                 borderRadius: BorderRadius.circular(10.0),
+                                  //                     child: Image.network(
+                                  //                  "${FixedText.imageUrlll}${_getprofileepersonal.getprofileemployeeModel?.data?.aadharOne}",
+                                  //                  fit: BoxFit.cover,
+                                  //                  errorBuilder: (context, error, stackTrace) {
+                                  //                     return Image.network(
+                                  //                       'https://cdn.pixabay.com/photo/2022/11/09/00/44/aadhaar-card-7579588_1280.png',
+                                  //                       fit: BoxFit.contain,
+                                  //                     );
+                                  //                        },
+                                  //                      ),
+                                  //                   )
+                                  //                   : ClipRRect(
+                                  //                 borderRadius: BorderRadius.circular(10.0),
+                                  //                     child: Image.asset(
+                                  //                     'https://cdn.pixabay.com/photo/2022/11/09/00/44/aadhaar-card-7579588_1280.png',
+                                  //                     fit: BoxFit.contain,
+                                  //                   ),
+                                  //                   )),
+                                  //             );
+                                  //           }),),
+                                  //       ),
+                                  //       SizedBox(width: 6), // Add some spacing between the TextField and the Button
+                                  //
+                                  //       GestureDetector(
+                                  //         onTap: () {
+                                  //         Navigator.push(context, MaterialPageRoute(builder: (_) {
+                                  //           return BackAadharpage();
+                                  //         }));
+                                  //       },
+                                  //
+                                  //         child: Container(
+                                  //           height: 80,
+                                  //           width: 80,
+                                  //           decoration: BoxDecoration(
+                                  //               borderRadius: BorderRadius.circular(12.0),
+                                  //             border: Border.all(width: 2, color: Colors.grey),
+                                  //
+                                  //           ),
+                                  //           child:Obx(() {
+                                  //             return Hero(
+                                  //               tag: 'aadharImg1',
+                                  //               child: selectedAdhar2Image.value != null
+                                  //                   ? ClipRRect(
+                                  //                 borderRadius: BorderRadius.circular(10.0),
+                                  //                     child: Image.memory(
+                                  //                      selectedAdhar2Image.value!,
+                                  //                      fit: BoxFit.contain,
+                                  //                      width: double.infinity,
+                                  //                      height: double.infinity,
+                                  //                    ),
+                                  //                   )
+                                  //                   : (_getprofileepersonal.getprofileemployeeModel?.data?.aadharTwo != null
+                                  //                   ? ClipRRect(
+                                  //                 borderRadius: BorderRadius.circular(10.0),
+                                  //                     child: Image.network(
+                                  //                  "${FixedText.imageUrlll}${_getprofileepersonal.getprofileemployeeModel?.data?.aadharTwo}",
+                                  //                  fit: BoxFit.cover,
+                                  //                  errorBuilder: (context, error, stackTrace) {
+                                  //                     return Image.network(
+                                  //                       'https://cdn.pixabay.com/photo/2022/11/09/00/44/aadhaar-card-7579588_1280.png',
+                                  //                       fit: BoxFit.contain,
+                                  //                     );
+                                  //                     },
+                                  //                   ),
+                                  //                   )
+                                  //                   : ClipRRect(
+                                  //                     borderRadius: BorderRadius.circular(10.0),
+                                  //               child: Image.asset(
+                                  //                   'https://cdn.pixabay.com/photo/2022/11/09/00/44/aadhaar-card-7579588_1280.png',
+                                  //                   fit: BoxFit.contain,
+                                  //                 ),
+                                  //                   )),
+                                  //             );
+                                  //           }),),
+                                  //       ),
+                                  //       // SizedBox(width: 10), // Add some spacing between the TextField and the Button4
+                                  //       Spacer(),
+                                  //       GestureDetector(
+                                  //         onTap: (){
+                                  //           _selectaadhaarFile(context);
+                                  //         },
+                                  //         child: Container(
+                                  //           alignment: Alignment.center,
+                                  //           width: 80,
+                                  //           height: 50,
+                                  //           decoration: BoxDecoration(
+                                  //             color: appColorr2,
+                                  //             borderRadius: BorderRadius.circular(10),
+                                  //           ),
+                                  //           child: Text(
+                                  //             'Aadhar',
+                                  //             textAlign: TextAlign.center,
+                                  //             style: TextStyle(
+                                  //               fontSize: 13,
+                                  //               fontWeight: FontWeight.bold,
+                                  //               color: Colors.white
+                                  //             ),
+                                  //           ),
+                                  //         ),
+                                  //       ),
+                                  //     ],
+                                  //   ),
+                                  // ),
+                        Container(
+                          padding: EdgeInsets.symmetric(vertical: 0),
+                          child: Row(
+                            children: [
+                              // First Aadhaar Image (Front)
+                              GestureDetector(
+                                onTap: () {
+                                  Navigator.push(context, MaterialPageRoute(builder: (_) {
+                                    return FrontAadharpage();
+                                  }));
+                                },
+                                child: Container(
+                                  height: 80,
+                                  width: 80,
+                                  decoration: BoxDecoration(
+                                    border: Border.all(width: 2, color: Colors.grey),
+                                    borderRadius: BorderRadius.circular(12.0),
+                                  ),
+                                  child: Obx(() {
+                                    return Hero(
+                                      tag: 'aadharImg1',
+                                      child: selectedAdhar1Image.value != null
+                                          ? ClipRRect(
+                                        borderRadius: BorderRadius.circular(10.0),
+                                        child: selectedAdhar1Image.value!.isNotEmpty
+                                            ? Image.memory(
+                                          selectedAdhar1Image.value!,
+                                         // _aadharImages.isNotEmpty ? _aadharImages[0] : Uint8List(0),
+                                          fit: BoxFit.cover,
+                                          width: double.infinity,
+                                          height: double.infinity,
+                                        )
+                                            : ClipRRect(
+                                          borderRadius: BorderRadius.circular(10.0),
+                                          child: Image.asset(
+                                            'https://cdn.pixabay.com/photo/2022/11/09/00/44/aadhaar-card-7579588_1280.png',
+                                            fit: BoxFit.contain,
+                                          ),
+                                        ),
+                                      )
+                                          : (_getprofileepersonal.getprofileemployeeModel?.data?.aadharOne != null
+                                          ? ClipRRect(
+                                        borderRadius: BorderRadius.circular(10.0),
+                                        child: Image.network(
+                                          "${FixedText.imageUrlll}${_getprofileepersonal.getprofileemployeeModel?.data?.aadharOne}",
+                                          fit: BoxFit.cover,
+                                          errorBuilder: (context, error, stackTrace) {
+                                            return Image.network(
+                                              'https://cdn.pixabay.com/photo/2022/11/09/00/44/aadhaar-card-7579588_1280.png',
+                                              fit: BoxFit.contain,
+                                            );
+                                          },
+                                        ),
+                                      )
+                                          : ClipRRect(
+                                        borderRadius: BorderRadius.circular(10.0),
+                                        child: Image.asset(
+                                          'https://cdn.pixabay.com/photo/2022/11/09/00/44/aadhaar-card-7579588_1280.png',
+                                          fit: BoxFit.contain,
+                                        ),
+                                      )),
+                                    );
+                                  }),
+                                ),
+                              ),
+                              //SizedBox(width: 6),
+                              Spacer(),
+                              GestureDetector(
+                                onTap: () {
+                                  _showAdhar1FileDialog(context);
+                                  // _selectaadhaarFile(context); // Call the updated function
+                                },
+                                child: Container(
+                                  alignment: Alignment.center,
+                                  width: 80,
+                                  height: 50,
+                                  decoration: BoxDecoration(
+                                    color: appColorr2,
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: Text(
+                                    'Aadhar1',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.white),
+                                  ),
+                                ),
+                              ),
+                              // Second Aadhaar Image (Back)
+                            ],
+                          ),
+                        ),
+
+                        SizedBox(height: 8,),
+                        Container(
+                            child: Row(children: [
+                              GestureDetector(
+                                onTap: () {
+                                  Navigator.push(context, MaterialPageRoute(builder: (_) {
+                                    return BackAadharpage();
+                                  }));
+                                },
                                 child: Container(
                                   height: 80,
                                   width: 80,
@@ -1706,417 +1892,517 @@ print("_aadharFileNames:$_aadharFileNames");
                                     border: Border.all(width: 2, color: Colors.grey),
                                   ),
                                   child: Obx(() {
+                                    print("selectedAdhar2Image:${selectedAdhar2Image.value}");
                                     return Hero(
-                                      tag: 'panImg',
-                                      child: selectedPanImage.value != null
+                                      tag: 'aadharImg2',
+                                      child: selectedAdhar2Image.value != null
                                           ? ClipRRect(
-                                        borderRadius: BorderRadius.circular(10.0),
-                                        child: Image.memory(
-                                          selectedPanImage.value!,
-                                          fit: BoxFit.cover,  // Ensures image fills the container
-                                          width: double.infinity,
-                                          height: double.infinity,
-                                        ),
+                                          borderRadius: BorderRadius.circular(10.0),
+                                          child:
+                                          // selectedAdhar2Image.value!.isNotEmpty ?
+                                          Image.memory(
+                                            selectedAdhar2Image.value!,
+                                            // _aadharImages.length > 1 ? _aadharImages[1] : Uint8List(0),
+                                            fit: BoxFit.cover,
+                                            width: double.infinity,
+                                            height: double.infinity,
+                                          )
+                                        //     : ClipRRect(
+                                        //   borderRadius: BorderRadius.circular(10.0),
+                                        //   child: Image.asset(
+                                        //     'https://cdn.pixabay.com/photo/2022/11/09/00/44/aadhaar-card-7579588_1280.png',
+                                        //     fit: BoxFit.contain,
+                                        //   ),
+                                        // ),
                                       )
-                                          : (_getprofileepersonal.getprofileemployeeModel?.data?.panimg != null
+                                          : (_getprofileepersonal.getprofileemployeeModel?.data?.aadharTwo != null
                                           ? ClipRRect(
                                         borderRadius: BorderRadius.circular(10.0),
                                         child: Image.network(
-                                          "${FixedText.imageUrlll}${_getprofileepersonal.getprofileemployeeModel?.data?.panimg}",
-                                          fit: BoxFit.cover,  // Fills the container
-                                          width: double.infinity,
-                                          height: double.infinity,
+                                          "${FixedText.imageUrlll}${_getprofileepersonal.getprofileemployeeModel?.data?.aadharTwo}",
+                                          fit: BoxFit.cover,
                                           errorBuilder: (context, error, stackTrace) {
                                             return Image.network(
-                                              'https://www.pngitem.com/pimgs/m/18-182217_pan-card-pan-card-with-cartoon-hd-png.png',
-                                              fit: BoxFit.cover,  // Default image fills the container
+                                              'https://cdn.pixabay.com/photo/2022/11/09/00/44/aadhaar-card-7579588_1280.png',
+                                              fit: BoxFit.contain,
                                             );
                                           },
                                         ),
                                       )
                                           : ClipRRect(
                                         borderRadius: BorderRadius.circular(10.0),
-                                        child: Image.network(
-                                          'https://www.pngitem.com/pimgs/m/18-182217_pan-card-pan-card-with-cartoon-hd-png.png',
-                                          fit: BoxFit.cover,
+                                        child: Image.asset(
+                                          'https://cdn.pixabay.com/photo/2022/11/09/00/44/aadhaar-card-7579588_1280.png',
+                                          fit: BoxFit.contain,
                                         ),
                                       )),
                                     );
                                   }),
                                 ),
                               ),
-
-                      SizedBox(
-                                        width:
-                                            10), // Add some spacing between the TextField and the Button
-                                    GestureDetector(
-                                      onTap: (){ _showPanFileDialog(context);},
-                                      child: Container(
-                                        alignment: Alignment.center,
-                                        width: 80,
-                                        height: 50,
-                                        decoration: BoxDecoration(
-                                          color: appColorr2,
-                                          borderRadius: BorderRadius.circular(10),
-                                        ),
-                                        child: Text(
-                                          textAlign: TextAlign.center,
-                                          'Pan',
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.white
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
+                              Spacer(),
+                              GestureDetector(
+                                onTap: () {
+                                  _showAdhar2FileDialog(context);
+                                  // _selectaadhaarFile(context); // Call the updated function
+                                },
+                                child: Container(
+                                  alignment: Alignment.center,
+                                  width: 80,
+                                  height: 50,
+                                  decoration: BoxDecoration(
+                                    color: appColorr2,
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: Text(
+                                    'Aadhar2',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.white),
+                                  ),
                                 ),
                               ),
-                              // Container(
-                              //   padding: EdgeInsets.symmetric(vertical: 0),
-                              //   child: Row(
-                              //     children: [
-                              //       // Expanded widget to ensure the TextField takes the remaining width
-                              //       Expanded(
-                              //         child: TextFormField(
-                              //           readOnly: true,
-                              //           // validator: (value) {
-                              //           //   if (value == null || value.isEmpty) {
-                              //           //     return 'Please select your Profile';
-                              //           //   }
-                              //           //   return null;
-                              //           // },
-                              //           controller: _profileimagePathController,
-                              //           decoration: InputDecoration(
-                              //               labelText: 'Profile Picture'),
-                              //           enabled: false,
-                              //         ),
-                              //       ),
-                              //       SizedBox(
-                              //           width:
-                              //               10), // Add some spacing between the TextField and the Button
-                              //       Container(
-                              //         width: 80,
-                              //         height: 35,
-                              //         decoration: BoxDecoration(
-                              //           color: Colors.white,
-                              //           borderRadius: BorderRadius.circular(10),
-                              //         ),
-                              //         child: ElevatedButton(
-                              //           onPressed: () =>
-                              //               _selectimageprofileFile(context),
-                              //
-                              //           // _checkAndRequestPermissions3(
-                              //           //       context), // Use a lambda function
-                              //           style: ElevatedButton.styleFrom(
-                              //             // primary: appColor, // Button color
-                              //             // onPrimary: Colors.white, // Text color
-                              //             shape: RoundedRectangleBorder(
-                              //               borderRadius: BorderRadius.circular(
-                              //                   10), // Rounded corners
-                              //             ),
-                              //           ),
-                              //           child: Text(
-                              //             'Profile\n Image',
-                              //             style: TextStyle(
-                              //               fontSize: 12,
-                              //               fontWeight: FontWeight.bold,
-                              //             ),
-                              //           ),
-                              //         ),
-                              //       ),
-                              //     ],
-                              //   ),
-                              // ),
-                              const SizedBox(height: 10),
-                            ],
-                          ),
+                            ],),
                         ),
+                        SizedBox(height: 8,),
+                                  Container(
+                                    padding: EdgeInsets.symmetric(vertical: 0),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                               GestureDetector(
+                                        onTap: () {
+                                  Navigator.push(context, MaterialPageRoute(builder: (_) {
+                                  return PancardPage();
+                                  }));
+                                  },
+                                    child: Container(
+                                      height: 80,
+                                      width: 80,
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(12.0),
+                                        border: Border.all(width: 2, color: Colors.grey),
+                                      ),
+                                      child: Obx(() {
+                                        return Hero(
+                                          tag: 'panImg',
+                                          child: selectedPanImage.value != null
+                                              ? ClipRRect(
+                                            borderRadius: BorderRadius.circular(10.0),
+                                            child: Image.memory(
+                                              selectedPanImage.value!,
+                                              fit: BoxFit.cover,  // Ensures image fills the container
+                                              width: double.infinity,
+                                              height: double.infinity,
+                                            ),
+                                          )
+                                              : (_getprofileepersonal.getprofileemployeeModel?.data?.panimg != null
+                                              ? ClipRRect(
+                                            borderRadius: BorderRadius.circular(10.0),
+                                            child: Image.network(
+                                              "${FixedText.imageUrlll}${_getprofileepersonal.getprofileemployeeModel?.data?.panimg}",
+                                              fit: BoxFit.cover,  // Fills the container
+                                              width: double.infinity,
+                                              height: double.infinity,
+                                              errorBuilder: (context, error, stackTrace) {
+                                                return Image.network(
+                                                  'https://www.pngitem.com/pimgs/m/18-182217_pan-card-pan-card-with-cartoon-hd-png.png',
+                                                  fit: BoxFit.cover,  // Default image fills the container
+                                                );
+                                              },
+                                            ),
+                                          )
+                                              : ClipRRect(
+                                            borderRadius: BorderRadius.circular(10.0),
+                                            child: Image.network(
+                                              'https://www.pngitem.com/pimgs/m/18-182217_pan-card-pan-card-with-cartoon-hd-png.png',
+                                              fit: BoxFit.cover,
+                                            ),
+                                          )),
+                                        );
+                                      }),
+                                    ),
+                                  ),
 
-                        //_checkAndRequestPermissions3
+                                    SizedBox(
+                                            width:
+                                                10), // Add some spacing between the TextField and the Button
+                                        GestureDetector(
+                                          onTap: (){ _showPanFileDialog(context);},
+                                          child: Container(
+                                            alignment: Alignment.center,
+                                            width: 80,
+                                            height: 50,
+                                            decoration: BoxDecoration(
+                                              color: appColorr2,
+                                              borderRadius: BorderRadius.circular(10),
+                                            ),
+                                            child: Text(
+                                              textAlign: TextAlign.center,
+                                              'Pan',
+                                              style: TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.white
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  // Container(
+                                  //   padding: EdgeInsets.symmetric(vertical: 0),
+                                  //   child: Row(
+                                  //     children: [
+                                  //       // Expanded widget to ensure the TextField takes the remaining width
+                                  //       Expanded(
+                                  //         child: TextFormField(
+                                  //           readOnly: true,
+                                  //           // validator: (value) {
+                                  //           //   if (value == null || value.isEmpty) {
+                                  //           //     return 'Please select your Profile';
+                                  //           //   }
+                                  //           //   return null;
+                                  //           // },
+                                  //           controller: _profileimagePathController,
+                                  //           decoration: InputDecoration(
+                                  //               labelText: 'Profile Picture'),
+                                  //           enabled: false,
+                                  //         ),
+                                  //       ),
+                                  //       SizedBox(
+                                  //           width:
+                                  //               10), // Add some spacing between the TextField and the Button
+                                  //       Container(
+                                  //         width: 80,
+                                  //         height: 35,
+                                  //         decoration: BoxDecoration(
+                                  //           color: Colors.white,
+                                  //           borderRadius: BorderRadius.circular(10),
+                                  //         ),
+                                  //         child: ElevatedButton(
+                                  //           onPressed: () =>
+                                  //               _selectimageprofileFile(context),
+                                  //
+                                  //           // _checkAndRequestPermissions3(
+                                  //           //       context), // Use a lambda function
+                                  //           style: ElevatedButton.styleFrom(
+                                  //             // primary: appColor, // Button color
+                                  //             // onPrimary: Colors.white, // Text color
+                                  //             shape: RoundedRectangleBorder(
+                                  //               borderRadius: BorderRadius.circular(
+                                  //                   10), // Rounded corners
+                                  //             ),
+                                  //           ),
+                                  //           child: Text(
+                                  //             'Profile\n Image',
+                                  //             style: TextStyle(
+                                  //               fontSize: 12,
+                                  //               fontWeight: FontWeight.bold,
+                                  //             ),
+                                  //           ),
+                                  //         ),
+                                  //       ),
+                                  //     ],
+                                  //   ),
+                                  // ),
+                                  const SizedBox(height: 10),
+                                ],
+                              ),
+                            ),
 
-                        ///education end
-                        ///
-                        SizedBox(height: 24),
-                        // MyElevatedButton(
-                        //   onPressed: () {
-                        //     print("updateee");
-                        //     String formattedDateOfBirth =
-                        //         formatDateOfBirth(_dateOfBirthController.text);
-                        //     // Use null-aware operators to handle potential null values
-                        //     String stateId = _employeeUpdatePersonalController
-                        //             .selectedState.value?.id
-                        //             .toString() ??
-                        //         _getprofileepersonal
-                        //             .getprofileemployeeModel?.data?.stateid
-                        //             ?.toString() ??
-                        //         "2";
-                        //     String cityId = _employeeUpdatePersonalController
-                        //             .selectedCity.value?.id
-                        //             .toString() ??
-                        //         _getprofileepersonal
-                        //             .getprofileemployeeModel?.data?.cityid
-                        //             ?.toString() ??
-                        //         "158";
-                        //
-                        //     ///todo: profile...
-                        //
-                        //     // _profilePictureEmployeController
-                        //     //     .updaprofilrimgProfile(
-                        //     //   cvFileContent3: cvFileContent3!,
-                        //     //   Empprofile: _profileimagePathController.text,
-                        //     // );
-                        //     print("dob:$formattedDateOfBirth");
-                        //     print("_profileFileContent:$_profileFileContent");
-                        //     ///todo: other and document not update.......
-                        //     _employeeUpdatePersonalController
-                        //         .updateEmployee(
-                        //       personalEmailAddress: _emailController.text,
-                        //       mobileNumber: _mobileNumberController.text,
-                        //       dateOfBirth: _dateOfBirthController.text,
-                        //       // age: _ageController.text,
-                        //       // fatherName: _fathernameController.text,
-                        //       //pAN: _pannoController.text,
-                        //       address1: _address1Controller.text,
-                        //       address2: _address2Controller.text,
-                        //       cityid: cityId,
-                        //       // _getprofileepersonal
-                        //       //     .getprofileemployeeModel!.data!.cityid
-                        //       //     .toString(),
-                        //       stateid: stateId,
-                        //       pincode: _pincodeController.text,
-                        //       aadharNo: _aadharnoController.text,
-                        //       // aadharFileContent:
-                        //       //     _aadharImages, // Pass list of Aadhaar images
-                        //       // Aadharbase64: _aadharFilePathController
-                        //       //     .text, // Pass Aadhar file name
-                        //       // panFileContent:
-                        //       //     _panFileContent!, // Pass PAN file content
-                        //       // // Panbase64: _panFilePathController.text.isNotEmpty
-                        //       // //     ? _panFilePathController.text
-                        //       // //     : null, // Check if PAN file path is provided
-                        //       //
-                        //       // Panbase64: _panFilePathController
-                        //       //     .text,
-                        //       fullName: _nameController.text,
-                        //       workEmail: _workEmailController.text,
-                        //       dateOfJoining: _joiningDateController.text,
-                        //       departmentName: 'fgh',
-                        //       designationName: _roleController.text,
-                        //       companyName: _companynameController.text,
-                        //       companyLocationName: _companyLocController.text,
-                        //       // profileFileContent: _profileFileContent!,
-                        //       // Profilebase64: _profileimagePathController.text, // Pass PAN file name
-                        //     );
-                        //
-                        //     // await Future.delayed(Duration(seconds: 3));
-                        //
-                        //     ///Clear dropdown value
-                        //     //_profileController.selectedState.value = null;
-                        //     // _profileController.selectedCity.value = null;
-                        //     print("updateee done");
-                        //
-                        //   },
-                        //   text: Text('Update',
-                        //   style: TextStyle(color: Colors.white,fontWeight: FontWeight.w600),),
-                        //   height: 40,
-                        //   width: 200,
-                        // ),
+                            //_checkAndRequestPermissions3
+
+                            ///education end
+                            ///
+                            SizedBox(height: 24),
+                            // MyElevatedButton(
+                            //   onPressed: () {
+                            //     print("updateee");
+                            //     String formattedDateOfBirth =
+                            //         formatDateOfBirth(_dateOfBirthController.text);
+                            //     // Use null-aware operators to handle potential null values
+                            //     String stateId = _employeeUpdatePersonalController
+                            //             .selectedState.value?.id
+                            //             .toString() ??
+                            //         _getprofileepersonal
+                            //             .getprofileemployeeModel?.data?.stateid
+                            //             ?.toString() ??
+                            //         "2";
+                            //     String cityId = _employeeUpdatePersonalController
+                            //             .selectedCity.value?.id
+                            //             .toString() ??
+                            //         _getprofileepersonal
+                            //             .getprofileemployeeModel?.data?.cityid
+                            //             ?.toString() ??
+                            //         "158";
+                            //
+                            //     ///todo: profile...
+                            //
+                            //     // _profilePictureEmployeController
+                            //     //     .updaprofilrimgProfile(
+                            //     //   cvFileContent3: cvFileContent3!,
+                            //     //   Empprofile: _profileimagePathController.text,
+                            //     // );
+                            //     print("dob:$formattedDateOfBirth");
+                            //     print("_profileFileContent:$_profileFileContent");
+                            //     ///todo: other and document not update.......
+                            //     _employeeUpdatePersonalController
+                            //         .updateEmployee(
+                            //       personalEmailAddress: _emailController.text,
+                            //       mobileNumber: _mobileNumberController.text,
+                            //       dateOfBirth: _dateOfBirthController.text,
+                            //       // age: _ageController.text,
+                            //       // fatherName: _fathernameController.text,
+                            //       //pAN: _pannoController.text,
+                            //       address1: _address1Controller.text,
+                            //       address2: _address2Controller.text,
+                            //       cityid: cityId,
+                            //       // _getprofileepersonal
+                            //       //     .getprofileemployeeModel!.data!.cityid
+                            //       //     .toString(),
+                            //       stateid: stateId,
+                            //       pincode: _pincodeController.text,
+                            //       aadharNo: _aadharnoController.text,
+                            //       // aadharFileContent:
+                            //       //     _aadharImages, // Pass list of Aadhaar images
+                            //       // Aadharbase64: _aadharFilePathController
+                            //       //     .text, // Pass Aadhar file name
+                            //       // panFileContent:
+                            //       //     _panFileContent!, // Pass PAN file content
+                            //       // // Panbase64: _panFilePathController.text.isNotEmpty
+                            //       // //     ? _panFilePathController.text
+                            //       // //     : null, // Check if PAN file path is provided
+                            //       //
+                            //       // Panbase64: _panFilePathController
+                            //       //     .text,
+                            //       fullName: _nameController.text,
+                            //       workEmail: _workEmailController.text,
+                            //       dateOfJoining: _joiningDateController.text,
+                            //       departmentName: 'fgh',
+                            //       designationName: _roleController.text,
+                            //       companyName: _companynameController.text,
+                            //       companyLocationName: _companyLocController.text,
+                            //       // profileFileContent: _profileFileContent!,
+                            //       // Profilebase64: _profileimagePathController.text, // Pass PAN file name
+                            //     );
+                            //
+                            //     // await Future.delayed(Duration(seconds: 3));
+                            //
+                            //     ///Clear dropdown value
+                            //     //_profileController.selectedState.value = null;
+                            //     // _profileController.selectedCity.value = null;
+                            //     print("updateee done");
+                            //
+                            //   },
+                            //   text: Text('Update',
+                            //   style: TextStyle(color: Colors.white,fontWeight: FontWeight.w600),),
+                            //   height: 40,
+                            //   width: 200,
+                            // ),
 
 
-                        //TODAYY
+                            //TODAYY
 
-                        // MyElevatedButton(
-                        //   onPressed: () {
-                        //     print("Update button pressed");
-                        //
-                        //     // Ensure the date is in the correct format before sending
-                        //     String formattedDateOfBirth = _dateOfBirthController.text;
-                        //
-                        //     // Get stateId and cityId with fallback values
-                        //     String stateId = _employeeUpdatePersonalController.selectedState.value?.id.toString() ??
-                        //         _getprofileepersonal.getprofileemployeeModel?.data?.stateid?.toString() ?? "2";
-                        //     String cityId = _employeeUpdatePersonalController.selectedCity.value?.id.toString() ??
-                        //         _getprofileepersonal.getprofileemployeeModel?.data?.cityid?.toString() ?? "158";
-                        //
-                        //     // Create the form data map with DOB
-                        //     Map<String, String> formData = {
-                        //       'personalEmailAddress': _emailController.text,
-                        //       'mobileNumber': _mobileNumberController.text,
-                        //       'dateOfBirth': formattedDateOfBirth, // Sending DOB in correct format
-                        //       'address1': _address1Controller.text,
-                        //       'address2': _address2Controller.text,
-                        //       'cityid': cityId,
-                        //       'stateid': stateId,
-                        //       'pincode': _pincodeController.text,
-                        //       'aadharNo': _aadharnoController.text,
-                        //       'fullName': _nameController.text,
-                        //       'workEmail': _workEmailController.text,
-                        //       'dateOfJoining': _joiningDateController.text,
-                        //       'departmentName': 'fgh',
-                        //       'designationName': _roleController.text,
-                        //       'companyName': _companynameController.text,
-                        //       'companyLocationName': _companyLocController.text,
-                        //     };
-                        //
-                        //     print("DOB sent: ${_dateOfBirthController.text}");
-                        //
-                        //     // Call the updateProfile function
-                        //     _employeeUpdatePersonalController.updateProfile(formData);
-                        //   },
-                        //   text: const Text("Update"),
-                        //   height: 40,
-                        //   width: 200,
-                        // ),
+                            // MyElevatedButton(
+                            //   onPressed: () {
+                            //     print("Update button pressed");
+                            //
+                            //     // Ensure the date is in the correct format before sending
+                            //     String formattedDateOfBirth = _dateOfBirthController.text;
+                            //
+                            //     // Get stateId and cityId with fallback values
+                            //     String stateId = _employeeUpdatePersonalController.selectedState.value?.id.toString() ??
+                            //         _getprofileepersonal.getprofileemployeeModel?.data?.stateid?.toString() ?? "2";
+                            //     String cityId = _employeeUpdatePersonalController.selectedCity.value?.id.toString() ??
+                            //         _getprofileepersonal.getprofileemployeeModel?.data?.cityid?.toString() ?? "158";
+                            //
+                            //     // Create the form data map with DOB
+                            //     Map<String, String> formData = {
+                            //       'personalEmailAddress': _emailController.text,
+                            //       'mobileNumber': _mobileNumberController.text,
+                            //       'dateOfBirth': formattedDateOfBirth, // Sending DOB in correct format
+                            //       'address1': _address1Controller.text,
+                            //       'address2': _address2Controller.text,
+                            //       'cityid': cityId,
+                            //       'stateid': stateId,
+                            //       'pincode': _pincodeController.text,
+                            //       'aadharNo': _aadharnoController.text,
+                            //       'fullName': _nameController.text,
+                            //       'workEmail': _workEmailController.text,
+                            //       'dateOfJoining': _joiningDateController.text,
+                            //       'departmentName': 'fgh',
+                            //       'designationName': _roleController.text,
+                            //       'companyName': _companynameController.text,
+                            //       'companyLocationName': _companyLocController.text,
+                            //     };
+                            //
+                            //     print("DOB sent: ${_dateOfBirthController.text}");
+                            //
+                            //     // Call the updateProfile function
+                            //     _employeeUpdatePersonalController.updateProfile(formData);
+                            //   },
+                            //   text: const Text("Update"),
+                            //   height: 40,
+                            //   width: 200,
+                            // ),
 
-                      MyElevatedButton(
-                        onPressed: () async {
-                          print("Updating profile...");
+                          MyElevatedButton(
+                            onPressed: () async {
+                              print("Updating profile...");
 
-                          String formattedDateOfBirth = formatDateOfBirth(_dateOfBirthController.text);
-                          String stateId = _employeeUpdatePersonalController.selectedState.value?.id.toString() ?? "23";
-                          String cityId = _employeeUpdatePersonalController.selectedCity.value?.id.toString() ?? "532";
+                              String formattedDateOfBirth = formatDateOfBirth(_dateOfBirthController.text);
+                              String stateId = _employeeUpdatePersonalController.selectedState.value?.id.toString() ?? "23";
+                              String cityId = _employeeUpdatePersonalController.selectedCity.value?.id.toString() ?? "532";
 
-                          Map<String, String> formData = {
-                            'personalEmailAddress': _emailController.text,
-                            'mobileNumber': _mobileNumberController.text,
-                            'dateOfBirth': formattedDateOfBirth,
-                            'address1': _address1Controller.text,
-                            'address2': _address2Controller.text,
-                            'cityid': cityId,
-                            'stateid': stateId,
-                            'pincode': _pincodeController.text,
-                            'aadharNo': _aadharnoController.text,
-                            'fullName': _nameController.text,
-                            'workEmail': _workEmailController.text,
-                            'dateOfJoining': _joiningDateController.text,
-                            'departmentName': 'ff',
-                            'designationName': 'ffd',
-                            'companyName': 'vccc',
-                            'companyLocationName': 'fff',
-                          };
+                              Map<String, String> formData = {
+                                'personalEmailAddress': _emailController.text,
+                                'mobileNumber': _mobileNumberController.text,
+                                'dateOfBirth': formattedDateOfBirth,
+                                'address1': _address1Controller.text,
+                                'address2': _address2Controller.text,
+                                'cityid': cityId,
+                                'stateid': stateId,
+                                'pincode': _pincodeController.text,
+                                'aadharNo': _aadharnoController.text,
+                                'fullName': _nameController.text,
+                                'workEmail': _workEmailController.text,
+                                // 'dateOfJoining': _joiningDateController.text,
+                                // 'departmentName': 'ff',
+                                // 'designationName': 'ffd',
+                                // 'companyName': 'vccc',
+                                // 'companyLocationName': 'fff',
+                                'fatherName':_fathernameController.text,
+                                'PanNo':_pannoController.text,
+                              };
+                              print("pan:${_pannoController.text},");
 
-                         // List<String>? Aadharbasee64 = [_aadharFilePath1Controller.text, _aadharFilePath2Controller.text];
-                          Get.dialog(CustomThreeInOutLoader(), barrierDismissible: false);
-                          await _employeeUpdatePersonalController.updateEmployee(
-                            formData: formData,
-                            aadharFileContent: _aadharImages,
-                            Aadharbase64: _aadharFileNames,
-                            panFileContent: _panFileContent,
-                            Panbase64: _panFilePathController.text,
-                            profileFileContent: _profileFileContent,
-                            Profilebase64: _profileimagePathController.text,
-                          );
-                          Get.back();
-                        },
-                        text: Text('Update', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
-                        height: 40,
-                        width: 200,
+                             // List<String>? Aadharbasee64 = [_aadharFilePath1Controller.text, _aadharFilePath2Controller.text];
+                              Get.dialog(CustomThreeInOutLoader(), barrierDismissible: false);
+                              await _employeeUpdatePersonalController.updateEmployee(
+                                formData: formData,
+                                aadharFileContent1: _aadhar1FileContent,
+                                Aadhar1base64: _aadharFilePath1Controller.text,
+                                aadharFileContent2: _aadhar2FileContent,
+                                Aadhar2base64: _aadharFilePath2Controller.text,
+                                // aadharFileContent: _aadharImages,
+                                // Aadharbase64: _aadharFileNames,
+                                panFileContent: _panFileContent,
+                                Panbase64: _panFilePathController.text,
+                                profileFileContent: _profileFileContent,
+                                Profilebase64: _profileimagePathController.text,
+                              );
+                              Get.back();
+                            },
+                            text: Text('Update', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
+                            height: 40,
+                            width: 200,
+                          ),
+                                    //todayyyy correct for profile and pan
+                            // MyElevatedButton(
+                            //   onPressed: () async {
+                            //     print("updateee");
+                            //     print("_dateOfBirthController:${_dateOfBirthController.text}");
+                            //     // Format the date of birth
+                            //     String formattedDateOfBirth = formatDateOfBirth(_dateOfBirthController.text);
+                            //     String formattedDate = '';
+                            //     if (_dateOfBirthController.text.isNotEmpty) {
+                            //       DateTime parsedDate = DateFormat('yyyy-MM-dd').parse(_dateOfBirthController.text);
+                            //       formattedDate = DateFormat('yyyy-MM-dd').format(parsedDate);
+                            //     }
+                            //     print("formattedDateOfBirth:$formattedDateOfBirth");
+                            //     print("formattedDate:$formattedDate");
+                            //     // Get stateId and cityId with fallback values
+                            //     String stateId = _employeeUpdatePersonalController.selectedState.value?.id.toString() ??
+                            //         _getprofileepersonal.getprofileemployeeModel?.data?.stateid?.toString() ??
+                            //         "2";
+                            //     String cityId = _employeeUpdatePersonalController.selectedCity.value?.id.toString() ??
+                            //         _getprofileepersonal.getprofileemployeeModel?.data?.cityid?.toString() ??
+                            //         "158";
+                            //
+                            //     // Prepare form data
+                            //     Map<String, String> formData = {
+                            //       'personalEmailAddress': _emailController.text,
+                            //       'mobileNumber': _mobileNumberController.text,
+                            //       'dateOfBirth': formattedDateOfBirth,
+                            //       'address1': _address1Controller.text,
+                            //       'address2': _address2Controller.text,
+                            //       'cityid': cityId,
+                            //       'stateid': stateId,
+                            //       'pincode': _pincodeController.text,
+                            //       'aadharNo': _aadharnoController.text,
+                            //       'fullName': _nameController.text,
+                            //       'workEmail': _workEmailController.text,
+                            //       'dateOfJoining': _joiningDateController.text,
+                            //       'departmentName': 'fgh',
+                            //       'designationName': _roleController.text,
+                            //       'companyName': _companynameController.text,
+                            //       'companyLocationName': _companyLocController.text,
+                            //     };
+                            //
+                            //     // Prepare Base64 image data
+                            //     String? Aadharbase64 = _aadharFilePathController.text.isNotEmpty ? _aadharFilePathController.text : null;
+                            //     List<String>? Aadharbasee64 = [_aadharFilePath1Controller.text,_aadharFilePath2Controller.text];
+                            //     String? Panbase64 = _panFilePathController.text.isNotEmpty ? _panFilePathController.text : null;
+                            //     String? Profilebase64 = _profileimagePathController.text.isNotEmpty ? _profileimagePathController.text : null;
+                            //     print("_profileimagePathController:${_profileimagePathController.text}");
+                            //     print("Profilebase6444444:${Profilebase64}");
+                            //     print("_dateOfBirthController:${_dateOfBirthController.text}");
+                            //     // Call the controller's update function
+                            //     await _employeeUpdatePersonalController.updateEmployee(
+                            //       // personalEmailAddress: _emailController.text,
+                            //       // mobileNumber: _mobileNumberController.text,
+                            //       // dateOfBirth: formattedDateOfBirth,
+                            //       // address1: _address1Controller.text,
+                            //       // address2: _address2Controller.text,
+                            //       // cityid: cityId,
+                            //       // stateid: stateId,
+                            //       // pincode: _pincodeController.text,
+                            //       // aadharNo: _aadharnoController.text,
+                            //       // fullName: _nameController.text,
+                            //       // workEmail: _workEmailController.text,
+                            //       // dateOfJoining: _joiningDateController.text,
+                            //       // departmentName: 'fgh',
+                            //       // designationName: _roleController.text,
+                            //       // companyName: _companynameController.text,
+                            //       // companyLocationName: _companyLocController.text,
+                            //       formData: formData,
+                            //       aadharFileContent: _aadharImages, // Pass list of Aadhaar images if any
+                            //     //  Aadharbase64: Aadharbase64 != null ? [Aadharbase64] : null, // Pass Aadhar Base64 if available
+                            //       Aadharbase64: Aadharbase64, // Pass Aadhar Base64 if available
+                            //       panFileContent: _panFileContent, // Pass PAN file content if available
+                            //       Panbase64: Panbase64, // Pass PAN Base64 if available
+                            //       profileFileContent: _profileFileContent, // Pass profile file content if available
+                            //       Profilebase64: Profilebase64, // Pass profile Base64 if available
+                            //     );
+                            //     Future.delayed(Duration(
+                            //       seconds: 1
+                            //     ));
+                            //     _profileimagePathController.text==null;
+                            //     print("_profileController:${_profileimagePathController.text}");
+                            //     print("profileFileContent:$_profileFileContent");
+                            //     print("Profilebase64:$Profilebase64");
+                            //     print("Aadharbase64:$Aadharbase64");
+                            //     print("Panbase64:$Panbase64");
+                            //     print("dateOfBirthController:${_dateOfBirthController.text}");
+                            //
+                            //     print("updateee done");
+                            //   },
+                            //   text: Text(
+                            //     'Update',
+                            //     style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+                            //   ),
+                            //   height: 40,
+                            //   width: 200,
+                            // ),xx
+
+                            const SizedBox(height: 34),
+                          ],
+                        ),
                       ),
-          //todayyyy correct for profile and pan
-                        // MyElevatedButton(
-                        //   onPressed: () async {
-                        //     print("updateee");
-                        //     print("_dateOfBirthController:${_dateOfBirthController.text}");
-                        //     // Format the date of birth
-                        //     String formattedDateOfBirth = formatDateOfBirth(_dateOfBirthController.text);
-                        //     String formattedDate = '';
-                        //     if (_dateOfBirthController.text.isNotEmpty) {
-                        //       DateTime parsedDate = DateFormat('yyyy-MM-dd').parse(_dateOfBirthController.text);
-                        //       formattedDate = DateFormat('yyyy-MM-dd').format(parsedDate);
-                        //     }
-                        //     print("formattedDateOfBirth:$formattedDateOfBirth");
-                        //     print("formattedDate:$formattedDate");
-                        //     // Get stateId and cityId with fallback values
-                        //     String stateId = _employeeUpdatePersonalController.selectedState.value?.id.toString() ??
-                        //         _getprofileepersonal.getprofileemployeeModel?.data?.stateid?.toString() ??
-                        //         "2";
-                        //     String cityId = _employeeUpdatePersonalController.selectedCity.value?.id.toString() ??
-                        //         _getprofileepersonal.getprofileemployeeModel?.data?.cityid?.toString() ??
-                        //         "158";
-                        //
-                        //     // Prepare form data
-                        //     Map<String, String> formData = {
-                        //       'personalEmailAddress': _emailController.text,
-                        //       'mobileNumber': _mobileNumberController.text,
-                        //       'dateOfBirth': formattedDateOfBirth,
-                        //       'address1': _address1Controller.text,
-                        //       'address2': _address2Controller.text,
-                        //       'cityid': cityId,
-                        //       'stateid': stateId,
-                        //       'pincode': _pincodeController.text,
-                        //       'aadharNo': _aadharnoController.text,
-                        //       'fullName': _nameController.text,
-                        //       'workEmail': _workEmailController.text,
-                        //       'dateOfJoining': _joiningDateController.text,
-                        //       'departmentName': 'fgh',
-                        //       'designationName': _roleController.text,
-                        //       'companyName': _companynameController.text,
-                        //       'companyLocationName': _companyLocController.text,
-                        //     };
-                        //
-                        //     // Prepare Base64 image data
-                        //     String? Aadharbase64 = _aadharFilePathController.text.isNotEmpty ? _aadharFilePathController.text : null;
-                        //     List<String>? Aadharbasee64 = [_aadharFilePath1Controller.text,_aadharFilePath2Controller.text];
-                        //     String? Panbase64 = _panFilePathController.text.isNotEmpty ? _panFilePathController.text : null;
-                        //     String? Profilebase64 = _profileimagePathController.text.isNotEmpty ? _profileimagePathController.text : null;
-                        //     print("_profileimagePathController:${_profileimagePathController.text}");
-                        //     print("Profilebase6444444:${Profilebase64}");
-                        //     print("_dateOfBirthController:${_dateOfBirthController.text}");
-                        //     // Call the controller's update function
-                        //     await _employeeUpdatePersonalController.updateEmployee(
-                        //       // personalEmailAddress: _emailController.text,
-                        //       // mobileNumber: _mobileNumberController.text,
-                        //       // dateOfBirth: formattedDateOfBirth,
-                        //       // address1: _address1Controller.text,
-                        //       // address2: _address2Controller.text,
-                        //       // cityid: cityId,
-                        //       // stateid: stateId,
-                        //       // pincode: _pincodeController.text,
-                        //       // aadharNo: _aadharnoController.text,
-                        //       // fullName: _nameController.text,
-                        //       // workEmail: _workEmailController.text,
-                        //       // dateOfJoining: _joiningDateController.text,
-                        //       // departmentName: 'fgh',
-                        //       // designationName: _roleController.text,
-                        //       // companyName: _companynameController.text,
-                        //       // companyLocationName: _companyLocController.text,
-                        //       formData: formData,
-                        //       aadharFileContent: _aadharImages, // Pass list of Aadhaar images if any
-                        //     //  Aadharbase64: Aadharbase64 != null ? [Aadharbase64] : null, // Pass Aadhar Base64 if available
-                        //       Aadharbase64: Aadharbase64, // Pass Aadhar Base64 if available
-                        //       panFileContent: _panFileContent, // Pass PAN file content if available
-                        //       Panbase64: Panbase64, // Pass PAN Base64 if available
-                        //       profileFileContent: _profileFileContent, // Pass profile file content if available
-                        //       Profilebase64: Profilebase64, // Pass profile Base64 if available
-                        //     );
-                        //     Future.delayed(Duration(
-                        //       seconds: 1
-                        //     ));
-                        //     _profileimagePathController.text==null;
-                        //     print("_profileController:${_profileimagePathController.text}");
-                        //     print("profileFileContent:$_profileFileContent");
-                        //     print("Profilebase64:$Profilebase64");
-                        //     print("Aadharbase64:$Aadharbase64");
-                        //     print("Panbase64:$Panbase64");
-                        //     print("dateOfBirthController:${_dateOfBirthController.text}");
-                        //
-                        //     print("updateee done");
-                        //   },
-                        //   text: Text(
-                        //     'Update',
-                        //     style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
-                        //   ),
-                        //   height: 40,
-                        //   width: 200,
-                        // ),
-
-                        const SizedBox(height: 34),
-                      ],
                     ),
                   ),
-                ),
+          ),
         ),
      ),
     );

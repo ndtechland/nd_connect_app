@@ -14,7 +14,7 @@ class DashbordModel {
   int? statusCode;
   String? status;
   String? message;
-  dynamic error;
+ // dynamic error;
   Data? data;
 
   DashbordModel({
@@ -22,7 +22,7 @@ class DashbordModel {
     this.statusCode,
     this.status,
     this.message,
-    this.error,
+   // this.error,
     this.data,
   });
 
@@ -31,7 +31,7 @@ class DashbordModel {
         statusCode: json["statusCode"],
         status: json["status"],
         message: json["message"],
-        error: json["error"],
+       // error: json["error"],
         data: json["data"] == null ? null : Data.fromJson(json["data"]),
       );
 
@@ -40,7 +40,7 @@ class DashbordModel {
         "statusCode": statusCode,
         "status": status,
         "message": message,
-        "error": error,
+       // "error": error,
         "data": data?.toJson(),
       };
 }
@@ -52,7 +52,7 @@ class Data {
   num? leave;
   String? offerletter;
   String? appointmentletter;
-  String? completionPercentage;
+ // String? completionPercentage;
 
   Data({
     this.totalAttendance,
@@ -61,7 +61,7 @@ class Data {
     this.leave,
     this.offerletter,
     this.appointmentletter,
-    this.completionPercentage,
+   // this.completionPercentage,
   });
 
   factory Data.fromJson(Map<String, dynamic> json) => Data(
@@ -71,7 +71,7 @@ class Data {
         leave: json["leave"],
         offerletter: json["offerletter"],
         appointmentletter: json["appointmentletter"],
-        completionPercentage: json["completionPercentage"],
+       // completionPercentage: json["completionPercentage"],
       );
 
   Map<String, dynamic> toJson() => {
@@ -81,6 +81,6 @@ class Data {
         "leave": leave,
         "offerletter": offerletter,
         "appointmentletter": appointmentletter,
-        "completionPercentage": completionPercentage,
+      //  "completionPercentage": completionPercentage,
       };
 }

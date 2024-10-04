@@ -174,8 +174,10 @@ class EmployeeUpdatePersonalController extends GetxController {
   // }
   Future<void> updateEmployee({
     required Map<String, String> formData,
-    List<Uint8List>? aadharFileContent,
-    List<String>? Aadharbase64, // Corrected to List for multiple Aadhaar images
+    Uint8List? aadharFileContent1,
+    String? Aadhar1base64,
+    Uint8List? aadharFileContent2,
+    String? Aadhar2base64,  // Corrected to List for multiple Aadhaar images
     Uint8List? panFileContent,
     String? Panbase64,
     Uint8List? profileFileContent,
@@ -184,8 +186,10 @@ class EmployeeUpdatePersonalController extends GetxController {
     try {
       final response = await ApiProvider.updatePersonal(
         formData: formData,
-        aadharFileContent: aadharFileContent,
-        Aadharbase64: Aadharbase64,
+        aadharFileContent1: aadharFileContent1,
+        Aadhar1base64: Aadhar1base64,
+        aadharFileContent2: aadharFileContent2,
+        Aadhar2base64: Aadhar2base64,
         panFileContent: panFileContent,
         Panbase64: Panbase64,
         profileFileContent: profileFileContent,

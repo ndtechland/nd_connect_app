@@ -192,6 +192,7 @@ import 'package:table_calendar/table_calendar.dart';
 
 import '../../../controllers/events_controller.dart';
 import '../../../models/events_model.dart';
+import '../pages/willPop_scope_exit.dart';
 
 
 class EventCalendarScreen extends StatelessWidget {
@@ -201,30 +202,33 @@ class EventCalendarScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final EventsController controller = Get.put(EventsController());
 
-    return Scaffold(
-      // appBar: AppBar(
-      //   title: Text("Events Calendar"),
-      // ),
-      body: Obx(() {
-        final selectedDay = controller.selectedDay.value;
-        final focusedDay = controller.focusedDay.value;
+    return WillPopScope(
+      onWillPop: () => showExitPopup(context),
+      child: Scaffold(
+        // appBar: AppBar(
+        //   title: Text("Events Calendar"),
+        // ),
+        body: Obx(() {
+          final selectedDay = controller.selectedDay.value;
+          final focusedDay = controller.focusedDay.value;
 
-        // Detect screen orientation
-        final isLandscape =
-            MediaQuery.of(context).orientation == Orientation.landscape;
+          // Detect screen orientation
+          final isLandscape =
+              MediaQuery.of(context).orientation == Orientation.landscape;
 
-        return Column(
-          children: [
-            // Calendar widget
-            _buildCalendar(controller, isLandscape),
+          return Column(
+            children: [
+              // Calendar widget
+              _buildCalendar(controller, isLandscape),
 
-            // List of events for the selected day
-            Expanded(
-              child: _buildEventList(controller, selectedDay),
-            ),
-          ],
-        );
-      }),
+              // List of events for the selected day
+              Expanded(
+                child: _buildEventList(controller, selectedDay),
+              ),
+            ],
+          );
+        }),
+      ),
     );
   }
 
@@ -279,7 +283,7 @@ class EventCalendarScreen extends StatelessWidget {
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 18.0,
-                            fontWeight: FontWeight.w500,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ),
@@ -302,7 +306,7 @@ class EventCalendarScreen extends StatelessWidget {
                                 child: Icon(
                                   Icons.arrow_back_ios_new,
                                   color: Colors.grey.shade300,
-                                  size: 16,
+                                  size: 15,
                                 )),
                             Text(
                               formattedDate,
@@ -324,7 +328,7 @@ class EventCalendarScreen extends StatelessWidget {
                                 child: Icon(
                                   Icons.arrow_forward_ios_rounded,
                                   color: Colors.grey.shade300,
-                                  size: 16,
+                                  size: 15,
                                 )),
                           ],
                         ),

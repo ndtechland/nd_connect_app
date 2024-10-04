@@ -102,9 +102,9 @@ class LeaveApplyController extends GetxController {
   ///get cities api...........
   ///todo: multiple day apply leave.....
   Future<void> applyLeave({
-    required String typeOfLeaveId,
     required String startLeaveId,
     required String endeaveId,
+    required String typeOfLeaveId,
     required String startDate,
     required String endDate,
     required String reason,
@@ -115,9 +115,9 @@ class LeaveApplyController extends GetxController {
       isLoading(true);
 
       final Map<String, String> formData = {
-        'typeOfLeaveId': typeOfLeaveId,
         'startLeaveId': startLeaveId,
         'endeaveId': endeaveId,
+        'typeOfLeaveId': typeOfLeaveId,
         'startDate': startDate,
         'endDate': endDate,
         'reason': reason,
@@ -144,9 +144,9 @@ class LeaveApplyController extends GetxController {
 
   ///todo: single day apply leave.....
   Future<void> applyLeave2({
-    required String typeOfLeaveId,
     required String startLeaveId,
     required String endeaveId,
+    required String typeOfLeaveId,
     required String startDate,
     required String endDate,
     required String reason,
@@ -155,9 +155,9 @@ class LeaveApplyController extends GetxController {
       isLoading(true);
 
       final Map<String, String> formData = {
-        'typeOfLeaveId': typeOfLeaveId,
         'startLeaveId': startLeaveId,
         'endeaveId': endeaveId,
+        'typeOfLeaveId': typeOfLeaveId,
         'startDate': startDate,
         'endDate': endDate,
         'reason': reason,

@@ -2,6 +2,7 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
+import 'package:nd_connect_techland/modules/bottom_bar/bottom_bar.dart';
 
 import '../../services_apis/api_servicesss.dart';
 import '../user_profile_controller/user_profile_controller.dart';
@@ -30,15 +31,19 @@ class ChangePasswordEmployeeController extends GetxController {
       );
 
       if (response?.statusCode == 200) {
+        print("changePass contro:200");
+        print("changePass contro:${response?.body}");
         // Navigate to Home Page
-        //Get.off(() => Home());
+        Get.off(() => BottomBar());
       } else {
+        print("changePass contro:not 200");
+
         // Handle other status codes or errors
-        // Get.snackbar('Error', 'Failed to change password. Please try again.');
+         Get.snackbar('Error', 'Failed to change password. Please try again.');
       }
     } catch (e) {
       // Handle any errors that occur during the API call
-      //Get.snackbar('Error', 'An unexpected error occurred. Please try again.');
+      Get.snackbar('Error', 'An unexpected error occurred. Please try again.');
     } finally {
       isLoading.value = false;
     }

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:nd_connect_techland/controllers/location_controller.dart';
 import 'package:nd_connect_techland/modules/bottom_bar/bottom_bar.dart';
 
 
@@ -23,6 +24,7 @@ import '../all_pages/pages/login.dart';
 class SplashScreen extends StatelessWidget {
   SplashScreen({Key? key}) : super(key: key);
   final EmployeeLoginController employeeLoginController = Get.put(EmployeeLoginController());
+  final LocationController locationController = Get.put(LocationController());
   // final ProfileController _profileController = Get.put(ProfileController());
   final ProfileEmployeeController _getprofileepersonal =
       Get.put(ProfileEmployeeController());
@@ -90,10 +92,18 @@ class SplashScreen extends StatelessWidget {
               try {
                 final accountData2 = await accountService2.getAccountData2;
                 if (accountData2 != null) {
+                  await ApiProvider.RefreshToken();
                   // Auto-login and fetch the necessary data
                   await _getprofileepersonal.profileemployeeApi();
-                 // await _homedashboardController.dashboarddApi();
-                  //_homedashboardController.update();
+                 // await locationController.checkAndRequestLocationPermission();
+
+                  await locationController.fetchCurrentLocation(
+                    // " C 53, 1st Floor, C Block, Sector 2, Noida, Uttar Pradesh 201301"
+                  );
+                  await locationController.fetchCompanyLocationApi();
+                  await locationController.getCoordinatesFromAddress();
+                  await _homedashboardController.dashboarddApi();
+                  _homedashboardController.update();
                   Future.delayed(Duration(seconds: 1));
                   await Navigator.pushReplacement(
                     context,

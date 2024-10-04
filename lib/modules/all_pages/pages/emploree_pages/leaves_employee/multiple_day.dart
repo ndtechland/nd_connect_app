@@ -584,11 +584,13 @@ class MultipleDayLeavePage extends StatelessWidget {
                                           }
                                         }
                                       },
-                                      text: Text('Apply',
-                                      style: TextStyle(
-                                        fontSize: 16,fontWeight: FontWeight.w600,
-                                        color: Colors.white
-                                      ),),
+                                      text: Text(
+                                        'Apply',
+                                        style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.white),
+                                      ),
                                       height: 40,
                                       width: 200,
                                     ),
@@ -613,7 +615,15 @@ class MultipleDayLeavePage extends StatelessWidget {
       preferredSize: Size.fromHeight(150),
       child: AppBar(
         automaticallyImplyLeading: true,
-        leading: IconButton(onPressed: (){Navigator.pop(context);},icon: Icon(Icons.arrow_back,color: Colors.white,),),
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: Icon(
+            Icons.arrow_back,
+            color: Colors.white,
+          ),
+        ),
         backgroundColor: Colors.transparent,
         flexibleSpace: _buildHeader(),
       ),
@@ -626,17 +636,16 @@ class MultipleDayLeavePage extends StatelessWidget {
         height: 200,
         //MediaQuery.of(context).size.height * 0.35,
         padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
-        decoration: BoxDecoration(
-          color: appColor2
-        //     gradient: LinearGradient(
-        //   begin: Alignment.topCenter,
-        //   end: Alignment.bottomCenter,
-        //   colors: [
-        //     logoColor,
-        //     logoColor,
-        //   ],
-        // )
-        ),
+        decoration: BoxDecoration(color: appColor2
+            //     gradient: LinearGradient(
+            //   begin: Alignment.topCenter,
+            //   end: Alignment.bottomCenter,
+            //   colors: [
+            //     logoColor,
+            //     logoColor,
+            //   ],
+            // )
+            ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
