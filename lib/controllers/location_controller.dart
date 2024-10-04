@@ -13,7 +13,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:nd_connect_techland/services_apis/api_servicesss.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:geolocator/geolocator.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
 import '../modules/bottom_bar/bottom_bar.dart';
 class LocationController extends GetxController {
   var latitude = 0.0.obs;
@@ -25,7 +25,7 @@ class LocationController extends GetxController {
   // Company address details
   var companyLatitude = 0.0.obs; // Company's latitude
   var companyLongitude = 0.0.obs;
-  Rx<Color> statusColor = Color(0xFFFFFFFF).obs; // Default to white color
+  Rx<Color> statusColor = Color(0xFFFF0202).obs; // Default to white color
   // Radius in meters for the company boundary
   var companyRadius = 0.0.obs;
   CompanyLocationModel? companyLocationModel;
@@ -33,10 +33,33 @@ class LocationController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-
     getCoordinatesFromAddress();
+    restoreCheckInStatus();
+    restoreStatusColor();
   }
+  Future<void> restoreCheckInStatus() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool isCheckedIn = prefs.getBool('isCheckedIn') ?? false;
+    // You can update the UI accordingly based on isCheckedIn
+  }
+
+  Future<void> restoreStatusColor() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    int savedColorValue = prefs.getInt('statusColor') ?? Colors.red.value;
+    statusColor.value = Color(savedColorValue); // Restore the color
+  }
+  Future<void> saveCheckInStatus(bool isCheckedIn) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setBool('isCheckedIn', isCheckedIn);
+  }
+
+  Future<void> saveStatusColor(Color color) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setInt('statusColor', color.value); // Save the color as an integer
+  }
+
   Future<void> fetchCompanyLocationApi() async {
+    await Future.delayed(Duration(seconds: 1));
     isLoading.value = true;
     companyLocationModel = await ApiProvider.CompanyLocation();
     if(companyLocationModel?.data?.companyOfficeLocation == null) {
@@ -78,6 +101,7 @@ class LocationController extends GetxController {
   // }
   // }
   Future<void> checkInApi() async {
+    await Future.delayed(Duration(seconds: 1));
     print("checkIN Controller");
     try {
       isLoading.value = true;
@@ -99,6 +123,8 @@ class LocationController extends GetxController {
       if (response?.statusCode == 200) {
         print("Check-in successful: ${response?.body}");
         statusColor.value = Colors.green;
+        await saveCheckInStatus(true); // Save the check-in status
+        await saveStatusColor(Colors.green);
         // Navigate to the Attendance screen or perform other actions
         Get.to(() => Attendance(id: "13"));
 
@@ -113,7 +139,8 @@ class LocationController extends GetxController {
       } else if (response?.statusCode == 401) {
         print("Unauthorized access");
         statusColor.value = Colors.red;
-
+        await saveCheckInStatus(false); // Save the check-out status or error state
+        await saveStatusColor(Colors.red);
         // Show unauthorized error
         Fluttertoast.showToast(
           msg: "Unauthorized access. Please check your login status.",
@@ -124,7 +151,8 @@ class LocationController extends GetxController {
         );
       } else if(response?.statusCode ==409){
         statusColor.value = Colors.green;
-
+        await saveCheckInStatus(true);
+        await saveStatusColor(Colors.green);
         Get.to(() => Attendance(id: "13"));
 
         // Show success toast
@@ -139,7 +167,8 @@ class LocationController extends GetxController {
         // Handle other response status codes
         print("Failed to check in: ${response?.statusCode}");
         statusColor.value = Colors.red;
-
+        await saveCheckInStatus(false); // Save the check-out status or error state
+        await saveStatusColor(Colors.red);
         // Show generic error message
         Get.snackbar('Error', 'Failed to check in. Please try again.');
         Fluttertoast.showToast(
@@ -185,10 +214,12 @@ class LocationController extends GetxController {
 
       // Check response status code
       if (response?.statusCode == 200) {
-        print("Check-in successful: ${response?.body}");
-        statusColor.value = Colors.green;
+        print("Check-Out successful: ${response?.body}");
+        statusColor.value = Colors.red;
+        await saveCheckInStatus(false); // Save the check-in status
+        await saveStatusColor(Colors.red);
         // Navigate to the Attendance screen or perform other actions
-        Get.offAll(() => BottomBar());
+        //Get.offAll(() => BottomBar());
         //
         // // Show success toast
         // Fluttertoast.showToast(
@@ -230,6 +261,7 @@ class LocationController extends GetxController {
     }
   }
   Future<void> checkAndRequestLocationPermission() async {
+    await Future.delayed(Duration(seconds: 1));
     var status = await Permission.location.request();
     if (status.isGranted) {
       // Permission granted, fetch the current location
@@ -244,6 +276,7 @@ class LocationController extends GetxController {
   }
 
   Future<void> getCoordinatesFromAddress() async {
+    await Future.delayed(Duration(seconds: 1));
     try {
       isLoading(true); // Show loading state
       List<Location> comlocations = await locationFromAddress(companyLocationModel!.data!.companyOfficeLocation.toString());
@@ -297,6 +330,7 @@ class LocationController extends GetxController {
 // }
 
   Future<void> updateDistanceFromCompany() async {
+    await Future.delayed(Duration(seconds: 1));
     print("lattt:${latitude.value}");
     print("longg:${longitude.value}");
     print("companyLatt:${companyLatitude.value}");
@@ -314,6 +348,7 @@ class LocationController extends GetxController {
   }
 
   Future<void> fetchCurrentLocation() async {
+    await Future.delayed(Duration(seconds: 1));
     try {
       isLoading(true); // Start loading
       Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high,forceAndroidLocationManager: true,);

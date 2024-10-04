@@ -11,6 +11,7 @@ import 'package:nd_connect_techland/controllers/location_controller.dart';
 import 'package:nd_connect_techland/modules/all_pages/pages/emploree_pages/profile_employee/profile_employee.dart';
 import 'package:nd_connect_techland/modules/all_pages/pages/emploree_pages/side_drower.dart';
 import 'package:nd_connect_techland/modules/all_pages/pages/emploree_pages/support_comman_page.dart';
+import 'package:nd_connect_techland/modules/all_pages/total_attendance/total_attendance.dart';
 import 'package:path/path.dart';
 import 'package:nd_connect_techland/modules/all_pages/pages/emploree_pages/salary_slip_view.dart';
 import 'package:path_provider/path_provider.dart';
@@ -111,6 +112,10 @@ class HomeEmployee2 extends StatelessWidget {
               centerTitle: true,
               actions: [
               //  Obx(()=>
+                Text(locationController.statusColor.value==Colors.red?"Out":"In",
+                  style: TextStyle(color: locationController.statusColor.value==Colors.red?
+                Colors.red:Colors.green),),
+                   SizedBox(width: 4,),
                    Padding(
                     padding: const EdgeInsets.only(right: 12.0),
                     child: CircleAvatar(
@@ -879,77 +884,82 @@ class HomeEmployee2 extends StatelessWidget {
                               ),
                             ),
                             SizedBox(height: 10,),
-                            Container(
-                              height: categoryHeight*0.6,
-                              width: categoryWidth*0.85,
-                              decoration: BoxDecoration(
-                                color: appColor2.withOpacity(0.9),
-                                //  containerColors[3 % containerColors.length],
-                                boxShadow: [
-                                  BoxShadow(
-                                    offset: Offset(0, 0),
-                                    blurRadius: 1,
-                                    color: Color.fromRGBO(0, 0, 0, 0.16),
-                                  )
-                                ],
-                                borderRadius:
-                                BorderRadius.all(Radius.circular(15)),
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.all(12.0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text("Total Attendance",style: GoogleFonts.poppins(
-                                        textStyle: TextStyle(
-                                            fontSize: 16,
-                                            color: Colors.white,fontWeight: FontWeight.w600
-                                        )
-                                    ),),
-
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        responsiveText(
-                                          context: context,
-                                          text:
-                                          //_homedashboardController.dashboardResponse?.data?.totalAttendance==null?"2876":
-                                          ("${_homedashboardController.dashboardResponse?.data?.totalAttendance}"),
-                                          fontSizePortrait: 18,
-                                          fontSizeLandscape: 18,
-                                          color: Colors.white,
-                                        ),
-                                        Align(
-                                          alignment: Alignment.bottomRight,
-                                          child: CircleAvatar(
-                                            radius: 25,
-                                            backgroundColor: Colors.white,
-                                            child:  image[1] != null
-                                                ? Image.asset(
-                                              image[1], fit: BoxFit.cover,
-                                              //color: Colors.white,
-                                              // imageColors[
-                                              //     index % imageColors.length],
-                                              // fit: BoxFit.fill,
-                                              errorBuilder:
-                                                  (context, error, stackTrace) {
-                                                return Image.asset(
-                                                  'lib/assets/logo/noimageavlble.jpg',
-                                                  fit: BoxFit.cover,
-                                                );
-                                              },
-                                            )
-                                                : Image.network(
-                                              'https://ih1.redbubble.net/image.5098928927.2456/flat,750x,075,f-pad,750x1000,f8f8f8.u2.jpg',
-                                              fit: BoxFit.fill,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
+                            GestureDetector(
+                              onTap: (){
+                                Get.to(()=>TotalAttendance());
+                              },
+                              child: Container(
+                                height: categoryHeight*0.6,
+                                width: categoryWidth*0.85,
+                                decoration: BoxDecoration(
+                                  color: appColor2.withOpacity(0.9),
+                                  //  containerColors[3 % containerColors.length],
+                                  boxShadow: [
+                                    BoxShadow(
+                                      offset: Offset(0, 0),
+                                      blurRadius: 1,
+                                      color: Color.fromRGBO(0, 0, 0, 0.16),
                                     )
                                   ],
+                                  borderRadius:
+                                  BorderRadius.all(Radius.circular(15)),
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(12.0),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text("Total Attendance",style: GoogleFonts.poppins(
+                                          textStyle: TextStyle(
+                                              fontSize: 16,
+                                              color: Colors.white,fontWeight: FontWeight.w600
+                                          )
+                                      ),),
+
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          responsiveText(
+                                            context: context,
+                                            text:
+                                            //_homedashboardController.dashboardResponse?.data?.totalAttendance==null?"2876":
+                                            ("${_homedashboardController.dashboardResponse?.data?.totalAttendance}/300"),
+                                            fontSizePortrait: 18,
+                                            fontSizeLandscape: 18,
+                                            color: Colors.white,
+                                          ),
+                                          Align(
+                                            alignment: Alignment.bottomRight,
+                                            child: CircleAvatar(
+                                              radius: 25,
+                                              backgroundColor: Colors.white,
+                                              child:  image[1] != null
+                                                  ? Image.asset(
+                                                image[1], fit: BoxFit.cover,
+                                                //color: Colors.white,
+                                                // imageColors[
+                                                //     index % imageColors.length],
+                                                // fit: BoxFit.fill,
+                                                errorBuilder:
+                                                    (context, error, stackTrace) {
+                                                  return Image.asset(
+                                                    'lib/assets/logo/noimageavlble.jpg',
+                                                    fit: BoxFit.cover,
+                                                  );
+                                                },
+                                              )
+                                                  : Image.network(
+                                                'https://ih1.redbubble.net/image.5098928927.2456/flat,750x,075,f-pad,750x1000,f8f8f8.u2.jpg',
+                                                fit: BoxFit.fill,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      )
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
@@ -1107,14 +1117,7 @@ class HomeEmployee2 extends StatelessWidget {
                             ),
                             SizedBox(height: 10,),
                             GestureDetector(
-                              onTap: () async {
-                                _supportEmployeeController.supportemployeeApi();
-                                _supportEmployeeController.update();
-                                await Future.delayed(Duration(milliseconds: 800));
-
-                                Get.to(SupportViewHirejobComman());
-
-                              },
+                              onTap: (){Get.to(()=>TotalAttendance());},
                               child: Container(
                                 height: categoryHeight*0.6,
                                 width: categoryWidth*0.85,
@@ -1997,14 +2000,14 @@ class HomeEmployee2 extends StatelessWidget {
                           color: Colors.black
                       ),)),
                   SizedBox(height: 6,),
-                  Obx(()=>
+                  //Obx(()=>
                     Text(dateTimeController.currentTime.value,style: GoogleFonts.lato(
                       textStyle: TextStyle(
                           fontWeight: FontWeight.w500,
                           fontSize: 17,
                           color: Colors.black
                       ),)),
-                  ),
+                 // ),
                   // Text(DateFormat('h:mm a').format(DateTime.now()),
                   //   style: GoogleFonts.lato(
                   //     textStyle: TextStyle(
@@ -2087,7 +2090,7 @@ class HomeEmployee2 extends StatelessWidget {
                   ),),),
                 SizedBox(height: 8,),
 
-                Obx(()=>
+               // Obx(()=>
                   Row(
                     children: [
                       SizedBox(
@@ -2102,7 +2105,7 @@ class HomeEmployee2 extends StatelessWidget {
                       ),
                     ],
                   ),
-                ),
+              //  ),
               ],
             )
           ],

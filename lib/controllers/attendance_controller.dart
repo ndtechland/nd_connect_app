@@ -118,13 +118,13 @@ class AttendanceController extends GetxController {
     if (formattedDate == todayDate) {
       // Use dummy check-in time and simulate real-time working hours for today
       checkInTime.value = "09:00 am";
-      checkOutTime.value = "N/A"; // No check-out time yet
+      checkOutTime.value = "06:30 pm"; // No check-out time yet
       startOverTime.value = "06:32 pm";
       endOverTime.value = "07:00 pm";
       payPeriodHours.value = "160 hours";
       presence.value = "100%";
       absence.value = "0%";
-      overtime.value = "N/A";
+      overtime.value = "09Hrs";
       breakInTime.value = ["10:30 am", "01:00 pm"];
       breakOutTime.value = ["11:00 am", "01:30 pm"];
 
@@ -151,15 +151,15 @@ class AttendanceController extends GetxController {
       breakOutTime.value = data['breakOutTimes'];
     } else {
       // If no data exists for the selected date, use default values
-      checkInTime.value = "N/A";
-      checkOutTime.value = "N/A";
-      startOverTime.value = "N/A";
-      endOverTime.value = "N/A";
-      totalWorkingHours.value = "N/A";
-      payPeriodHours.value = "N/A";
-      presence.value = "N/A";
-      absence.value = "N/A";
-      overtime.value = "N/A";
+      checkInTime.value = "09:18 am";
+      checkOutTime.value = "07:15 pm";
+      startOverTime.value = "07:16 pm";
+      endOverTime.value = "08:00 pm";
+      totalWorkingHours.value = "10Hrs";
+      payPeriodHours.value = "38Hrs";
+      presence.value = "90%";
+      absence.value = "10%";
+      overtime.value = "04Hrs";
       breakInTime.value = [];
       breakOutTime.value = [];
     }

@@ -25,26 +25,12 @@ class Attendance extends StatelessWidget {
     final AttendanceController attendanceController = Get.put(AttendanceController());
     final LocationController locationController = Get.put(LocationController());
 
-List<String> breakIn =[
-  "01:30pm",
-  "03:10pm",
-  "05:05pm",
-  "06:04pm",
-  "01:30pm",
-  "01:30pm",
-];
-List<String> breakOut =[
-  "02:30pm",
-  "03:20pm",
-  "05:15pm",
-  "06:10pm",
-  "02:30pm",
-  "02:30pm",
-];
-    return WillPopScope(
+return WillPopScope(
       onWillPop: () async {
-        Get.offAll(() => BottomBar());
-        return shouldPop;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          Get.offAll(() => BottomBar());
+        });
+        return false;
       },
       child: Scaffold(
           backgroundColor: Colors.white,
@@ -108,7 +94,9 @@ List<String> breakOut =[
                                 print("cheedck-Outt");
                                 await locationController.employeeCheckOut();
                                 print("cheedck-Outt done");
-
+                                WidgetsBinding.instance.addPostFrameCallback((_) {
+                                  Get.offAll(() => BottomBar());
+                                });
                               },
                               child: Text('Yes',style: TextStyle(color: Colors.white),),
                             ),
