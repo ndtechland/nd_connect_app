@@ -453,16 +453,17 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:nd_connect_techland/components/styles.dart';
 import 'package:nd_connect_techland/modules/all_pages/task/task_details_page.dart';
+import 'package:nd_connect_techland/modules/all_pages/task/task_history.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:table_calendar/table_calendar.dart';
 import '../../../controllers/bottom_nav_controller.dart';
+import '../../../controllers/task_history_controller.dart';
 import '../../../controllers/task_list_controller.dart';
 import '../pages/willPop_scope_exit.dart';
 
 class TaskList extends StatelessWidget {
   String id ='11';
   TaskList ({super.key, Key,required this.id});
-  final DateTaskController controller = Get.put(DateTaskController());
   final List<Color> colors = [
     Colors.blue,
     Colors.green,
@@ -483,7 +484,10 @@ class TaskList extends StatelessWidget {
         MediaQuery.of(context).orientation == Orientation.portrait;
     CalendarFormat calendarFormat =
         isPortrait ? CalendarFormat.week : CalendarFormat.week;
-    final BottomNavController bottomNavController = Get.find<BottomNavController>();
+    final BottomNavController bottomNavController = Get.put(BottomNavController());
+    final DateTaskController controller = Get.put(DateTaskController());
+    final TaskHistoryController taskHistoryController = Get.put(TaskHistoryController());
+
     return WillPopScope(
       onWillPop: () => showExitPopup(context),
       // onWillPop: () async {
@@ -501,11 +505,22 @@ class TaskList extends StatelessWidget {
           leading: IconButton(
               onPressed: () {
                 bottomNavController.changeTabIndex(0);
+               // Navigator.pop(context);
               },
               icon: Icon(
                 Icons.arrow_back,
                 color: Colors.white,
               )),
+          actions: [
+            IconButton(onPressed: ()async{
+              print("taskHistory");
+            await taskHistoryController.TaskHistoryApi();
+              await Navigator.push(context, MaterialPageRoute(builder: (context)=>TaskHistory()));
+              print("taskHistory done");
+
+              },
+                icon: Icon(Icons.history_toggle_off,color: Colors.white,))
+          ],
         ),
         body: OrientationBuilder(
           builder: (context, orientation) {
@@ -513,160 +528,237 @@ class TaskList extends StatelessWidget {
               builder: (context, constraints) {
                 var screenWidth = constraints.maxWidth;
                 var screenHeight = constraints.maxHeight;
-
                 var imageWidth = orientation == Orientation.portrait
                     ? screenWidth * 0.55
                     : screenWidth * 0.25;
                 var imageHeight = orientation == Orientation.portrait
                     ? screenHeight * 0.2
                     : screenHeight * 0.5;
-
-                var imageWidth2 = orientation == Orientation.portrait
-                    ? screenWidth * 0.3
-                    : screenWidth * 0.19;
-                var imageHeight2 = orientation == Orientation.portrait
-                    ? screenHeight * 0.32
-                    : screenHeight * 0.8;
-
                 var categoryWidth = orientation == Orientation.portrait
                     ? screenWidth * 0.5
                     : screenWidth * 0.28;
-                var categoryHeight = orientation == Orientation.portrait
-                    ? screenHeight * 0.4
-                    : screenHeight * 0.9;
-                var taskListWidth = orientation == Orientation.portrait
-                    ? screenWidth * 0.5
-                    : screenWidth * 0.28;
-                var taskListHeight = orientation == Orientation.portrait
-                    ? screenHeight * 0.3
-                    : screenHeight * 0.9;
+
                 return Column(
                   children: [
                     // Calendar Widget
+                    // Obx(() => TableCalendar(
+                    //   focusedDay: controller.selectedDate.value,
+                    //   firstDay: DateTime(2020),
+                    //   lastDay: DateTime(2040),
+                    //   calendarFormat: calendarFormat,
+                    //   startingDayOfWeek: StartingDayOfWeek.monday,
+                    //   onDaySelected: (selectedDay, focusedDay) {
+                    //     controller.selectDate(selectedDay); // Update selected date
+                    //   },
+                    //   selectedDayPredicate: (day) {
+                    //     return controller.isSameDay(controller.selectedDate.value, day); // Check if the selected day is the same
+                    //   },
+                    //   calendarStyle: CalendarStyle(
+                    //     isTodayHighlighted: true,
+                    //     selectedDecoration: BoxDecoration(
+                    //       color: Colors.blue[900], // Dark color for selected date
+                    //       borderRadius: BorderRadius.circular(8.0), // Rounded corners
+                    //       boxShadow: [
+                    //         BoxShadow(
+                    //           color: Colors.black.withOpacity(0.5), // Shadow color
+                    //           offset: Offset(0, 3), // Shadow offset
+                    //           blurRadius: 4, // Shadow blur radius
+                    //         ),
+                    //       ],
+                    //     ),
+                    //     todayDecoration: BoxDecoration(
+                    //       color: Colors.orange,
+                    //       shape: BoxShape.circle, // Circle for today's date
+                    //     ),
+                    //     defaultDecoration: BoxDecoration(
+                    //       color: Colors.transparent, // Transparent for unselected dates
+                    //     ),
+                    //   ),
+                    //   calendarBuilders: CalendarBuilders(
+                    //     defaultBuilder: (context, day, focusedDay) {
+                    //       // Check if the day has a task
+                    //       bool hasTask = controller.taskList.any((task) =>
+                    //       controller.isSameDay(day, task.date1) || controller.isSameDay(day, task.date2));
+                    //
+                    //       return Container(
+                    //         margin: const EdgeInsets.all(4.0),
+                    //         decoration: BoxDecoration(
+                    //           color: controller.isSameDay(day, controller.selectedDate.value)
+                    //               ? Colors.transparent
+                    //               : Colors.grey[200], // Light color for unselected dates
+                    //           borderRadius: BorderRadius.circular(8.0), // Rounded corners
+                    //           border: Border.all(
+                    //             color: controller.isSameDay(day, controller.selectedDate.value)
+                    //                 ? Colors.black
+                    //                 : Colors.transparent, // Transparent border for non-selected dates
+                    //             width: 2.0, // Border width
+                    //           ),
+                    //           boxShadow: controller.isSameDay(day, controller.selectedDate.value)
+                    //               ? [
+                    //             BoxShadow(
+                    //               color: Colors.black.withOpacity(0.5), // Shadow color
+                    //               offset: Offset(0, 3), // Shadow offset
+                    //               blurRadius: 4, // Shadow blur radius
+                    //             ),
+                    //           ]
+                    //               : [], // No shadow for unselected dates
+                    //         ),
+                    //         child: Stack(
+                    //           children: [
+                    //             // Show red dot if the day has a task
+                    //             if (hasTask)
+                    //               Positioned(
+                    //                 bottom: 4.0,
+                    //                 left: 0.0,
+                    //                 right: 0.0,
+                    //                 child: Center(
+                    //                   child: Container(
+                    //                     width: 8.0,
+                    //                     height: 8.0,
+                    //                     decoration: BoxDecoration(
+                    //                       color: Colors.red, // Red dot for task dates
+                    //                       shape: BoxShape.circle,
+                    //                     ),
+                    //                   ),
+                    //                 ),
+                    //               ),
+                    //             Center(
+                    //               child: Text(
+                    //                 '${day.day}', // Display day number
+                    //                 style: TextStyle(
+                    //                   color: Colors.black,
+                    //                 ),
+                    //               ),
+                    //             ),
+                    //           ],
+                    //         ),
+                    //       );
+                    //     },
+                    //   ),
+                    //   headerStyle: HeaderStyle(
+                    //     formatButtonVisible: false,
+                    //     titleCentered: true,
+                    //   ),
+                    // )),
                     Obx(() => TableCalendar(
-                          focusedDay: controller.selectedDate.value,
-                          firstDay: DateTime(2020),
-                          lastDay: DateTime(2040),
-                          calendarFormat: calendarFormat,
-                          startingDayOfWeek: StartingDayOfWeek.monday,
-                          onDaySelected: (selectedDay, focusedDay) {
-                            controller.selectDate(selectedDay);
-                          },
-                          selectedDayPredicate: (day) {
-                            return controller.isSameDay(
-                                controller.selectedDate.value, day);
-                          },
-                          calendarStyle: CalendarStyle(
-                            isTodayHighlighted: true,
-                            selectedDecoration: BoxDecoration(
-                              color: Colors
-                                  .blue[900], // Dark color for selected date
-                              borderRadius:
-                                  BorderRadius.circular(8.0), // Rounded corners
-                              boxShadow: [
+                      focusedDay: controller.selectedDate.value,
+                      firstDay: DateTime(2020),
+                      lastDay: DateTime(2040),
+                      calendarFormat: calendarFormat,
+                      startingDayOfWeek: StartingDayOfWeek.monday,
+                      onDaySelected: (selectedDay, focusedDay) {
+                        controller.selectDate(selectedDay);
+                      },
+                      selectedDayPredicate: (day) {
+                        return controller.isSameDay(controller.selectedDate.value, day);
+                      },
+                      calendarStyle: CalendarStyle(
+                        isTodayHighlighted: true,
+                        selectedDecoration: BoxDecoration(
+                          color: Colors.blue[900], // Dark color for selected date
+                          borderRadius: BorderRadius.circular(8.0), // Rounded corners
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.5), // Shadow color
+                              offset: Offset(0, 3), // Shadow offset
+                              blurRadius: 4, // Shadow blur radius
+                            ),
+                          ],
+                        ),
+                        todayDecoration: BoxDecoration(
+                          color: Colors.orange,
+                          shape: BoxShape.circle,
+                        ),
+                        defaultDecoration: BoxDecoration(
+                          color: Colors.transparent, // Default transparent for unselected dates
+                        ),
+                      ),
+                      calendarBuilders: CalendarBuilders(
+                        // Customize day builder
+                        defaultBuilder: (context, day, focusedDay) {
+                          final eventDate = DateTime(day.year, day.month, day.day);
+                          final hasEvent = controller.hasEvents(eventDate);
+                          // Check if the day has a task that starts on this day
+                          bool hasTask = controller.taskList.any((task) => controller.isSameDay(task.date1, day));
+                          print("hasTask:$hasTask");
+                          print("hasEvent:$hasEvent");
+                          return Container(
+                            margin: const EdgeInsets.all(4.0),
+                            decoration: BoxDecoration(
+                              color: hasEvent
+                                  ? Colors.red
+                                  : ( controller.isSameDay(day, controller.selectedDate.value) )?? false
+                                  ? Colors.redAccent
+                                  : Colors.grey[200],
+                              // controller.isSameDay(day, controller.selectedDate.value)
+                              //     ? Colors.transparent // Transparent for selected date
+                              //     : Colors.grey[200], // Light color for unselected dates
+                              borderRadius: BorderRadius.circular(8.0), // Rounded corners
+                              border: Border.all(
+                                color: controller.isSameDay(day, controller.selectedDate.value)
+                                    ? Colors.black // Border color for the selected date
+                                    : Colors.transparent, // Transparent border for non-selected dates
+                                width: 2.0, // Border width
+                              ),
+                              boxShadow: controller.isSameDay(day, controller.selectedDate.value)
+                                  ? [
                                 BoxShadow(
-                                  color: Colors.black
-                                      .withOpacity(0.5), // Shadow color
+                                  color: Colors.black.withOpacity(0.5), // Shadow color
                                   offset: Offset(0, 3), // Shadow offset
                                   blurRadius: 4, // Shadow blur radius
                                 ),
-                              ],
+                              ]
+                                  : [], // No shadow for unselected dates
                             ),
-                            todayDecoration: BoxDecoration(
-                              color: Colors.orange,
-                              shape: BoxShape.circle,
-                            ),
-                            defaultDecoration: BoxDecoration(
-                              color: Colors
-                                  .transparent, // Default transparent for unselected dates
-                            ),
-                          ),
-                          calendarBuilders: CalendarBuilders(
-                            // Customize day builder
-                            defaultBuilder: (context, day, focusedDay) {
-                              // Check if the day has a task
-                              bool hasTask = controller.allTasks.any(
-                                  (task) => controller.isSameDay(task.date, day));
-
-                              return Container(
-                                margin: const EdgeInsets.all(4.0),
-                                decoration: BoxDecoration(
-                                  color: controller.isSameDay(
-                                          day, controller.selectedDate.value)
-                                      ? Colors
-                                          .transparent // Transparent for selected date
-                                      : Colors.grey[
-                                          200], // Light color for unselected dates
-                                  borderRadius: BorderRadius.circular(
-                                      8.0), // Rounded corners
-                                  border: Border.all(
-                                    color: controller.isSameDay(
-                                            day, controller.selectedDate.value)
-                                        ? Colors
-                                            .black // Border color for the selected date
-                                        : Colors
-                                            .transparent, // Transparent border for non-selected dates
-                                    width: 2.0, // Border width
-                                  ),
-                                  boxShadow: controller.isSameDay(
-                                          day, controller.selectedDate.value)
-                                      ? [
-                                          BoxShadow(
-                                            color: Colors.black
-                                                .withOpacity(0.5), // Shadow color
-                                            offset: Offset(0, 3), // Shadow offset
-                                            blurRadius: 4, // Shadow blur radius
-                                          ),
-                                        ]
-                                      : [], // No shadow for unselected dates
-                                ),
-                                child: Stack(
-                                  children: [
-                                    // Centered red marker
-                                    if (hasTask)
-                                      Positioned(
-                                        bottom:
-                                            4.0, // Adjust the position as needed
-                                        left: 0.0,
-                                        right: 0.0,
-                                        child: Center(
-                                          child: Container(
-                                            width: 8.0,
-                                            height: 8.0,
-                                            decoration: BoxDecoration(
-                                              color: Colors.red, // Marker color
-                                              shape: BoxShape.circle,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    Center(
-                                      child: Text(
-                                        '${day.day}',
-                                        style: TextStyle(
-                                          color: Colors.black,
+                            child: Stack(
+                              children: [
+                                // Centered red marker for task start date
+                                if (hasEvent)
+                                  Positioned(
+                                    bottom: 4.0, // Adjust the position as needed
+                                    left: 0.0,
+                                    right: 0.0,
+                                    child: Center(
+                                      child: Container(
+                                        width: 8.0,
+                                        height: 8.0,
+                                        decoration: BoxDecoration(
+                                          color: Colors.red, // Marker color for task start date
+                                          shape: BoxShape.circle,
                                         ),
                                       ),
                                     ),
-                                  ],
+                                  ),
+                                Center(
+                                  child: Text(
+                                    '${day.day}',
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                    ),
+                                  ),
                                 ),
-                              );
-                            },
-                          ),
-                          headerStyle: HeaderStyle(
-                            formatButtonVisible: false,
-                            titleCentered: true,
-                          ),
-                        )),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                      headerStyle: HeaderStyle(
+                        formatButtonVisible: false,
+                        titleCentered: true,
+                      ),
+                    )),
                     SizedBox(height: 16.0),
                     // Task List
                     Obx(()=>
+
                     controller.taskList.isEmpty ? const Center(child: Text("No Task Assigned")) :
                     Expanded(
                       child: ListView.builder(
                         itemCount: controller.taskList.length,
                         itemBuilder: (context, index) {
                           final task = controller.taskList[index];
+                          print("selectedDate:${controller.selectedDate.value}");
+                          print("selectedTaskk:${task.taskStatus}");
                           return Padding(
                             padding:
                             const EdgeInsets.fromLTRB(10.0, 0, 10, 10),
@@ -677,11 +769,7 @@ class TaskList extends StatelessWidget {
                               ),
                               elevation: 2,
                               child: Container(
-                                height: orientation == Orientation.portrait
-                                    ? MediaQuery.of(context).size.height *
-                                    0.11
-                                    : constraints.maxHeight *
-                                    0.3, // Adjust height based on orientation
+                                height: orientation == Orientation.portrait ? MediaQuery.of(context).size.height * 0.11 : constraints.maxHeight * 0.3, // Adjust height based on orientation
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(12),
                                 ),
@@ -691,221 +779,176 @@ class TaskList extends StatelessWidget {
                                   children: [
                                     Container(
                                       color: colors[index % colors.length],
-                                      width: orientation ==
-                                          Orientation.portrait
-                                          ? MediaQuery.of(context)
-                                          .size
-                                          .width *
-                                          0.03
-                                          : constraints.maxWidth *
-                                          0.015, // Adjust width based on orientation
-                                      height: orientation ==
-                                          Orientation.portrait
-                                          ? MediaQuery.of(context)
-                                          .size
-                                          .height *
-                                          0.12
-                                          : constraints.maxHeight *
-                                          0.32, // Adjust height based on orientation
+                                      width: orientation == Orientation.portrait ? MediaQuery.of(context).size.width * 0.03 : constraints.maxWidth * 0.015, // Adjust width based on orientation
+                                      height: orientation == Orientation.portrait ? MediaQuery.of(context).size.height * 0.12 : constraints.maxHeight * 0.32, // Adjust height based on orientation
                                     ),
                                     Expanded(
-                                      child: Padding(
-                                        padding: EdgeInsets.symmetric(
-                                            horizontal: 12, vertical: 5),
-                                        child: Column(
-                                          crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                          mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Text(
-                                              "Project",
-                                              style: GoogleFonts.montserrat(
-                                                  textStyle: TextStyle(
-                                                    fontWeight:
-                                                    FontWeight.w500,
-                                                    fontSize: orientation ==
-                                                        Orientation.portrait
-                                                        ? MediaQuery.of(context)
-                                                        .size
-                                                        .height *
-                                                        0.02
-                                                        : constraints.maxHeight *
-                                                        0.06,)),
-                                            ),
-                                            Text(
-                                              task.name,
-                                              style: GoogleFonts.montserrat(
-                                                  textStyle: TextStyle(
-                                                    fontWeight:
-                                                    FontWeight.w600,
-                                                    fontSize: orientation ==
-                                                        Orientation.portrait
-                                                        ? MediaQuery.of(context)
-                                                        .size
-                                                        .height *
-                                                        0.02
-                                                        : constraints.maxHeight *
-                                                        0.07,)),
-                                            ),
-                                            Spacer(),
-                                            SizedBox(
-                                              width: orientation ==
-                                                  Orientation.portrait
-                                                  ? MediaQuery.of(context)
-                                                  .size
-                                                  .width *
-                                                  0.3
-                                                  : constraints.maxWidth *
-                                                  0.4, // Adjust width based on orientation
-                                              height: orientation ==
-                                                  Orientation.portrait
-                                                  ? MediaQuery.of(context)
-                                                  .size
-                                                  .height *
-                                                  0.02
-                                                  : constraints.maxHeight *
-                                                  0.06, // Adjust height based on orientation
-                                              child: Row(
-                                                children: [
-                                                  Icon(
-                                                    Icons.alarm,
-                                                    size: orientation ==
-                                                        Orientation
-                                                            .portrait
-                                                        ? MediaQuery.of(
-                                                        context)
-                                                        .size
-                                                        .height *
-                                                        0.02
-                                                        : constraints
-                                                        .maxHeight *
-                                                        0.05,
-                                                  ),
-                                                  Text(
-                                                    "9:30 - 6:30",
-                                                    style: GoogleFonts.lato(
-                                                        textStyle: TextStyle(
-                                                            fontWeight:
-                                                            FontWeight
-                                                                .w500,
-                                                            fontSize: 12,
-                                                            color: Colors
-                                                                .black87)),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                    Expanded(
-                                      child: SizedBox(
-                                        width: orientation ==
-                                            Orientation.portrait
-                                            ? MediaQuery.of(context)
-                                            .size
-                                            .width *
-                                            0.2
-                                            : constraints.maxWidth *
-                                            0.25, // Adjust width based on orientation
-                                        height: orientation ==
-                                            Orientation.portrait
-                                            ? MediaQuery.of(context)
-                                            .size
-                                            .height *
-                                            0.12
-                                            : constraints.maxHeight *
-                                            0.26, // Adjust height based on orientation
+                                      child: Container(
+                                        //color: Colors.pink,
+                                        width: categoryWidth*0.7,
                                         child: Padding(
-                                          padding: const EdgeInsets.all(4.0),
+                                          padding: EdgeInsets.fromLTRB(12,5,0,5),
                                           child: Column(
-                                            mainAxisAlignment:
-                                            MainAxisAlignment
-                                                .spaceBetween,
-                                            crossAxisAlignment:
-                                            CrossAxisAlignment.end,
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                             children: [
-                                              Icon(
-                                                Icons.timelapse,
-                                                color: Colors.green,
-                                                size: orientation ==
-                                                    Orientation.portrait
-                                                    ? MediaQuery.of(context)
-                                                    .size
-                                                    .height *
-                                                    0.03
-                                                    : constraints.maxHeight *
-                                                    0.09, // Adjust size based on orientation
+                                              Text("Project", style:
+                                                //GoogleFonts.montserrat(textStyle:
+                                              TextStyle(
+                                                      fontWeight: FontWeight.w500,
+                                                      fontSize: orientation == Orientation.portrait ? MediaQuery.of(context).size.height * 0.02 : constraints.maxHeight *0.06,)
+                                               // ),
                                               ),
-                                              // InkWell(
-                                              //   onTap: () {
-                                              //     Get.to(() => TaskDetailPage(
-                                              //         taskId: '$index'));
-                                              //   },
-                                              //   child: Container(
-                                              //     width: orientation ==
-                                              //             Orientation.portrait
-                                              //         ? MediaQuery.of(context)
-                                              //                 .size
-                                              //                 .width *
-                                              //             0.2
-                                              //         : constraints.maxWidth *
-                                              //             0.13, // Adjust width based on orientation
-                                              //     height: orientation ==
-                                              //             Orientation.portrait
-                                              //         ? MediaQuery.of(context)
-                                              //                 .size
-                                              //                 .height *
-                                              //             0.03
-                                              //         : constraints
-                                              //                 .maxHeight *
-                                              //             0.07, // Adjust height based on orientation
-                                              //     decoration: BoxDecoration(
-                                              //         borderRadius:
-                                              //             BorderRadius
-                                              //                 .circular(20),
-                                              //         border: Border.all(
-                                              //             color: Colors
-                                              //                 .blue.shade900,
-                                              //             width: 1.3)),
-                                              //     child: Center(
-                                              //       child: Text("See Details",
-                                              //           style: GoogleFonts.montserrat(
-                                              //               textStyle: TextStyle(
-                                              //                   fontWeight:
-                                              //                       FontWeight
-                                              //                           .w500,
-                                              //                   fontSize:
-                                              //                       11))),
-                                              //     ),
-                                              //   ),
-                                              // ),
-                                              GestureDetector(
-                                                onTap: () {
-                                                  // Navigate to TaskDetailPage and pass the task ID (for example: 'taskId-$index')
-                                                  Get.to(() => TaskDetailPage(taskId: '$index'));
-                                                },
-                                                child: Container(
-                                                  alignment: Alignment.center,
-                                                  height: imageHeight * 0.2,
-                                                  width: imageWidth * 0.4,
-                                                  decoration: BoxDecoration(
-                                                    borderRadius: BorderRadius.circular(16),
-                                                    border: Border.all(color: appColor2, width: 1),
-                                                  ),
-                                                  child: Text(
-                                                    "See Details",
-                                                    style: TextStyle(
-                                                      fontFamily: 'poppins',
-                                                      fontSize: 12,
+                                              Text(
+                                                task.name,
+                                                style: GoogleFonts.montserrat(
+                                                    textStyle: TextStyle(
+                                                      fontWeight: FontWeight.w600,
+                                                      fontSize: orientation == Orientation.portrait ? MediaQuery.of(context).size.height * 0.02 : constraints.maxHeight * 0.07,)),
+                                              ),
+                                              Spacer(),
+                                              Container(
+                                                width: orientation == Orientation.portrait ? constraints.maxWidth *0.7 : constraints.maxWidth *0.4, // Adjust width based on orientation
+                                                height: orientation == Orientation.portrait ? MediaQuery.of(context).size.height * 0.02 : constraints.maxHeight * 0.06, // Adjust height based on orientation
+                                                child: Row(
+                                                  children: [
+                                                    Icon(
+                                                      Icons.calendar_month,
+                                                      size: orientation == Orientation.portrait ? MediaQuery.of(context).size.height * 0.02 : constraints.maxHeight * 0.05,
                                                     ),
-                                                  ),
+                                                    Text(
+                                                      "End Date : ",
+                                                      style: GoogleFonts.lato(
+                                                          textStyle: TextStyle(fontWeight: FontWeight.w500, fontSize: 12, color: Colors.black87)),
+                                                    ),Text(
+                                                      "${task.date2.toString().substring(0,10)}",
+                                                      style: GoogleFonts.lato(
+                                                          textStyle: TextStyle(fontWeight: FontWeight.w500, fontSize: 12, color: Colors.black87)),
+                                                    ),
+                                                  ],
                                                 ),
                                               ),
                                             ],
                                           ),
+                                        ),
+                                      ),
+                                    ),
+                                    Container(
+                                     // color: Colors.yellow,
+                                      width: orientation == Orientation.portrait ? MediaQuery.of(context).size.width * 0.3 : constraints.maxWidth * 0.25, // Adjust width based on orientation
+                                      height: orientation == Orientation.portrait ? MediaQuery.of(context).size.height * 0.12 : constraints.maxHeight * 0.26, // Adjust height based on orientation
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(4.0),
+                                        child: Column(
+                                          mainAxisAlignment:
+                                          MainAxisAlignment
+                                              .spaceBetween,
+                                          crossAxisAlignment:
+                                          CrossAxisAlignment.end,
+                                          children: [
+                                            Row(
+                                              mainAxisAlignment: MainAxisAlignment.end,
+                                              children: [
+                                                Icon(
+                                                  // Check task status and display the corresponding icon
+                                                  task.taskStatus == 'Pending'
+                                                      ? Icons.pending_rounded // Icon for Pending status
+                                                      : task.taskStatus == 'Completed'
+                                                      ? Icons.done_all // Icon for Completed status
+                                                      : Icons.cancel, // Icon for Uncompleted status (default if not Pending or Completed)
+                                                  color: task.taskStatus == 'Pending'
+                                                      ? Colors.orangeAccent // Color for Pending status
+                                                      : task.taskStatus == 'Completed'
+                                                      ? Colors.green // Color for Completed status
+                                                      : Colors.redAccent, // Color for Uncompleted status
+                                                  size: orientation == Orientation.portrait
+                                                      ? MediaQuery.of(context).size.height * 0.026
+                                                      : constraints.maxHeight * 0.09, // Adjust size based on orientation
+                                                ),
+
+                                                // Container(
+                                                //   decoration:BoxDecoration(
+                                                //     borderRadius: BorderRadius.circular(3),
+                                                //     color: Colors.red.shade400
+                                                //   ),
+                                                //   padding: EdgeInsets.only(left: 4,right: 4),
+                                                //   child: Text(
+                                                //     task.taskStatus,
+                                                //     style: TextStyle(
+                                                //           color: Colors.white,
+                                                //           // fontWeight: FontWeight.w600,
+                                                //           fontSize: orientation ==
+                                                //               Orientation.portrait ? MediaQuery.of(context).size.height * 0.015 : constraints.maxHeight * 0.07,)),
+                                                // ),
+                                              ],
+                                            ),
+                                            // InkWell(
+                                            //   onTap: () {
+                                            //     Get.to(() => TaskDetailPage(
+                                            //         taskId: '$index'));
+                                            //   },
+                                            //   child: Container(
+                                            //     width: orientation ==
+                                            //             Orientation.portrait
+                                            //         ? MediaQuery.of(context)
+                                            //                 .size
+                                            //                 .width *
+                                            //             0.2
+                                            //         : constraints.maxWidth *
+                                            //             0.13, // Adjust width based on orientation
+                                            //     height: orientation ==
+                                            //             Orientation.portrait
+                                            //         ? MediaQuery.of(context)
+                                            //                 .size
+                                            //                 .height *
+                                            //             0.03
+                                            //         : constraints
+                                            //                 .maxHeight *
+                                            //             0.07, // Adjust height based on orientation
+                                            //     decoration: BoxDecoration(
+                                            //         borderRadius:
+                                            //             BorderRadius
+                                            //                 .circular(20),
+                                            //         border: Border.all(
+                                            //             color: Colors
+                                            //                 .blue.shade900,
+                                            //             width: 1.3)),
+                                            //     child: Center(
+                                            //       child: Text("See Details",
+                                            //           style: GoogleFonts.montserrat(
+                                            //               textStyle: TextStyle(
+                                            //                   fontWeight:
+                                            //                       FontWeight
+                                            //                           .w500,
+                                            //                   fontSize:
+                                            //                       11))),
+                                            //     ),
+                                            //   ),
+                                            // ),
+                                            GestureDetector(
+                                              onTap: ()async {
+                                                await controller.fetchTaskData(task.id);
+                                                // Navigate to TaskDetailPage and pass the task ID (for example: 'taskId-$index')
+                                                Get.to(() => TaskDetailPage(taskId: task.id));
+                                              },
+                                              child: Container(
+                                                alignment: Alignment.center,
+                                                height: imageHeight * 0.17,
+                                                width: imageWidth * 0.4,
+                                                decoration: BoxDecoration(
+                                                  borderRadius: BorderRadius.circular(16),
+                                                  border: Border.all(color: appColor2, width: 1),
+                                                ),
+                                                child: Text(
+                                                  "See Details",
+                                                  style: TextStyle(
+                                                    fontFamily: 'poppins',
+                                                    fontSize: 12,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       ),
                                     ),

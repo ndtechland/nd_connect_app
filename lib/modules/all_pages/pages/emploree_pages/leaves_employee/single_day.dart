@@ -151,6 +151,9 @@ class SingleDayLeavePage extends StatelessWidget {
                                 child: Column(
                                   //crossAxisAlignment: CrossAxisAlignment.stretch,
                                   children: [
+                                    SizedBox(
+                                      height: size.height * 0.02,
+                                    ),
                                     ///todo: catagary...
                                     Obx(() => DropdownButtonFormField<
                                             GetLeaveTypeList>(
@@ -166,7 +169,8 @@ class SingleDayLeavePage extends StatelessWidget {
                                           value: _leaveApplyController
                                               .selectedCatDropdown.value,
                                           decoration: InputDecoration(
-                                            labelText: 'Select Leave Category',
+                                            // labelText: 'Select Leave Category',
+                                            prefixIcon: Icon(Icons.category,color: Colors.orange,),
                                             suffixIcon: Obx(() =>
                                                 _leaveApplyController
                                                         .isLoading.value
@@ -211,8 +215,8 @@ class SingleDayLeavePage extends StatelessWidget {
                                                 GetLeaveTypeList>(
                                               value: category,
                                               child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.start,
+                                                mainAxisAlignment: MainAxisAlignment.start,
+                                                crossAxisAlignment: CrossAxisAlignment.center,
                                                 children: [
                                                   Text(
                                                     category.leavetype ??
@@ -226,7 +230,7 @@ class SingleDayLeavePage extends StatelessWidget {
                                                         ),
                                                   ), // Displaying Leave Type
                                                   SizedBox(
-                                                      width: size.width * 0.4),
+                                                      width: size.width * 0.3),
                                                   Text(
                                                     "${category.leaveValue != null ? category.leaveValue.toString() : 'Unknown'}  Left",
                                                     style: TextStyle(
@@ -243,7 +247,7 @@ class SingleDayLeavePage extends StatelessWidget {
                                         )),
 
                                     ///todo: type 1 start....
-
+                                    SizedBox(height: 10,),
                                     Obx(() =>
                                         DropdownButtonFormField<GetLeaveList>(
                                           //menuMaxHeight: 10,
@@ -259,7 +263,8 @@ class SingleDayLeavePage extends StatelessWidget {
                                           value: _leaveApplyController
                                               .selectedtypedropdown.value,
                                           decoration: InputDecoration(
-                                            labelText: 'Leave Type For Start',
+                                            // labelText: 'Leave Type For Start',
+                                            prefixIcon: Icon(Icons.fact_check,color: Colors.blueAccent,),
                                             suffixIcon: Obx(() =>
                                                 _leaveApplyController
                                                         .isLoading.value
@@ -402,11 +407,13 @@ class SingleDayLeavePage extends StatelessWidget {
                                       obscureText: false,
                                       decoration: InputDecoration(
                                         labelText: 'Leave Start Date',
-                                        suffixIcon: Icon(
-                                          Icons.calendar_today,
-                                          size: 23,
-                                          color: Colors.black12,
-                                        ),
+                                        prefixIcon: Icon(Icons.calendar_month_outlined,color: Colors.green,),
+
+                                        // suffixIcon: Icon(
+                                        //   Icons.calendar_today,
+                                        //   size: 23,
+                                        //   color: Colors.black12,
+                                        // ),
                                         labelStyle: const TextStyle(
                                             color: Colors.black54,
                                             fontSize: 15),
@@ -448,7 +455,9 @@ class SingleDayLeavePage extends StatelessWidget {
                                     //     ),
                                     //   ),
                                     // ),
-
+                                    SizedBox(
+                                      height: size.height * 0.01,
+                                    ),
                                     TextFormField(
                                       controller: _reasonController,
                                       validator: (value) {
@@ -459,11 +468,13 @@ class SingleDayLeavePage extends StatelessWidget {
                                       },
                                       decoration: InputDecoration(
                                         labelText: 'Reason',
-                                        suffixIcon: Icon(
-                                          Icons.note,
-                                          size: 23,
-                                          color: Colors.black12,
-                                        ),
+                                        prefixIcon: Icon(Icons.comment,color: Colors.pink,),
+                                        //
+                                        // suffixIcon: Icon(
+                                        //   Icons.note,
+                                        //   size: 23,
+                                        //   color: Colors.black12,
+                                        // ),
                                         labelStyle: const TextStyle(
                                             color: Colors.black54,
                                             fontSize: 15),
@@ -533,7 +544,6 @@ class SingleDayLeavePage extends StatelessWidget {
                                     //     height: 40,
                                     //     width: 40),
 
-                                    const SizedBox(height: 0),
                                     MyElevatedButton(
                                       onPressed: () async {
                                         if (_leaveApplyController
@@ -592,7 +602,9 @@ class SingleDayLeavePage extends StatelessWidget {
                                       height: 40,
                                       width: 200,
                                     ),
-                                    const SizedBox(height: 44),
+                                    SizedBox(
+                                      height: size.height * 0.03,
+                                    ),
                                   ],
                                 ),
                               ),

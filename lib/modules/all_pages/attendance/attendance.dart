@@ -1,31 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:nd_connect_techland/controllers/attendance_controller.dart';
-import '../../../components/responsive_text.dart';
 import '../../../components/styles.dart';
-import '../../../constants/static_text.dart';
-import '../../../controllers/bottom_nav_controller.dart';
 import '../../../controllers/employee_controller/profile_controller/profile_info_employee_controller.dart';
 import 'package:intl/intl.dart';
-
 import '../../../controllers/location_controller.dart';
 import '../../bottom_bar/bottom_bar.dart';
 
 class Attendance extends StatelessWidget {
   String id ='13';
    Attendance({super.key,required this.id});
+  final RxBool isLoading = false.obs;
 
   @override
   Widget build(BuildContext context) {
     bool shouldPop = true;
-    final BottomNavController bottomNavController =
-        Get.find<BottomNavController>();
+
     final ProfileEmployeeController _getprofileepersonal =
         Get.put(ProfileEmployeeController());
     final AttendanceController attendanceController = Get.put(AttendanceController());
     final LocationController locationController = Get.put(LocationController());
-
-return WillPopScope(
+    print("attendanceeDattaa:${attendanceController.attendanceActivityModel}");
+    return WillPopScope(
       onWillPop: () async {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           Get.offAll(() => BottomBar());
@@ -37,7 +33,8 @@ return WillPopScope(
           appBar: AppBar(
             backgroundColor: appColor2,
             leading: IconButton(
-                onPressed: () {
+                onPressed: () async{
+                 await attendanceController.EmpActivityApi();
                   Get.offAll(()=>BottomBar());
                  // Navigator.push(context,MaterialPageRoute(builder: (context)=>BottomBar()));
                 //  Navigator.pop(context);
@@ -93,6 +90,7 @@ return WillPopScope(
                               onPressed: () async{
                                 print("cheedck-Outt");
                                 await locationController.employeeCheckOut();
+                                await attendanceController.EmpActivityApi();
                                 print("cheedck-Outt done");
                                 WidgetsBinding.instance.addPostFrameCallback((_) {
                                   Get.offAll(() => BottomBar());
@@ -138,7 +136,7 @@ return WillPopScope(
                   : screenHeight * 0.4;
               var fontsize = orientation == Orientation.portrait
                   ? screenHeight * 0.1
-                  : screenHeight * 0.4;
+                  : screenHeight * 0.3;
 
               var categoryWidth = orientation == Orientation.portrait
                   ? screenWidth * 0.5
@@ -153,20 +151,24 @@ return WillPopScope(
                   ? screenHeight * 0.4
                   : screenHeight ;
               return SingleChildScrollView(
-                child: Obx(()=>
-                   Container(
+                child: Obx(()=>(attendanceController.isLoading.value ||
+                    isLoading.value)
+                    ? const Center(child: CircularProgressIndicator())
+                    :
+                Container(
                     // height: screenHeight,
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(18.0, 18, 18, 0),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          //name date calendar
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               SizedBox(
-                                width: MediaQuery.of(context).size.width/2,
+                                width: MediaQuery.of(context).size.width/1.8,
                                 height:taskListHeight * 0.2,
                                 // color: Colors.pink,
                                 child: Column(
@@ -183,8 +185,7 @@ return WillPopScope(
                                               ),
                                           children: [
                                             TextSpan(
-                                              text:
-                                                  "${_getprofileepersonal.getprofileemployeeModel?.data?.fullName}",
+                                              text: "${_getprofileepersonal.getprofileemployeeModel?.data?.fullName}",
                                               style: TextStyle(
                                                   fontWeight: FontWeight.bold,
                                                   fontSize: 20,
@@ -213,7 +214,7 @@ return WillPopScope(
                                     ),
                                     RichText(
                                       text: TextSpan(
-                                          text: "Office Hour :",
+                                          text: "Office Hour-> ",
                                           style: TextStyle(
                                             fontWeight: FontWeight.w700,
                                             color: Colors.black87,
@@ -225,7 +226,7 @@ return WillPopScope(
                                               style: TextStyle(
                                                   fontWeight: FontWeight.w600,
                                                   fontSize: 12,
-                                                  color: Colors.black),
+                                                  color: Colors.orange[700]),
                                             )
                                           ]),
                                     ),
@@ -316,6 +317,8 @@ return WillPopScope(
                           SizedBox(
                             height: 20,
                           ),
+
+                          //check in check out
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
@@ -371,7 +374,7 @@ return WillPopScope(
                                         height: sizeHeight2 * 0.1,
                                       ),
                                       Text(
-                                        "${attendanceController.checkInTime.value}",
+                                        "${attendanceController.attendanceDetailsModel?.data?.checkInTime}",
                                         style: TextStyle(
                                             fontSize: 20,
                                             color: Colors.black87,
@@ -380,13 +383,28 @@ return WillPopScope(
                                       SizedBox(
                                         height: sizeHeight2 * 0.1,
                                       ),
-                                      Text(
-                                        "On-Time",
-                                        style: TextStyle(
-                                            fontSize: 16,
-                                            color: Colors.grey,
-                                            fontFamily: 'poppins',
-                                            fontWeight: FontWeight.w500),
+                                      Row(
+                                        children: [
+                                          Text(
+                                            "On-Time",
+                                            style: TextStyle(
+                                                fontSize: 16,
+                                                color: Colors.grey,
+                                                fontFamily: 'poppins',
+                                                fontWeight: FontWeight.w500),
+                                          ),
+                                          Container(
+                                            alignment: Alignment.center,
+                                            height: imageHeight * 0.15,
+                                            width: imageWidth * 0.4,
+                                            decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.circular(16),
+                                              color:  Colors.green.shade50,
+                                              border: Border.all(color: Colors.green, width: 1),
+                                            ),
+                                            child: ,
+                                          )
+                                        ],
                                       ),
                                     ],
                                   ),
@@ -444,7 +462,7 @@ return WillPopScope(
                                         height: 12,
                                       ),
                                       Text(
-                                        "${attendanceController.checkOutTime.value}",
+                                        "${attendanceController.attendanceDetailsModel?.data?.checkOutTime}",
                                         style: TextStyle(
                                             fontSize: 20,
                                             color: Colors.black87,
@@ -470,6 +488,8 @@ return WillPopScope(
                           SizedBox(
                             height: 20,
                           ),
+
+                          //over time
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
@@ -527,7 +547,7 @@ return WillPopScope(
                                         height: 12,
                                       ),
                                       Text(
-                                        "${attendanceController.startOverTime.value}",
+                                        "${attendanceController.attendanceDetailsModel?.data?.startOverTime}",
                                         style: TextStyle(
                                             fontSize: 20,
                                             color: Colors.black87,
@@ -600,7 +620,7 @@ return WillPopScope(
                                         height: 12,
                                       ),
                                       Text(
-                                        "${attendanceController.endOverTime.value}",
+                                        "${attendanceController.attendanceDetailsModel?.data?.finishOverTime}",
                                         style: TextStyle(
                                             fontSize: 20,
                                             color: Colors.black87,
@@ -626,6 +646,8 @@ return WillPopScope(
                           SizedBox(
                             height: 20,
                           ),
+
+                          ///total working hours
                           Container(
                             height: categoryHeight * 0.4,
                             width: taskListWidth,
@@ -662,7 +684,8 @@ return WillPopScope(
                                       ),
                                       Spacer(),
                               GestureDetector(
-                                onTap: () {
+                                onTap: () async{
+                                  await attendanceController.EmpActivityApi();
                                   // Navigate to TaskDetailPage and pass the task ID (for example: 'taskId-$index')
                                   showDialog(
                                     context: context,
@@ -690,7 +713,7 @@ return WillPopScope(
                                                 ),
                                               ),
                                               //SizedBox(height: 8),
-                                              _buildRow(Icons.login,Icons.logout_rounded, Colors.green,Colors.red,'Check-In','Check-Out', "09:30am","06:30pm",Colors.green.shade50,Colors.red.shade50,),
+                                              // _buildRow(Icons.login,Icons.logout_rounded, Colors.green,Colors.red,'Check-In','Check-Out', "${attendanceController.attendanceDetailsModel?.data?.checkInTime.toString()}","${attendanceController.attendanceDetailsModel?.data?.checkOutTime}",Colors.green.shade50,Colors.red.shade50,),
                                               Padding(
                                                 padding: const EdgeInsets.fromLTRB(18.0,10,0,0),
                                                 child:  Row(
@@ -700,18 +723,22 @@ return WillPopScope(
                                                     Text("Break-In",style: TextStyle(
                                                         fontWeight: FontWeight.w600
                                                     ),),
+                                                    Spacer(),
+                                                    IconButton(onPressed: ()async{
+                                                      await locationController.breakInApi();
+                                                    }, icon: Icon(Icons.logout_sharp,size: 22)),
                                                   ],
                                                 ),
                                               ),
                                               SizedBox(height: 8,),
                                               Padding(
-                                                padding: const EdgeInsets.only(left: 18.0,),
+                                                padding: const EdgeInsets.only(left: 18.0,right: 10),
                                                 child: Container(
                                                   height: 50,
 
                                                   child: ListView.builder(
                                                     scrollDirection: Axis.horizontal,
-                                                    itemCount: attendanceController.breakInTime.length,
+                                                    itemCount: attendanceController.attendanceDetailsModel?.data?.loginactivities?.length,
                                                       itemBuilder: (context,index){
                                                         return Card(  clipBehavior: Clip.antiAlias,
                                                           shape: RoundedRectangleBorder(
@@ -732,7 +759,7 @@ return WillPopScope(
                                                                     // fontFamily: 'poppins'
                                                                   ),),
                                                                 ),
-                                                                Text('${attendanceController.breakInTime[index]}', style: TextStyle(
+                                                                Text('${attendanceController.attendanceDetailsModel?.data?.loginactivities?[index].checkIn}', style: TextStyle(
                                                                     fontSize: 15,
                                                                     fontWeight: FontWeight.bold,
                                                                     color: Colors.black87
@@ -748,24 +775,21 @@ return WillPopScope(
                                                 padding: const EdgeInsets.fromLTRB(18.0,12,0,0),
                                                 child: Row(
                                                   children: [
-                                                    // Spacer(),
                                                     CircleAvatar(child: Icon(Icons.timer_off,size: 20,color: Colors.brown,),backgroundColor: Colors.brown.shade50,radius: 18,),
                                                     SizedBox(width: 8),
-                                                    Column(
-                                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                                      children: [
-                                                        Text("Break-Out",style: TextStyle(
-                                                            fontWeight: FontWeight.w600
-                                                        ),),
-                                                        //Text(date.toString().substring(0,10)),
-                                                      ],
-                                                    ),
+                                                    Text("Break-Out",style: TextStyle(
+                                                        fontWeight: FontWeight.w600
+                                                    ),),
+                                                    Spacer(),
+                                                    IconButton(onPressed: ()async{
+                                                      await locationController.breakOutApi();
+                                                    }, icon: Icon(Icons.logout_sharp,size: 22,)),
                                                   ],
                                                 ),
                                               ),
                                               SizedBox(height: 8),
                                               Padding(
-                                                padding: const EdgeInsets.only(left: 18.0,),
+                                                padding: const EdgeInsets.only(left: 18.0,right: 10),
                                                 child: Container(
                                                   height: 50,
                                                   child: ListView.builder(
@@ -791,7 +815,7 @@ return WillPopScope(
                                                                     // fontFamily: 'poppins'
                                                                   ),),
                                                                 ),
-                                                                Text('${attendanceController.breakOutTime[index]}', style: TextStyle(
+                                                                Text('${attendanceController.attendanceDetailsModel?.data?.loginactivities?[index].checkOut}', style: TextStyle(
                                                                     fontSize: 15,
                                                                     fontWeight: FontWeight.bold,
                                                                     color: Colors.black87
@@ -849,7 +873,7 @@ return WillPopScope(
                                                 fontWeight: FontWeight.w500),
                                           ),
                                           Text(
-                                            "${attendanceController.totalWorkingHours.value}",
+                                            "${attendanceController.totalWorkingHours}",
                                             style: TextStyle(
                                                 fontSize: 16,
                                                 color: Colors.black87,
@@ -882,7 +906,7 @@ return WillPopScope(
                                                 fontWeight: FontWeight.w500),
                                           ),
                                           Text(
-                                            "${attendanceController.payPeriodHours.value}",
+                                            "${attendanceController.attendanceDetailsModel?.data?.monthlyWorkingHours}",
                                             style: TextStyle(
                                                 fontSize: 16,
                                                 color: Colors.black87,
@@ -900,6 +924,8 @@ return WillPopScope(
                           SizedBox(
                             height: 10,
                           ),
+
+                          //overview
                           Text(
                             "Overview",
                             style: TextStyle(
@@ -907,7 +933,6 @@ return WillPopScope(
                               fontWeight: FontWeight.w600,
                             ),
                           ),
-                          // SizedBox(height: 10,),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
@@ -927,7 +952,7 @@ return WillPopScope(
                                       height: 5,
                                     ),
                                     Text(
-                                      "${attendanceController.presence.value}",
+                                      "${attendanceController.attendanceDetailsModel?.data?.presencepercentage}",
                                       style: TextStyle(
                                         fontSize: 20,
                                         fontWeight: FontWeight.w600,
@@ -965,7 +990,7 @@ return WillPopScope(
                                       height: 5,
                                     ),
                                     Text(
-                                      "${attendanceController.absence.value}",
+                                      "${attendanceController.attendanceDetailsModel?.data?.absencepercentage}",
                                       style: TextStyle(
                                         fontSize: 20,
                                         fontWeight: FontWeight.w600,
@@ -1003,7 +1028,7 @@ return WillPopScope(
                                       height: 5,
                                     ),
                                     Text(
-                                      "${attendanceController.overtime.value}",
+                                      "${attendanceController.attendanceDetailsModel?.data?.overtimeWorkingHours}",
                                       style: TextStyle(
                                         fontSize: 20,
                                         fontWeight: FontWeight.w600,

@@ -5,6 +5,7 @@ import 'package:nd_connect_techland/services_apis/get_server_key.dart';
 
 
 import '../../../components/styles.dart';
+import '../../../controllers/attendance_controller.dart';
 import '../../../controllers/employee_controller/profile_controller/profile_info_employee_controller.dart';
 import '../../../controllers/employeee_controllersss/employee_dashboard_controller/employee_dashboardcontroller.dart';
 import '../../../controllers/employeee_controllersss/employee_login_controllers/employee_login_controllers.dart';
@@ -38,6 +39,7 @@ class _LoginState extends State<Login> {
   final FocusNode _userFocusNode = FocusNode();
   final FocusNode _userFocusNode2 = FocusNode();
   final LocationController locationController = Get.put(LocationController());
+  final AttendanceController attendanceController = Get.put(AttendanceController());
 
   // FocusNode for User login
   final FocusNode _employeeFocusNode = FocusNode();
@@ -118,40 +120,6 @@ class _LoginState extends State<Login> {
                       ),
               ),
               appBar: _buildAppBar(),
-              // PreferredSize(
-              //   preferredSize: Size.fromHeight(
-              //       MediaQuery.of(context).size.width >
-              //               MediaQuery.of(context).size.height
-              //           ? MediaQuery.of(context).size.height *
-              //               0.35 // Landscape mode
-              //           : MediaQuery.of(context).size.height *
-              //               0.2), // Portrait mode
-              //   child: AppBar(
-              //     automaticallyImplyLeading: false,
-              //     backgroundColor: logoColor,
-              //     flexibleSpace: responsiveContainer(
-              //       heightLandscape: size.height * 0.49,
-              //       heightPortrait: size.height * 0.29,
-              //       color: logoColor,
-              //       context: context,
-              //       child: Padding(
-              //         padding: const EdgeInsets.all(9.0),
-              //         child: Column(
-              //           mainAxisAlignment: MainAxisAlignment.end,
-              //           children: [
-              //             logoImg(),
-              //             responsiveText(
-              //                 text: 'Login With US!',
-              //                 fontSizeLandscape: 19,
-              //                 fontSizePortrait: 20,
-              //                 color: Colors.white,
-              //                 context: context),
-              //           ],
-              //         ),
-              //       ),
-              //     ),
-              //   ),
-              // ),
             );
           },
         );
@@ -324,48 +292,9 @@ class _LoginState extends State<Login> {
                           String accessToken = await getServerKey.GetServerKeyToken();
                           print("server keyyy:$accessToken");
                         }
-                        await Get.dialog(
-                          // bool barrierDismissible = true
 
-                          AlertDialog(
-
-                            title: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                // Container(),
-                                const Text('ND Connect'),
-                                Container(
-                                  height: 40,width: 40,
-                                  decoration: BoxDecoration(
-                                    image: DecorationImage(image: AssetImage('lib/assets/logo/logoo.png')),
-                                  color: Colors.white
-                                ),)
-                              ],
-                            ),
-                            content: const Text(
-                                """When you grant permission for  location access in our application, we may collect and process certain information related to your geographical location. This includes GPS coordinates, Wi-Fi network information, cellular tower data, Background Location, and other relevant data sources to determine your device's location."""),
-                            actions: [
-                              TextButton(
-                                child: const Text("Reject"),
-                                onPressed: () => Get.back(),
-                              ),
-                              TextButton(
-                                child: const Text("Accept"),
-                                onPressed: () async{
-                                  await locationController.checkAndRequestLocationPermission();
-                                  Get.back();
-                                  //await locationController;
-                                  // await locationController.fetchCurrentLocation(
-                                  //   // " C 53, 1st Floor, C Block, Sector 2, Noida, Uttar Pradesh 201301"
-                                  // );
-                                  // await locationController.fetchCompanyLocationApi();
-                                  // await locationController.getCoordinatesFromAddress();
-                                },
-                              ),
-                            ],
-                          ),
-                          barrierDismissible: false,
-                        );
+                        await attendanceController.EmpActivityApi();
+                        print("attendance activity:${attendanceController.attendanceActivityModel?.data?.checkIn}");
                       }, child: Text('Login',style: TextStyle(color: Colors.white),),),
                     ),
                     // MyElevatedButton(

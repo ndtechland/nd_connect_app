@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:nd_connect_techland/controllers/total_leaves_date_controller.dart';
 
 import '../../../components/styles.dart';
 import '../../../controllers/bottom_nav_controller.dart';
+import '../../bottom_bar/bottom_bar.dart';
 
 class LeaveDetailPage extends StatefulWidget {
-  final String taskId;
+  final String leaveId;
+  final String leaveType;
 
-  LeaveDetailPage({required this.taskId});
+  LeaveDetailPage({required this.leaveId,required this.leaveType});
+
 
   @override
   State<LeaveDetailPage> createState() => _TaskDetailPageState();
@@ -15,6 +19,7 @@ class LeaveDetailPage extends StatefulWidget {
 
 class _TaskDetailPageState extends State<LeaveDetailPage> {
   final BottomNavController bottomNavController = Get.find<BottomNavController>();
+  final TotalLeavesDateController totalLeavesDateController = Get.put(TotalLeavesDateController());
   bool isChecked = false;
   Color getColor(Set<MaterialState> states) {
     const Set<MaterialState> interactiveStates = <MaterialState>{
@@ -81,64 +86,125 @@ class _TaskDetailPageState extends State<LeaveDetailPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("Tittle :",style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                        fontFamily: 'poppins'
-                    ),),
-                    Text("Leave Page",style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                        fontFamily: 'poppins'
-                    ),),
-                    SizedBox(height: 10,),
-                    Text("Description :",style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                        fontFamily: 'poppins'
-                    ),),
-                    Text("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s",style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                        fontFamily: 'poppins'
-                    ),),
-                    SizedBox(height: 10,),
-                    // Row(
-                    //   mainAxisAlignment: MainAxisAlignment.start,
-                    //   //crossAxisAlignment: CrossAxisAlignment.start,
-                    //   children: [
-                    //     Checkbox(
-                    //         checkColor: Colors.white,
-                    //         fillColor: MaterialStateProperty.resolveWith(getColor),
-                    //         value: this.isChecked,
-                    //         onChanged: (bool? value) {
-                    //           setState(() {
-                    //             this.isChecked = value!;
-                    //           });
-                    //         }),
-                    //     // SizedBox(
-                    //     //   width: 6,
-                    //     // ),
-                    //     Text(
-                    //       " It was popularised in the 1960s w ",
-                    //       style: TextStyle(
-                    //         color: appColor2,
-                    //         fontSize: 16,
-                    //         fontFamily: 'Poppins',
-                    //         fontWeight: FontWeight.w400,
-                    //         // height: 1.54,
-                    //       ),
-                    //     ),
-                    //   ],
-                    // ),
-                    Center(
-                      child: Text(
-                        'Details for Leave: ${widget.taskId}',
-                        style: TextStyle(fontSize: 16),
-                      ),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start, // Align content at the top
+                      children: [
+                        Icon(Icons.rate_review_rounded, color: Colors.blue),
+                        SizedBox(width: 10),
+                        Expanded( // Ensure the text wraps within the available space
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Reason :",
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w600,
+                                  fontFamily: 'poppins',
+                                ),
+                              ),
+                              SizedBox(height: 5),
+                              Text(
+                                "${totalLeavesDateController.leavesDetailModel?.data?.reason.toString()}",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                  fontFamily: 'poppins',
+                                ),
+                                softWrap: true, // Allow text to wrap
+                                overflow: TextOverflow.visible, // Prevent text truncation
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
-                    SizedBox(height: 10,),
 
+
+                    SizedBox(height: 10,),
+                    Row(
+                      children: [
+                        Icon(Icons.access_time_filled_outlined,color: Colors.green,),
+                        SizedBox(width: 10,),
+                        Text("Duration :",style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                            fontFamily: 'poppins'
+                        ),),
+                        SizedBox(width: 10,),
+
+                        Text("${totalLeavesDateController.leavesDetailModel?.data?.totaldays}",style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            fontFamily: 'poppins'
+                        ),),
+                      ],
+                    ),
+
+                    SizedBox(height: 10,),
+                    Row(
+                      children: [
+                        Icon(Icons.paid,color: Colors.orangeAccent,),
+                        SizedBox(width: 10,),
+                        Text("Paid Leave :",style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                            fontFamily: 'poppins'
+                        ),),
+                        SizedBox(width: 10,),
+                        Text("${totalLeavesDateController.leavesDetailModel?.data?.paidLeave}",style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            fontFamily: 'poppins'
+                        ),),
+                      ],
+                    ),
+
+                    SizedBox(height: 10,),
+                    Row(
+                      children: [
+                        Icon(Icons.paid,color: Colors.redAccent,),
+                        SizedBox(width: 10,),
+                        Text("Un-paid Leave :",style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                            fontFamily: 'poppins'
+                        ),),
+                        SizedBox(width: 10,),
+                        Text("${totalLeavesDateController.leavesDetailModel?.data?.unPaidLeave}",style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            fontFamily: 'poppins'
+                        ),),
+                      ],
+                    ),
+
+                    SizedBox(height: 10,),
+                    Row(
+                      children: [
+                        Icon(Icons.type_specimen_rounded,color: Colors.deepPurple,),
+                        SizedBox(width: 10,),
+                        Text("Leave Type :",style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                            fontFamily: 'poppins'
+                        ),),
+                        SizedBox(width: 10,),
+                        Text("${widget.leaveType}",style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            fontFamily: 'poppins'
+                        ),),
+                      ],
+                    ),
+
+                    // Center(
+                    //   child: Text(
+                    //     'Details for Leave: ${widget.leaveId}',
+                    //     style: TextStyle(fontSize: 16),
+                    //   ),
+                    // ),
+                    SizedBox(height: 20,),
                     Center(
                       child: Container(
                           height: imageHeight*0.3,
@@ -148,7 +214,9 @@ class _TaskDetailPageState extends State<LeaveDetailPage> {
                               color: appColor2
                           ),
                           child: TextButton(
-                              onPressed: (){},
+                              onPressed: (){
+                                Get.offAll(()=>BottomBar());
+                              },
                               child: Text("Done",
                                 style: TextStyle(
                                     fontFamily: 'montserrat',

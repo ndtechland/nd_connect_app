@@ -14,33 +14,10 @@ class MultipleDayLeavePage extends StatelessWidget {
   // final RegistrationController _profileController =
   //     Get.put(RegistrationController());
 
-  final LeaveApplyController _leaveApplyController =
-      Get.put(LeaveApplyController());
-
-  final TextEditingController _nameController = TextEditingController(
-      //  text: "kptt1"
-      );
-  final TextEditingController _emailController = TextEditingController(
-      //text: "kpw5@gmail.com"
-      );
-  final TextEditingController _passwordController = TextEditingController(
-      //text: "12345"
-      );
-  final TextEditingController _mobileNumberController = TextEditingController(
-      // text: "0444333333"
-      );
-  final TextEditingController _experienceController = TextEditingController(
-      //  text: "22"
-      );
-  final TextEditingController _stateIdController = TextEditingController();
-  final TextEditingController _cityIdController = TextEditingController();
-  final TextEditingController _startleavedateController =
-      TextEditingController();
+  final LeaveApplyController _leaveApplyController = Get.put(LeaveApplyController());
+  final TextEditingController _startleavedateController =TextEditingController();
   final TextEditingController _endleavedateController = TextEditingController();
-
-  final TextEditingController _reasonController = TextEditingController(
-      //text: "delllhhiii"
-      );
+  final TextEditingController _reasonController = TextEditingController();
 
   var selectedDate = DateTime.now().obs;
   var selectedDate2 = DateTime.now().obs;
@@ -78,9 +55,8 @@ class MultipleDayLeavePage extends StatelessWidget {
   }
 
   chooseDate2() async {
-    DateTime today = DateTime.now();
+    DateTime today = selectedDate.value;
     DateTime lastDate = DateTime(2050);
-
     DateTime? newpickedDate = await showDatePicker(
       context: Get.context!,
       initialDate: today,
@@ -151,6 +127,9 @@ class MultipleDayLeavePage extends StatelessWidget {
                                 child: Column(
                                   //crossAxisAlignment: CrossAxisAlignment.stretch,
                                   children: [
+                                    SizedBox(
+                                      height: size.height * 0.02,
+                                    ),
                                     ///todo: catagary...
                                     Obx(() => DropdownButtonFormField<
                                             GetLeaveTypeList>(
@@ -160,13 +139,15 @@ class MultipleDayLeavePage extends StatelessWidget {
                                           hint: Text(
                                             'Leave Category',
                                             style: TextStyle(
-                                              fontSize: 13,
+                                                fontSize: 14,
+                                                color: Colors.grey
                                             ),
                                           ),
                                           value: _leaveApplyController
                                               .selectedCatDropdown.value,
                                           decoration: InputDecoration(
-                                            labelText: 'Select Leave Category',
+                                           // labelText: 'Select Leave Category',
+                                            prefixIcon: Icon(Icons.category,color: Colors.orange,),
                                             suffixIcon: Obx(() =>
                                                 _leaveApplyController
                                                         .isLoading.value
@@ -226,7 +207,7 @@ class MultipleDayLeavePage extends StatelessWidget {
                                                         ),
                                                   ), // Displaying Leave Type
                                                   SizedBox(
-                                                      width: size.width * 0.4),
+                                                      width: size.width * 0.3),
                                                   Text(
                                                     "${category.leaveValue != null ? category.leaveValue.toString() : 'Unknown'}  Left",
                                                     style: TextStyle(
@@ -242,6 +223,8 @@ class MultipleDayLeavePage extends StatelessWidget {
                                           }).toList(),
                                         )),
 
+                                    SizedBox(height: 10,),
+
                                     ///todo: type 1 start....
 
                                     Obx(() =>
@@ -253,13 +236,15 @@ class MultipleDayLeavePage extends StatelessWidget {
                                           hint: Text(
                                             'Leave Type start',
                                             style: TextStyle(
-                                              fontSize: 12,
+                                                fontSize: 14,
+                                                color: Colors.grey
                                             ),
                                           ),
                                           value: _leaveApplyController
                                               .selectedtypedropdown.value,
                                           decoration: InputDecoration(
-                                            labelText: 'Leave Type For Start',
+                                            // labelText: 'Leave Type For Start',
+                                            prefixIcon: Icon(Icons.fact_check,color: Colors.blueAccent,),
                                             suffixIcon: Obx(() =>
                                                 _leaveApplyController
                                                         .isLoading.value
@@ -308,6 +293,9 @@ class MultipleDayLeavePage extends StatelessWidget {
                                           }).toList(),
                                         )),
 
+                                    SizedBox(
+                                      height: size.height * 0.01,
+                                    ),
                                     ///todo: type 2 end....
 
                                     Obx(() =>
@@ -315,7 +303,8 @@ class MultipleDayLeavePage extends StatelessWidget {
                                           hint: Text(
                                             'Leave Type For End',
                                             style: TextStyle(
-                                              fontSize: 12,
+                                              fontSize: 14,
+                                              color: Colors.grey
                                             ),
                                           ),
                                           borderRadius:
@@ -324,7 +313,9 @@ class MultipleDayLeavePage extends StatelessWidget {
                                           value: _leaveApplyController
                                               .selectedtypeenddropdown.value,
                                           decoration: InputDecoration(
-                                            labelText: 'Leave Type For End',
+                                            // labelText: 'Leave Type For End',
+                                            prefixIcon: Icon(Icons.free_cancellation,color: Colors.cyan,),
+
                                             suffixIcon: Obx(() =>
                                                 _leaveApplyController
                                                         .isLoading.value
@@ -377,12 +368,6 @@ class MultipleDayLeavePage extends StatelessWidget {
                                     SizedBox(
                                       height: size.height * 0.01,
                                     ),
-
-                                    // TextField(
-                                    //   controller: _genderNameController,
-                                    //   decoration: InputDecoration(labelText: 'Gender Name'),
-                                    // ),
-
                                     TextFormField(
                                       textAlign: TextAlign.left,
                                       controller: _startleavedateController,
@@ -402,11 +387,13 @@ class MultipleDayLeavePage extends StatelessWidget {
                                       obscureText: false,
                                       decoration: InputDecoration(
                                         labelText: 'Leave Start Date',
-                                        suffixIcon: Icon(
-                                          Icons.calendar_today,
-                                          size: 23,
-                                          color: Colors.black12,
-                                        ),
+                                        prefixIcon: Icon(Icons.calendar_month_outlined,color: Colors.green,),
+                                        //
+                                        // suffixIcon: Icon(
+                                        //   Icons.calendar_today,
+                                        //   size: 23,
+                                        //   color: Colors.black12,
+                                        // ),
                                         labelStyle: const TextStyle(
                                             color: Colors.black54,
                                             fontSize: 15),
@@ -416,6 +403,9 @@ class MultipleDayLeavePage extends StatelessWidget {
                                               BorderSide(color: appColor),
                                         ),
                                       ),
+                                    ),
+                                    SizedBox(
+                                      height: size.height * 0.01,
                                     ),
                                     TextFormField(
                                       textAlign: TextAlign.left,
@@ -433,11 +423,8 @@ class MultipleDayLeavePage extends StatelessWidget {
                                       obscureText: false,
                                       decoration: InputDecoration(
                                         labelText: 'Leave End Date',
-                                        suffixIcon: Icon(
-                                          Icons.calendar_today,
-                                          size: 23,
-                                          color: Colors.black12,
-                                        ),
+                                        prefixIcon: Icon(Icons.calendar_month,color: Colors.purple,),
+
                                         labelStyle: const TextStyle(
                                             color: Colors.black54,
                                             fontSize: 15),
@@ -448,7 +435,9 @@ class MultipleDayLeavePage extends StatelessWidget {
                                         ),
                                       ),
                                     ),
-
+                                    SizedBox(
+                                      height: size.height * 0.01,
+                                    ),
                                     TextFormField(
                                       controller: _reasonController,
                                       validator: (value) {
@@ -459,11 +448,8 @@ class MultipleDayLeavePage extends StatelessWidget {
                                       },
                                       decoration: InputDecoration(
                                         labelText: 'Reason',
-                                        suffixIcon: Icon(
-                                          Icons.note,
-                                          size: 23,
-                                          color: Colors.black12,
-                                        ),
+                                        prefixIcon: Icon(Icons.comment,color: Colors.pink,),
+
                                         labelStyle: const TextStyle(
                                             color: Colors.black54,
                                             fontSize: 15),
@@ -475,65 +461,7 @@ class MultipleDayLeavePage extends StatelessWidget {
                                       ),
                                     ),
 
-                                    SizedBox(height: 40),
-
-                                    // MyElevatedButton(
-                                    //     onPressed: () async {
-                                    //       if (_leaveApplyController
-                                    //               .leaveapplysignupKey
-                                    //               .currentState
-                                    //               ?.validate() ??
-                                    //           false) {
-                                    //         if (_leaveApplyController
-                                    //                 .selectedCatDropdown
-                                    //                 .value!
-                                    //                 .id !=
-                                    //             null) {
-                                    //           _leaveApplyController.applyLeave(
-                                    //             catagoryId:
-                                    //                 _leaveApplyController
-                                    //                     .selectedCatDropdown
-                                    //                     .value!
-                                    //                     .id
-                                    //                     .toString(),
-                                    //             Type1Id: _leaveApplyController
-                                    //                 .selectedtypedropdown
-                                    //                 .value!
-                                    //                 .id
-                                    //                 .toString(),
-                                    //
-                                    //             Type2Id: _leaveApplyController
-                                    //                 .selectedtypeenddropdown
-                                    //                 .value!
-                                    //                 .id
-                                    //                 .toString(),
-                                    //             startDate:
-                                    //                 _startleavedateController
-                                    //                     .text,
-                                    //             endDate: _endleavedateController
-                                    //                 .text,
-                                    //             Reason: _reasonController.text,
-                                    //
-                                    //             // Pass file name
-                                    //           );
-                                    //           // await Future.delayed(Duration(seconds: 3));
-                                    //
-                                    //           ///Clear dropdown value
-                                    //           //_profileController.selectedState.value = null;
-                                    //           // _profileController.selectedCity.value = null;
-                                    //         } else {
-                                    //           print('Please select a CV file');
-                                    //         }
-                                    //       }
-                                    //
-                                    //       // Navigator.push(
-                                    //       //     context, MaterialPageRoute(builder: (context) => Home()));
-                                    //     },
-                                    //     text: const Icon(Icons.arrow_forward),
-                                    //     height: 40,
-                                    //     width: 40),
-
-                                    const SizedBox(height: 0),
+                                    SizedBox(height: 30),
                                     MyElevatedButton(
                                       onPressed: () async {
                                         if (_leaveApplyController
@@ -594,7 +522,7 @@ class MultipleDayLeavePage extends StatelessWidget {
                                       height: 40,
                                       width: 200,
                                     ),
-                                    const SizedBox(height: 44),
+                                    const SizedBox(height: 20),
                                   ],
                                 ),
                               ),

@@ -1,127 +1,68 @@
-// // import 'package:get/get.dart';
-// // import 'package:intl/intl.dart';
-// //
-// // class DateTaskController extends GetxController {
-// //   var selectedDate = DateTime.now().obs;
-// //   var dates = <DateTime>[].obs;
-// //
-// //   // Sample task data by date
-// //   final Map<String, List<String>> tasksByDate = {
-// //     '2024-09-10': ['Task 1', 'Task 2'],
-// //     '2024-09-11': ['Task 3', 'Task 4'],
-// //     '2024-09-12': ['Task 5', 'Task 6'],
-// //     '2024-09-13': ['Task 7'],
-// //   };
-// //
-// //   @override
-// //   void onInit() {
-// //     super.onInit();
-// //     generateDatesForMonths(3); // Generate dates for 3 months
-// //   }
-// //
-// //   // Function to generate all dates for a specific month and year
-// //   List<DateTime> getDatesInMonth(int month, int year) {
-// //     List<DateTime> dates = [];
-// //     int daysInMonth = DateTime(year, month + 1, 0).day; // Get the number of days in the month
-// //
-// //     for (int i = 1; i <= daysInMonth; i++) {
-// //       dates.add(DateTime(year, month, i));
-// //     }
-// //
-// //     return dates;
-// //   }
-// //
-// //   // Generate dates for the next n months
-// //   void generateDatesForMonths(int numberOfMonths) {
-// //     DateTime currentDate = DateTime.now();
-// //     dates.clear();
-// //
-// //     for (int i = 0; i < numberOfMonths; i++) {
-// //       int currentMonth = currentDate.month + i;
-// //       int currentYear = currentDate.year;
-// //
-// //       // Adjust the year if the month exceeds 12
-// //       if (currentMonth > 12) {
-// //         currentMonth -= 12;
-// //         currentYear += 1;
-// //       }
-// //
-// //       dates.addAll(getDatesInMonth(currentMonth, currentYear));
-// //     }
-// //   }
-// //
-// //   // Get tasks for the selected date
-// //   List<String> getTasksForDate(DateTime date) {
-// //     String formattedDate = DateFormat('yyyy-MM-dd').format(date);
-// //     return tasksByDate[formattedDate] ?? [];
-// //   }
-// // }
-// import 'package:get/get.dart';
-// import 'package:intl/intl.dart';
-//
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:nd_connect_techland/constants/themes/theme_colors.dart';
+import 'package:nd_connect_techland/models/task_model.dart';
+import 'package:nd_connect_techland/services_apis/api_servicesss.dart';
 // class DateTaskController extends GetxController {
-//   var selectedDate = DateTime.now().obs;  // Initially the current date
-//   var dates = <DateTime>[].obs;
+//   // Initialize selectedDate with the current date
+//   var selectedDate = DateTime.now().obs;
+//   final isLoading = false.obs;
 //
-//   // Sample task data by date
-//   final Map<String, List<String>> tasksByDate = {
-//     '2024-09-10': ['Task 1', 'Task 2'],
-//     '2024-09-11': ['Task 3', 'Task 4'],
-//     '2024-09-12': ['Task 5', 'Task 6'],
-//     '2024-09-13': ['Task 7'],
-//   };
+//   // List of tasks for the selected date
+//   var taskList = <Task>[].obs;
+//   RxList<TasksModells> tasks = <TasksModells>[].obs;
+//
+//
+//   // All tasks (this would typically come from a data source)
+//   final allTasks = <Task>[
+//     Task(name: 'Task 1', date: DateTime(2024, 9, 1)),
+//     Task(name: 'Task 2', date: DateTime(2024, 9, 3)),
+//     Task(name: 'Task 3', date: DateTime(2024, 9, 5)),
+//     Task(name: 'Task 4', date: DateTime(2024, 9, 10)),
+//     Task(name: 'Task 4.1', date: DateTime(2024, 9, 10)),
+//     Task(name: 'Task 5', date: DateTime(2024, 9, 15)),
+//   ];
 //
 //   @override
 //   void onInit() {
 //     super.onInit();
-//     generateDatesForMonths(3); // Generate dates for 3 months
-//     // Ensure the initial task list is for today's date
-//     selectedDate.value = stripTime(DateTime.now());
+//     // Select the nearest task date
+//     selectNearestTaskDate();
+//   }
+//   Future<void> TaskAssignApi() async{
+//     isLoading == true;
+//     try{
+//       tasks.value = await ApiProvider.getTaskAssign();
+//     }catch(e){}
+//   }
+//   void selectDate(DateTime date) {
+//     selectedDate.value = date;
+//     // Update task list based on selected date
+//     updateTasksForSelectedDate();
 //   }
 //
-//   // Function to generate all dates for a specific month and year
-//   List<DateTime> getDatesInMonth(int month, int year) {
-//     List<DateTime> dates = [];
-//     int daysInMonth = DateTime(year, month + 1, 0).day; // Get the number of days in the month
+//   void selectNearestTaskDate() {
+//     // Find the nearest task date
+//     final today = DateTime.now();
+//     final nearestTask = allTasks
+//         .where((task) => task.date.isAfter(today))
+//         .toList()
+//       ..sort((a, b) => a.date.compareTo(b.date));
 //
-//     for (int i = 1; i <= daysInMonth; i++) {
-//       dates.add(DateTime(year, month, i)); // Generate dates without time
-//     }
-//
-//     return dates;
-//   }
-//
-//   // Generate dates for the next n months
-//   void generateDatesForMonths(int numberOfMonths) {
-//     DateTime currentDate = DateTime.now();
-//     dates.clear();
-//
-//     for (int i = 0; i < numberOfMonths; i++) {
-//       int currentMonth = currentDate.month + i;
-//       int currentYear = currentDate.year;
-//
-//       // Adjust the year if the month exceeds 12
-//       if (currentMonth > 12) {
-//         currentMonth -= 12;
-//         currentYear += 1;
-//       }
-//
-//       dates.addAll(getDatesInMonth(currentMonth, currentYear));
+//     if (nearestTask.isNotEmpty) {
+//       selectedDate.value = nearestTask.first.date;
+//       updateTasksForSelectedDate();
 //     }
 //   }
 //
-//   // Get tasks for the selected date
-//   List<String> getTasksForDate(DateTime date) {
-//     String formattedDate = DateFormat('yyyy-MM-dd').format(date);
-//     return tasksByDate[formattedDate] ?? [];
+//   void updateTasksForSelectedDate() {
+//     // Update tasks for the selected date
+//     taskList.clear();
+//     taskList.addAll(allTasks
+//         .where((task) => isSameDay(task.date, selectedDate.value))
+//         .toList());
 //   }
 //
-//   // Strip time from DateTime for accurate comparison
-//   DateTime stripTime(DateTime dateTime) {
-//     return DateTime(dateTime.year, dateTime.month, dateTime.day);
-//   }
-//
-//   // Helper method to compare two DateTime objects and check if they represent the same day
 //   bool isSameDay(DateTime date1, DateTime date2) {
 //     return date1.year == date2.year &&
 //         date1.month == date2.month &&
@@ -129,73 +70,127 @@
 //   }
 // }
 //
+// class Task {
+//   final String name;
+//   final DateTime date;
 //
-//
-import 'package:get/get.dart';
-import 'package:intl/intl.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+//   Task({required this.name, required this.date});
+// }
+
 class DateTaskController extends GetxController {
-  // Initialize selectedDate with the current date
   var selectedDate = DateTime.now().obs;
-
-  // List of tasks for the selected date
+  final isLoading = false.obs;
   var taskList = <Task>[].obs;
-
-  // All tasks (this would typically come from a data source)
+  var taskData = {}.obs;
+  var taskHisData = [].obs;
+  RxList<TasksModells> tasks = <TasksModells>[].obs;
+  final RxMap<DateTime, List<TasksModells>> taskts =
+      <DateTime, List<TasksModells>>{}.obs;
   final allTasks = <Task>[
-    Task(name: 'Task 1', date: DateTime(2024, 9, 1)),
-    Task(name: 'Task 2', date: DateTime(2024, 9, 3)),
-    Task(name: 'Task 3', date: DateTime(2024, 9, 5)),
-    Task(name: 'Task 4', date: DateTime(2024, 9, 10)),
-    Task(name: 'Task 4.1', date: DateTime(2024, 9, 10)),
-    Task(name: 'Task 5', date: DateTime(2024, 9, 15)),
+    // Task(name: 'Task 1', date: DateTime(2024, 10, 1), taskStatus: 'Pending', taskTitle: 'ND Connect', taskDescription: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard dummy text ever since the 1500s'),
+    // Task(name: 'Task 2', date: DateTime(2024, 10, 3),taskStatus: 'Pending', taskTitle: 'ND Connect', taskDescription: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard dummy text ever since the 1500s'),
+    // Task(name: 'Task 3', date: DateTime(2024, 10, 5),taskStatus: 'Pending', taskTitle: 'ND Connect', taskDescription: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard dummy text ever since the 1500s'),
+    // Task(name: 'Task 4', date: DateTime(2024, 10, 6),taskStatus: 'Pending', taskTitle: 'ND Connect', taskDescription: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard dummy text ever since the 1500s'),
+    // Task(name: 'Task 4.1', date: DateTime(2024, 10, 7),taskStatus: 'Pending', taskTitle: 'ND Connect', taskDescription: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard dummy text ever since the 1500s'),
+    // Task(name: 'Task 5', date: DateTime(2024, 9, 30),taskStatus: 'Pending', taskTitle: 'ND Connect', taskDescription: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard dummy text ever since the 1500s'),
   ];
-
   @override
   void onInit() {
     super.onInit();
-    // Select the nearest task date
     selectNearestTaskDate();
+    TaskAssignApi();
   }
 
+  // Task Assign API function
+  Future<void> TaskAssignApi() async {
+    isLoading.value = true;
+    try {
+      List<TasksModells> apiTasks = await ApiProvider.getTaskAssign();
+      if (apiTasks.isNotEmpty) {
+        tasks.value = apiTasks;
+        updateTasksForSelectedDate();
+      }
+    } catch (e) {
+      print('Error fetching tasks: $e');
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<void> fetchTaskData(int idd) async {
+    isLoading(true);
+    try {
+      var response = await ApiProvider.getTaskDetail(idd);
+      if (response['succeeded']) {
+        taskData.value = response['data'];
+      } else {
+        Get.snackbar('Error', response['message']);
+      }
+    } catch (error) {
+      Get.snackbar('Error', 'An error occurred: $error');
+    } finally {
+      isLoading(false);
+    }
+  }
+
+  // Future<void> fetchTaskHisDetailData(int idd) async {
+  //   isLoading(true);
+  //   try {
+  //     var response = await ApiProvider.getTaskHisDetail(idd);
+  //     if (response['succeeded']) {
+  //       taskHisData.value = response['data'];
+  //     } else {
+  //       Get.snackbar('Error', response['message']);
+  //     }
+  //   } catch (error) {
+  //     Get.snackbar('Error', 'An error occurred: $error',backgroundColor: Colors.red,colorText: Colors.white);
+  //   } finally {
+  //     isLoading(false);
+  //   }
+  // }
+  // Function to select a specific date
   void selectDate(DateTime date) {
     selectedDate.value = date;
-    // Update task list based on selected date
     updateTasksForSelectedDate();
   }
-
+  bool hasEvents(DateTime day) {
+    final eventDate = DateTime(day.year, day.month, day.day);
+    return taskts.containsKey(eventDate);
+  }
   void selectNearestTaskDate() {
-    // Find the nearest task date
     final today = DateTime.now();
-    final nearestTask = allTasks
-        .where((task) => task.date.isAfter(today))
-        .toList()
-      ..sort((a, b) => a.date.compareTo(b.date));
+    final nearestTask = tasks.where((task) {
+      return task.taskstartdate!.isAfter(today);
+    }).toList()
+      ..sort((a, b) => a.taskstartdate!.compareTo((b.taskstartdate!)));
 
     if (nearestTask.isNotEmpty) {
-      selectedDate.value = nearestTask.first.date;
+      selectedDate.value = nearestTask.first.taskstartdate!;
       updateTasksForSelectedDate();
     }
   }
 
   void updateTasksForSelectedDate() {
-    // Update tasks for the selected date
     taskList.clear();
-    taskList.addAll(allTasks
-        .where((task) => isSameDay(task.date, selectedDate.value))
+    taskList.addAll(tasks.where((task) {
+      return isSameDay(task.taskstartdate!, selectedDate.value);
+    }).map((task) => Task(id: task.id!,name: task.taskName!, date1: task.taskstartdate!,date2: task.taskEnddate!,taskStatus: task.taskStatus.toString(),taskTitle: task.taskTittle.toString(),taskDescription: task.taskDescription.toString()))
         .toList());
   }
 
   bool isSameDay(DateTime date1, DateTime date2) {
-    return date1.year == date2.year &&
-        date1.month == date2.month &&
-        date1.day == date2.day;
+    return date1.year == date2.year && date1.month == date2.month && date1.day == date2.day;
   }
 }
 
 class Task {
+  final int id;
   final String name;
-  final DateTime date;
+  final String taskStatus;
+  final String taskTitle;
+  final String taskDescription;
+  final DateTime date1;
+  final DateTime date2;
 
-  Task({required this.name, required this.date});
+  Task({required this.id,required this.name, required this.date1,required this.date2,required this.taskStatus,required this.taskTitle, required this.taskDescription});
 }

@@ -48,75 +48,174 @@
 //   }
 // }
 // lib/models/event_model.dart
-class EventModel {
-  final DateTime date;
-  final String title;
-  final String subtitle;
+import 'dart:convert';
 
-  EventModel({
-    required this.date,
-    required this.title,
-    required this.subtitle,
+
+
+// class StaticEventData {
+//   static List<EventModel> getEvents() {
+//     return [
+//       EventModel(
+//         date: DateTime.utc(2024, 9, 2),
+//         title: "Event 1",
+//         subtitle: "Subtitle 1",
+//       ),
+//       EventModel(
+//         date: DateTime.utc(2024, 9, 2),
+//         title: "Event 1.2",
+//         subtitle: "Subtitle 1.2",
+//       ),
+//       EventModel(
+//         date: DateTime.utc(2024, 9, 5),
+//         title: "Event 2",
+//         subtitle: "Subtitle 2",
+//       ),
+//       EventModel(
+//         date: DateTime.utc(2024, 9, 10),
+//         title: "Event 3",
+//         subtitle: "Subtitle 3",
+//       ),
+//       EventModel(
+//         date: DateTime.utc(2024, 9, 15),
+//         title: "Event 4",
+//         subtitle: "Subtitle 4",
+//       ),
+//       EventModel(
+//         date: DateTime.utc(2024, 9, 20),
+//         title: "Event 5",
+//         subtitle: "Subtitle 5",
+//       ),
+//     ];
+//   }
+// }
+
+
+
+// EventsModell eventsModellFromJson(String str) => EventsModell.fromJson(json.decode(str));
+//
+// String eventsModellToJson(EventsModell data) => json.encode(data.toJson());
+//
+// class EventsModell {
+//   bool? succeeded;
+//   int? statusCode;
+//   String? status;
+//   String? message;
+//   List<EventModel>? data;
+//
+//   EventsModell({
+//     this.succeeded,
+//     this.statusCode,
+//     this.status,
+//     this.message,
+//     this.data,});
+//
+//   factory EventsModell.fromJson(Map<String, dynamic> json) => EventsModell(
+//     succeeded: json["succeeded"],
+//     statusCode: json["statusCode"],
+//     status: json["status"],
+//     message: json["message"],
+//     data: json["data"] == null ? [] : List<EventModel>.from(json["data"]!.map((x) => EventModel.fromJson(x))),);
+//
+//   Map<String, dynamic> toJson() => {
+//     "succeeded": succeeded,
+//     "statusCode": statusCode,
+//     "status": status,
+//     "message": message,
+//     "data": data == null ? [] : List<dynamic>.from(data!.map((x) => x.toJson())),};}
+//
+//
+// class EventModel {
+//   final DateTime date;
+//   final String title;
+//   final String subtitle;
+//
+//   EventModel({
+//     required this.date,
+//     required this.title,
+//     required this.subtitle,});
+//
+//   factory EventModel.fromJson(Map<String, dynamic> json) {
+//     return EventModel(
+//       date: DateTime.parse(json['date']),
+//       title: json['tittle'],
+//       subtitle: json['subtittle'],
+//     );}
+//
+//   Map<String, dynamic> toJson() {
+//     return {
+//       'date': date.toIso8601String(),
+//       'tittle': title,
+//       'subtittle': subtitle,
+//     };}}
+
+
+// To parse this JSON data, do
+//
+//     final eventsModell = eventsModellFromJson(jsonString);
+
+import 'dart:convert';
+
+EventsModell eventsModellFromJson(String str) => EventsModell.fromJson(json.decode(str));
+
+String eventsModellToJson(EventsModell data) => json.encode(data.toJson());
+
+class EventsModell {
+  bool? succeeded;
+  int? statusCode;
+  String? status;
+  String? message;
+  List<EventModel>? data;
+
+  EventsModell({
+    this.succeeded,
+    this.statusCode,
+    this.status,
+    this.message,
+    this.data,
   });
 
-  // Convert a JSON map to an EventModel instance
-  factory EventModel.fromJson(Map<String, dynamic> json) {
-    return EventModel(
-      date: DateTime.parse(json['date']),
-      title: json['title'],
-      subtitle: json['subtitle'],
-    );
-  }
+  factory EventsModell.fromJson(Map<String, dynamic> json) => EventsModell(
+    succeeded: json["succeeded"],
+    statusCode: json["statusCode"],
+    status: json["status"],
+    message: json["message"],
+    data: json["data"] == null ? [] : List<EventModel>.from(json["data"]!.map((x) => EventModel.fromJson(x))),
+  );
 
-  // Convert an EventModel instance to a JSON map
-  Map<String, dynamic> toJson() {
-    return {
-      'date': date.toIso8601String(),
-      'title': title,
-      'subtitle': subtitle,
-    };
-  }
+  Map<String, dynamic> toJson() => {
+    "succeeded": succeeded,
+    "statusCode": statusCode,
+    "status": status,
+    "message": message,
+    "data": data == null ? [] : List<dynamic>.from(data!.map((x) => x.toJson())),
+  };
 }
 
+class EventModel {
+  String? subtittle;
+  String? tittle;
+  DateTime? date;
 
-///
-// lib/models/static_event_data.dart
+  EventModel({
+    this.subtittle,
+    this.tittle,
+    this.date,
+  });
 
-// lib/models/static_event_data.dart
+  factory EventModel.fromJson(Map<String, dynamic> json) => EventModel(
+    subtittle: json["subtittle"],
+    tittle: json["tittle"],
+    date: json["date"] == null ? null : DateTime.parse(json["date"]),
+  );
 
-class StaticEventData {
-  static List<EventModel> getEvents() {
-    return [
-      EventModel(
-        date: DateTime.utc(2024, 9, 2),
-        title: "Event 1",
-        subtitle: "Subtitle 1",
-      ),
-      EventModel(
-        date: DateTime.utc(2024, 9, 2),
-        title: "Event 1.2",
-        subtitle: "Subtitle 1.2",
-      ),
-      EventModel(
-        date: DateTime.utc(2024, 9, 5),
-        title: "Event 2",
-        subtitle: "Subtitle 2",
-      ),
-      EventModel(
-        date: DateTime.utc(2024, 9, 10),
-        title: "Event 3",
-        subtitle: "Subtitle 3",
-      ),
-      EventModel(
-        date: DateTime.utc(2024, 9, 15),
-        title: "Event 4",
-        subtitle: "Subtitle 4",
-      ),
-      EventModel(
-        date: DateTime.utc(2024, 9, 20),
-        title: "Event 5",
-        subtitle: "Subtitle 5",
-      ),
-    ];
-  }
+  Map<String, dynamic> toJson() => {
+    "subtittle": subtittle,
+    "tittle": tittle,
+    "date": date?.toIso8601String(),
+  };
 }
+
+// class EventsData {String? subtittle;String? tittle;String? date;EventsData({this.subtittle, this.tittle, this.date,});
+//
+//   factory EventsData.fromJson(Map<String, dynamic> json) => EventsData(subtittle: json["subtittle"], tittle: json["tittle"], date: json["date"],);
+//   Map<String, dynamic> toJson() => {"subtittle": subtittle, "tittle": tittle, "date": date,};}

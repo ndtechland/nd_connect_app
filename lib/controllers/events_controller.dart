@@ -50,37 +50,92 @@ import 'package:get/get.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 import '../models/events_model.dart';
+import '../models/task_model.dart';
+import '../services_apis/api_servicesss.dart';
 
 
 class EventsController extends GetxController {
+  final isLoading = false.obs;
   final Rx<DateTime> focusedDay = DateTime.now().obs;
   final Rx<DateTime?> selectedDay = Rxn<DateTime>(null);
   final Rx<CalendarFormat> calendarFormat = CalendarFormat.month.obs;
 
-  // Static event data
+  // Events map to store events based on dates
   final RxMap<DateTime, List<EventModel>> events =
       <DateTime, List<EventModel>>{}.obs;
 
   EventsController() {
-    _initializeEvents();
+   // _initializeEvents();
   }
 
-  void _initializeEvents() {
-    final eventsList = StaticEventData.getEvents();
-
-    for (var event in eventsList) {
-      final eventDate =
-      DateTime(event.date.year, event.date.month, event.date.day);
-      if (events.containsKey(eventDate)) {
-        events[eventDate]?.add(event);
+  // Fetch events from API
+  Future<void> EventsApi() async {
+    isLoading.value = true;
+    try {
+      EventsModell? apiResponse = await ApiProvider.GetofficeEventsApi();
+      if (apiResponse != null && apiResponse.succeeded == true) {
+        // Update events map with API data
+        _updateEvents(apiResponse.data ?? []);
       } else {
-        events[eventDate] = [event];
+        print('Error: ${apiResponse?.message}');
+      }
+    } catch (e) {
+      print('Error fetching events: $e');
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  // Update events map with data from API
+  void _updateEvents(List<EventModel> apiData) {
+    // Clear current events
+    events.clear();
+
+    for (var datum in apiData) {
+      if (datum.date != null) {
+        // Use the date directly as it's already parsed as DateTime
+        final eventDate = datum.date!;
+        final eventModel = EventModel(
+          date: eventDate,
+          tittle: datum.tittle ?? 'No Title',
+          subtittle: datum.subtittle ?? 'No Subtitle',
+        );
+
+        print("eventDate: $eventDate");
+
+        // Creating the key with just the date (year, month, day)
+        final eventKey = DateTime(eventDate.year, eventDate.month, eventDate.day);
+
+        if (events.containsKey(eventKey)) {
+          events[eventKey]?.add(eventModel);
+        } else {
+          events[eventKey] = [eventModel];
+        }
       }
     }
 
     // Automatically select the first date with events
-    _autoSelectDatesWithEvents();
+   // _autoSelectDatesWithEvents();
   }
+
+
+  // void _initializeEvents() {
+  //   // Fetch static event data (optional, you may remove this if you only want API data)
+  //   final eventsList = StaticEventData.getEvents();
+  //
+  //   for (var event in eventsList) {
+  //     final eventDate =
+  //     DateTime(event.date.year, event.date.month, event.date.day);
+  //     if (events.containsKey(eventDate)) {
+  //       events[eventDate]?.add(event);
+  //     } else {
+  //       events[eventDate] = [event];
+  //     }
+  //   }
+  //
+  //   // Automatically select the first date with events
+  //   _autoSelectDatesWithEvents();
+  // }
 
   void _autoSelectDatesWithEvents() {
     final datesWithEvents = events.keys.toList();
@@ -90,6 +145,7 @@ class EventsController extends GetxController {
     }
   }
 
+  // Calendar event handling methods
   void onDaySelected(DateTime selectedDay, DateTime focusedDay) {
     this.selectedDay.value = selectedDay;
     this.focusedDay.value = focusedDay;
@@ -103,11 +159,13 @@ class EventsController extends GetxController {
     this.focusedDay.value = focusedDay;
   }
 
+  // Fetch events for a specific day
   List<EventModel> getEventsForDay(DateTime day) {
     final eventDate = DateTime(day.year, day.month, day.day);
     return events[eventDate] ?? [];
   }
 
+  // Check if a day has events
   bool hasEvents(DateTime day) {
     final eventDate = DateTime(day.year, day.month, day.day);
     return events.containsKey(eventDate);

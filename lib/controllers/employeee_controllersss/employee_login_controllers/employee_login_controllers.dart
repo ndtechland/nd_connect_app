@@ -202,10 +202,43 @@ class EmployeeLoginController extends GetxController {
         // await _homedashboardController.dashboarddApi();
 
         Get.off(() => BottomBar());
-      } else if (response.statusCode == 401) {
-        Get.snackbar('Error', 'Unauthorized: ${response.body}',backgroundColor: Colors.red,colorText: Colors.white);
-      } else {
-        Get.snackbar('Error', 'Login failed: ${response.body}',backgroundColor: Colors.red,colorText: Colors.white);
+        await Get.dialog(
+          // bool barrierDismissible = true
+
+          AlertDialog(
+
+            title: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                // Container(),
+                const Text('ND Connect'),
+                Container(
+                  height: 40,width: 40,
+                  decoration: BoxDecoration(
+                      image: DecorationImage(image: AssetImage('lib/assets/logo/logoo.png')),
+                      color: Colors.white
+                  ),)
+              ],
+            ),
+            content: const Text(
+                """When you grant permission for  location access in our application, we may collect and process certain information related to your geographical location. This includes GPS coordinates, Wi-Fi network information, cellular tower data, Background Location, and other relevant data sources to determine your device's location."""),
+            actions: [
+              TextButton(
+                child: const Text("Reject"),
+                onPressed: () => Get.back(),
+              ),
+              TextButton(
+                child: const Text("Accept"),
+                onPressed: () async{
+                  await locationController.checkAndRequestLocationPermission();
+                  Get.back();
+
+                },
+              ),
+            ],
+          ),
+          barrierDismissible: false,
+        );
       }
     } catch (error) {
       Get.snackbar('Error', 'An error occurred during login: $error',backgroundColor: Colors.red,colorText: Colors.white);

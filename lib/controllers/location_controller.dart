@@ -1,62 +1,50 @@
-
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart';
 import 'package:geocoding/geocoding.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:nd_connect_techland/controllers/employee_controller/profile_controller/profile_info_employee_controller.dart';
 import 'package:nd_connect_techland/models/company_location_model.dart';
 import 'package:nd_connect_techland/modules/all_pages/attendance/attendance.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:nd_connect_techland/services_apis/api_servicesss.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:geolocator/geolocator.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../modules/bottom_bar/bottom_bar.dart';
+import 'attendance_controller.dart';
 class LocationController extends GetxController {
   var latitude = 0.0.obs;
   var longitude = 0.0.obs;
   var errorMessage = ''.obs;
   var isLoading = false.obs;
+  var breakIn = false.obs;
+  var breakOut = false.obs;
   var distanceFromCompany = 0.0.obs;
   var userId = 0.obs;
-  // Company address details
   var companyLatitude = 0.0.obs; // Company's latitude
   var companyLongitude = 0.0.obs;
-  Rx<Color> statusColor = Color(0xFFFF0202).obs; // Default to white color
-  // Radius in meters for the company boundary
   var companyRadius = 0.0.obs;
+  Timer? _timer;
   CompanyLocationModel? companyLocationModel;
+  final AttendanceController attendanceController = Get.put(AttendanceController());
   ProfileEmployeeController profileEmployeeController = Get.put(ProfileEmployeeController());
   @override
   void onInit() {
     super.onInit();
     getCoordinatesFromAddress();
-    restoreCheckInStatus();
-    restoreStatusColor();
+   // startSendingLocation();
   }
-  Future<void> restoreCheckInStatus() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    bool isCheckedIn = prefs.getBool('isCheckedIn') ?? false;
-    // You can update the UI accordingly based on isCheckedIn
-  }
-
-  Future<void> restoreStatusColor() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    int savedColorValue = prefs.getInt('statusColor') ?? Colors.red.value;
-    statusColor.value = Color(savedColorValue); // Restore the color
-  }
-  Future<void> saveCheckInStatus(bool isCheckedIn) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setBool('isCheckedIn', isCheckedIn);
-  }
-
-  Future<void> saveStatusColor(Color color) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setInt('statusColor', color.value); // Save the color as an integer
-  }
+ //  @override
+ //  void onClose() {
+ //    _timer?.cancel(); // Cancel the timer when the controller is closed
+ //    super.onClose();
+ //  }
+ // // Function to start sending location every minute
+ //  void startSendingLocation() {
+ //    _timer = Timer.periodic(Duration(days: 2), (Timer timer) {
+ //      print("send location");
+ //      sendLocation();
+ //    });
+ //  }
 
   Future<void> fetchCompanyLocationApi() async {
     await Future.delayed(Duration(seconds: 1));
@@ -75,31 +63,7 @@ class LocationController extends GetxController {
 
     isLoading.value = false;
   }
-  // Future<void> checkInApi() async {
-  //   print("checkIN Contro");
-  //
-  // try{
-  //   print("checkIN Contro:try");
-  //
-  //   isLoading.value=false;
-  //   final res = await ApiProvider.CheckInApi(latitude.toString(), longitude.toString(), userId as int);
-  //   if (res?.statusCode == 200) {
-  //     print("checkIN Contro:200");
-  //     print("checkIN contro:${res?.body}");
-  //     // Navigate to Home Page
-  //     Get.off(() => Attendance(id: "13"));
-  //   } else {
-  //     print("checkIN contro:not 200");
-  //
-  //     // Handle other status codes or errors
-  //     Get.snackbar('Error', 'Failed to checkin. Please try again.');
-  //   }
-  // } catch (e){
-  //   Get.snackbar('Error Contro', 'An unexpected error occurred. Please try again.');
-  // } finally {
-  //   isLoading.value = false;
-  // }
-  // }
+
   Future<void> checkInApi() async {
     await Future.delayed(Duration(seconds: 1));
     print("checkIN Controller");
@@ -122,11 +86,14 @@ class LocationController extends GetxController {
      // Check response status code
       if (response?.statusCode == 200) {
         print("Check-in successful: ${response?.body}");
-        statusColor.value = Colors.green;
-        await saveCheckInStatus(true); // Save the check-in status
-        await saveStatusColor(Colors.green);
+        // statusColor.value = Colors.green;
+        // await saveCheckInStatus(true); // Save the check-in status
+        // await saveStatusColor(Colors.green);
+        await Future.delayed(Duration(seconds: 3));
+        print("Check-in time: ${attendanceController.attendanceDetailsModel?.data?.checkInTime}");
+        await attendanceController.AttendanceDetailApi();
         // Navigate to the Attendance screen or perform other actions
-        Get.to(() => Attendance(id: "13"));
+        // Get.to(() => Attendance(id: "13"));
 
         // Show success toast
         Fluttertoast.showToast(
@@ -138,10 +105,6 @@ class LocationController extends GetxController {
         );
       } else if (response?.statusCode == 401) {
         print("Unauthorized access");
-        statusColor.value = Colors.red;
-        await saveCheckInStatus(false); // Save the check-out status or error state
-        await saveStatusColor(Colors.red);
-        // Show unauthorized error
         Fluttertoast.showToast(
           msg: "Unauthorized access. Please check your login status.",
           backgroundColor: Colors.red,
@@ -150,10 +113,10 @@ class LocationController extends GetxController {
           gravity: ToastGravity.BOTTOM,
         );
       } else if(response?.statusCode ==409){
-        statusColor.value = Colors.green;
-        await saveCheckInStatus(true);
-        await saveStatusColor(Colors.green);
-        Get.to(() => Attendance(id: "13"));
+        // statusColor.value = Colors.green;
+        await attendanceController.AttendanceDetailApi();
+
+        // Get.to(() => Attendance(id: "13"));
 
         // Show success toast
         Fluttertoast.showToast(
@@ -166,10 +129,7 @@ class LocationController extends GetxController {
       }else {
         // Handle other response status codes
         print("Failed to check in: ${response?.statusCode}");
-        statusColor.value = Colors.red;
-        await saveCheckInStatus(false); // Save the check-out status or error state
-        await saveStatusColor(Colors.red);
-        // Show generic error message
+        // statusColor.value = Color(0xfff44336);
         Get.snackbar('Error', 'Failed to check in. Please try again.');
         Fluttertoast.showToast(
           msg: "Check-In failed. Status code: ${response?.statusCode}",
@@ -195,6 +155,197 @@ class LocationController extends GetxController {
       isLoading.value = false;
     }
   }
+
+  Future<void> breakInApi() async {
+    await Future.delayed(Duration(seconds: 1));
+    print("checkIN Controller");
+    try {
+      isLoading.value = true;
+      final response = await ApiProvider.breakIn(
+          latitude.toString(),
+          longitude.toString(),
+          breakIn.value = true,
+      );
+
+     // Check response status code
+      if (response?.statusCode == 200) {
+        print("breakIn successful: ${response?.body}");
+        await Future.delayed(Duration(seconds: 3));
+        print("Check-in time: ${attendanceController.attendanceDetailsModel?.data?.checkInTime}");
+        await attendanceController.AttendanceDetailApi();
+        // Navigate to the Attendance screen or perform other actions
+        Get.to(() => BottomBar());
+
+        // Show success toast
+        Fluttertoast.showToast(
+          msg: "Break-In Successfully!",
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.CENTER,
+        );
+      } else if (response?.statusCode == 401) {
+        print("Unauthorized access");
+        // statusColor.value = Color(0xfff44336);
+        // await saveCheckInStatus(false); // Save the check-out status or error state
+        // await saveStatusColor(Color(0xfff44336));
+        // Show unauthorized error
+        Fluttertoast.showToast(
+          msg: "Unauthorized access. Please check your login status.",
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.BOTTOM,
+        );
+      } else if(response?.statusCode ==409){
+        // statusColor.value = Colors.green;
+        await attendanceController.AttendanceDetailApi();
+
+        Get.to(() => BottomBar());
+
+        // Show success toast
+        Fluttertoast.showToast(
+          msg: "You are already Break-In",
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.CENTER,
+        );
+      }else {
+        // Handle other response status codes
+        print("Failed to check in: ${response?.statusCode}");
+        // statusColor.value = Color(0xfff44336);
+        // Get.snackbar('Error', 'Failed to check in. Please try again.');
+        Fluttertoast.showToast(
+          msg: "Break-In failed.Please try again ",
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.BOTTOM,
+        );
+      }
+    } catch (e) {
+      // Catch and handle any exceptions or network errors
+      print('Error during check-in: $e');
+      // Get.snackbar('Error', 'An unexpected error occurred. Please try again.');
+      Fluttertoast.showToast(
+        msg: "Network error: $e",
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.BOTTOM,
+      );
+    } finally {
+      // Set loading state to false after the API call completes
+      isLoading.value = false;
+    }
+  }
+
+  Future<void> breakOutApi() async {
+    await Future.delayed(Duration(seconds: 1));
+    print("breakOut Controller");
+    try {
+      isLoading.value = true;
+      final response = await ApiProvider.breakOut(
+          latitude.toString(),
+          longitude.toString(),
+          breakOut.value = true,
+      );
+
+     // Check response status code
+      if (response?.statusCode == 200) {
+        print("breakOut successful: ${response?.body}");
+        await Future.delayed(Duration(seconds: 3));
+        print("breakOut time: ${attendanceController.attendanceDetailsModel?.data?.checkInTime}");
+        await attendanceController.AttendanceDetailApi();
+        // Navigate to the Attendance screen or perform other actions
+        Get.to(() => BottomBar());
+
+        // Show success toast
+        Fluttertoast.showToast(
+          msg: "Break-Out Successfully!",
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.CENTER,
+        );
+      } else if (response?.statusCode == 401) {
+        print("Unauthorized access");
+        // statusColor.value = Color(0xfff44336);
+        // await saveCheckInStatus(false); // Save the check-out status or error state
+        // await saveStatusColor(Color(0xfff44336));
+        // Show unauthorized error
+        Fluttertoast.showToast(
+          msg: "Unauthorized access. Please check your login status.",
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.BOTTOM,
+        );
+      } else if(response?.statusCode ==409){
+        // statusColor.value = Colors.green;
+        await attendanceController.AttendanceDetailApi();
+
+        Get.to(() => BottomBar());
+
+        // Show success toast
+        Fluttertoast.showToast(
+          msg: "You are already Break-Out",
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.CENTER,
+        );
+      }else {
+        // Handle other response status codes
+        print("Failed to check in: ${response?.statusCode}");
+        // statusColor.value = Color(0xfff44336);
+        // Get.snackbar('Error', 'Failed to check in. Please try again.');
+        Fluttertoast.showToast(
+          msg: "Break-Out failed.Please try again ",
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.BOTTOM,
+        );
+      }
+    } catch (e) {
+      // Catch and handle any exceptions or network errors
+      print('Error during Break-Out: $e');
+      // Get.snackbar('Error', 'An unexpected error occurred. Please try again.');
+      Fluttertoast.showToast(
+        msg: "Network error: $e",
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.BOTTOM,
+      );
+    } finally {
+      // Set loading state to false after the API call completes
+      isLoading.value = false;
+    }
+  }
+
+  Future<void> sendLocation() async {
+    await Future.delayed(Duration(seconds: 1));
+    print("checkIN Controller");
+    try {
+      isLoading.value = true;
+      final response = await ApiProvider.sendLatLang(
+          latitude.toString(),
+          longitude.toString(),
+      );
+      print("send latLang: $latitude,$longitude");
+      } catch (e) {
+      // Catch and handle any exceptions or network errors
+      print('Error during check-in: $e');
+    } finally {
+      // Set loading state to false after the API call completes
+      isLoading.value = false;
+    }
+  }
+
+
   Future<void> employeeCheckOut() async{
     try {
       isLoading.value = true;
@@ -215,24 +366,13 @@ class LocationController extends GetxController {
       // Check response status code
       if (response?.statusCode == 200) {
         print("Check-Out successful: ${response?.body}");
-        statusColor.value = Colors.red;
-        await saveCheckInStatus(false); // Save the check-in status
-        await saveStatusColor(Colors.red);
         // Navigate to the Attendance screen or perform other actions
-        //Get.offAll(() => BottomBar());
-        //
-        // // Show success toast
-        // Fluttertoast.showToast(
-        //   msg: "Check-In Successfully!",
-        //   backgroundColor: Colors.green,
-        //   textColor: Colors.white,
-        //   toastLength: Toast.LENGTH_LONG,
-        //   gravity: ToastGravity.CENTER,
-        // );
+        Get.offAll(() => BottomBar());
+
       } else {
         // Handle other response status codes
         print("Failed to check Out: ${response?.statusCode}");
-        statusColor.value = Colors.red;
+        // statusColor.value = Colors.red;
 
         // Show generic error message
         Get.snackbar('Error', 'Failed to check in. Please try again.');
@@ -260,6 +400,7 @@ class LocationController extends GetxController {
       isLoading.value = false;
     }
   }
+
   Future<void> checkAndRequestLocationPermission() async {
     await Future.delayed(Duration(seconds: 1));
     var status = await Permission.location.request();

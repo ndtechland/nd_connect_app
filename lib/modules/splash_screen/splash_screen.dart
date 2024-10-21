@@ -7,6 +7,7 @@ import 'package:nd_connect_techland/modules/bottom_bar/bottom_bar.dart';
 
 
 
+import '../../controllers/attendance_controller.dart';
 import '../../controllers/employee_controller/profile_controller/profile_info_employee_controller.dart';
 import '../../controllers/employeee_controllersss/employee_dashboard_controller/employee_dashboardcontroller.dart';
 import '../../controllers/employeee_controllersss/employee_login_controllers/employee_login_controllers.dart';
@@ -32,6 +33,8 @@ class SplashScreen extends StatelessWidget {
       Get.put(HomedashboardController());
   final ProfileUpdateController profileController = Get.put(
       ProfileUpdateController(apiService: ApiProvider()));
+  final AttendanceController attendanceController = Get.put(AttendanceController());
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -103,6 +106,8 @@ class SplashScreen extends StatelessWidget {
                   await locationController.fetchCompanyLocationApi();
                   await locationController.getCoordinatesFromAddress();
                   await _homedashboardController.dashboarddApi();
+                  await attendanceController.EmpActivityApi();
+                  print("attendance activity:${attendanceController.attendanceActivityModel?.data?.loginStatus}");
                   _homedashboardController.update();
                   Future.delayed(Duration(seconds: 1));
                   await Navigator.pushReplacement(
@@ -110,6 +115,8 @@ class SplashScreen extends StatelessWidget {
                     MaterialPageRoute(builder: (context) => BottomBar()),
                   );
                 } else {
+                  await attendanceController.EmpActivityApi();
+                  print("attendance activity:${attendanceController.attendanceActivityModel?.data?.loginStatus}");
                   // Navigate to the login page if no account is stored
                   Navigator.pushReplacement(
                     context,

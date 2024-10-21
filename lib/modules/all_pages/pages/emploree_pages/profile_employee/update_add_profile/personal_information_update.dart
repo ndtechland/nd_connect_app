@@ -16,6 +16,7 @@ import '../../../../../../components/responsive_text.dart';
 import '../../../../../../components/styles.dart';
 import '../../../../../../controllers/employee_controller/profile_controller/profile_info_employee_controller.dart';
 import '../../../../../../controllers/employeee_controllersss/employee_edit_profile_controller/employee_update_personal_controller.dart';
+import '../../../../../../controllers/location_controller.dart';
 import '../../../../../../models/city_model.dart';
 import '../../../../../../models/state_model.dart';
 import '../../../../../../widget/custom_loader.dart';
@@ -915,6 +916,7 @@ class _PersonalUpdateProfileState extends State<PersonalUpdateProfile> {
   //           affinity: TextAffinity.upstream));
   //   }
   // }
+  final LocationController locationController = Get.put(LocationController());
 
   @override
   Widget build(BuildContext context) {
@@ -2439,16 +2441,69 @@ class _PersonalUpdateProfileState extends State<PersonalUpdateProfile> {
                 Container(
                   width: 50,
                   alignment: Alignment.topRight,
-                  // child: IconButton(
-                  //   onPressed: () {
-                  //     _selectimageprofileFile(context);
-                  //     _profilePictureEmployeController.updaprofilrimgProfile(
-                  //       cvFileContent3: _profileFileContent!,
-                  //       Empprofile: _profileimagePathController.text,
-                  //     );
-                  //   },
-                  //   icon: Icon(Icons.edit_outlined, color: Colors.white),
-                  // ),
+                  child:  Padding(
+                    padding: const EdgeInsets.only(right: 8.0),
+                    child: GestureDetector(
+                      onTap: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            shape: ContinuousRectangleBorder(
+                                side: BorderSide.none,
+                                borderRadius: BorderRadius.circular(12)
+                            ),
+                            title: Text('Check-Out'),
+                            content: Text('Do you really want to check out'),
+                            actions: [
+                              Container(
+                                height:40,
+                                width: 70,
+                                decoration: BoxDecoration(
+                                    color: Colors.green,
+                                    borderRadius: BorderRadius.circular(12)
+
+                                ),
+                                child: TextButton(
+                                  onPressed: () => Navigator.pop(context),
+                                  child: Text('No',style: TextStyle(color: Colors.white),),
+                                ),
+                              ),
+
+                              Container(
+                                height:40,
+                                width: 70,
+                                decoration: BoxDecoration(
+                                    color: Colors.red,
+                                    borderRadius: BorderRadius.circular(12)
+
+                                ),
+                                child: TextButton(
+                                  onPressed: () async{
+                                    print("cheedck-Outt");
+                                    await locationController.employeeCheckOut();
+                                    print("cheedck-Outt done");
+                                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                                      Get.offAll(() => BottomBar());
+                                    });
+                                  },
+                                  child: Text('Yes',style: TextStyle(color: Colors.white),),
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                      child: CircleAvatar(
+                        radius: 16,
+                        backgroundColor: Colors.white,
+                        child: Icon(
+                          size: 20,
+                          Icons.logout_rounded,
+                          color: Colors.black87,
+                        ),
+                      ),
+                    ),
+                  )
                 ),
               ],
             ),

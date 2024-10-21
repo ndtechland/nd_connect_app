@@ -33,8 +33,12 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:nd_connect_techland/models/attendance_activity_model.dart';
+import 'package:nd_connect_techland/models/attendance_model.dart';
+import 'package:nd_connect_techland/services_apis/api_servicesss.dart';
 
 class AttendanceController extends GetxController {
+  final isLoading = false.obs;
   var selectedDate = DateTime.now().obs; // Track selected date
   var checkInTime = ''.obs;
   var checkOutTime = ''.obs;
@@ -47,15 +51,57 @@ class AttendanceController extends GetxController {
   var overtime = ''.obs;
   var breakInTime = [].obs;
   var breakOutTime = [].obs;
-
+  AttendanceDetailsModel? attendanceDetailsModel;
+  AttendanceActivityModel? attendanceActivityModel;
   Timer? _timer;
 
   @override
   void onInit() {
     super.onInit();
     fetchAttendanceData();
+    AttendanceDetailApi();
+    EmpActivityApi();
   }
+Future<void> AttendanceDetailApi() async{
+  isLoading.value = true;
+    try{
+      attendanceDetailsModel= await ApiProvider.EmpAttendancedatail();
+      if(attendanceDetailsModel?.data?.officeHour==null){
+        print("attendance detail null");
+        isLoading(true);
+        attendanceDetailsModel= await ApiProvider.EmpAttendancedatail();
+      }
+      if(attendanceDetailsModel?.data?.officeHour!=null) {
+        print("attendance detail :${attendanceDetailsModel?.data}");
+        isLoading(false);
+      }
+      isLoading(false);
 
+    }catch(e){
+      print("Error fetching details:$e");
+
+    }
+}
+Future<void> EmpActivityApi() async{
+  isLoading.value = true;
+    try{
+      attendanceActivityModel= await ApiProvider.AttendanceActivityApi();
+      if(attendanceActivityModel?.data?.checkIn==null){
+        print("attendance detail null");
+        isLoading(true);
+        attendanceActivityModel= await ApiProvider.AttendanceActivityApi();
+      }
+      if(attendanceActivityModel?.data?.checkIn!=null) {
+        print("attendance detail :${attendanceDetailsModel?.data}");
+        isLoading(false);
+      }
+      isLoading(false);
+
+    }catch(e){
+      print("Error fetching details:$e");
+
+    }
+}
   // Method to update the date and fetch the data
   void updateSelectedDate(DateTime date) {
     selectedDate.value = date;
@@ -222,12 +268,13 @@ class AttendanceController extends GetxController {
 
     try {
       // Ensure the check-in time string is well formatted and trimmed
-      String checkInStr = checkInTime.value.trim().toUpperCase(); // Convert to uppercase
+      String? checkInStr =attendanceDetailsModel?.data?.checkInTime;
+     // checkInTime.value.trim().toUpperCase(); // Convert to uppercase
       print("Check-in time string: '$checkInStr'");
       print("Now time string: '$nowStr'");
 
       // Check if the check-in time string is valid
-      if (!RegExp(r'^[0-9]{1,2}:[0-9]{2} [APM]{2}$').hasMatch(checkInStr)) {
+      if (!RegExp(r'^[0-9]{1,2}:[0-9]{2} [APM]{2}$').hasMatch(checkInStr!)) {
         throw FormatException("Invalid time format: $checkInStr");
       }
 

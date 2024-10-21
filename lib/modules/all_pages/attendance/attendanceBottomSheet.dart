@@ -110,261 +110,53 @@
 //   }
 // }
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:nd_connect_techland/components/styles.dart';
-import 'package:nd_connect_techland/modules/all_pages/attendance/attendance.dart';
+import 'package:nd_connect_techland/controllers/attendance_controller.dart';
 import '../../../controllers/employee_controller/profile_controller/profile_info_employee_controller.dart';
 import '../../../controllers/location_controller.dart';
-
-// class AttendanceBottomSheet extends StatelessWidget {
-//   AttendanceBottomSheet({super.key});
-//
-//   Completer<GoogleMapController> _controller = Completer();
-//   LatLng _center = const LatLng(28.582813, 77.314373);
-//
-//   final LocationController locationController = Get.put(LocationController());
-//
-//   void _onMapCreated(GoogleMapController controller) {
-//     _controller.complete(controller);
-//   }
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return OrientationBuilder(builder: (context, orientation){
-//       return LayoutBuilder(builder: (context, constraints){
-//         var screenWidth = constraints.maxWidth;
-//         var screenHeight = constraints.maxHeight;
-//
-//         var sizeWidth2 = orientation == Orientation.portrait
-//             ? screenWidth * 0.9
-//             : screenWidth * 0.88;
-//         var sizeHeight2 = orientation == Orientation.portrait
-//             ? screenHeight * 0.88
-//             : screenHeight * 0.88;
-//
-//         return Container(
-//           decoration: BoxDecoration(
-//             color: Colors.white,
-//             borderRadius: BorderRadius.vertical(top: Radius.circular(30.0)),
-//           ),
-//           child: Padding(
-//             padding: const EdgeInsets.all(18.0),
-//             child: Column(
-//               crossAxisAlignment: CrossAxisAlignment.start,
-//               children: [
-//                 // Map Container
-//                 Obx(() => Container(
-//                   height: sizeHeight2 * 0.70,
-//                   width: sizeWidth2,
-//                   decoration: BoxDecoration(
-//                     borderRadius: BorderRadius.circular(16),
-//                   ),
-//                   child: GoogleMap(
-//                     onMapCreated: _onMapCreated,
-//                     initialCameraPosition: CameraPosition(
-//                       target: LatLng(locationController.latitude.value, locationController.longitude.value),
-//                       zoom: 15.0,
-//                     ),
-//                     myLocationEnabled: true,
-//                     myLocationButtonEnabled: true,
-//                     markers: {
-//                       Marker(
-//                         markerId: MarkerId('center'),
-//                         position:  locationController.center ??
-//                         _center ,// Fallback to default center if null,
-//                         infoWindow: InfoWindow(
-//                           title: locationController.address.value,
-//                          // snippet: '5 Star Rating',
-//                         ),
-//                       ),
-//                     },
-//                   ),
-//                 )),
-//                 SizedBox(height: 10,),
-//                 Obx(() => Text(
-//                   locationController.errorMessage.value.isNotEmpty
-//                       ? locationController.errorMessage.value
-//                       : "Checking Your Location...",
-//                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600,color: Colors.black87,decoration: TextDecoration.none),
-//                 )),
-//                 SizedBox(height: 10,),
-//                 Container(
-//                   height: sizeHeight2 * 0.15,
-//                   width: sizeWidth2,
-//                   decoration: BoxDecoration(
-//                     color: appColor2,
-//                     borderRadius: BorderRadius.circular(32),
-//                   ),
-//                   child: TextButton(
-//                     onPressed: () async {
-//                       print("locationnnn:");
-//
-//
-//                         // Fetch coordinates asynchronously and wait until it's done
-//                         await locationController.getCoordinatesFromAddress();
-//
-//                         // Ensure that the coordinates are available before navigation
-//                         if (locationController.latitude.value != 0.0 && locationController.longitude.value != 0.0) {
-//                           print("Navigating to Attendance screen");
-//                           // Navigate to Attendance screen
-//                           Get.off(() => Attendance(id: '13',)); // This will remove the current screen from the stack
-//                         } else {
-//                           // Show error or handle failed location fetch
-//                           Get.snackbar(
-//                             "Location Error",
-//                             locationController.errorMessage.value.isNotEmpty
-//                                 ? locationController.errorMessage.value
-//                                 : "Unable to fetch location. Please try again.",
-//                             snackPosition: SnackPosition.BOTTOM,
-//                           );
-//                         }
-//
-//
-//                     },
-//
-//                     child: Text(
-//                       "Check - In",
-//                       style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18, color: Colors.white),
-//                     ),
-//                   ),
-//                 ),
-//               ],
-//             ),
-//           ),
-//         );
-//       });
-//     });
-//   }
-// }
-
-
-
-
+import '../../../controllers/marker_controller.dart';
 
 
 //todayyyy
-
-// class AttendanceBottomSheet extends StatelessWidget {
-//   AttendanceBottomSheet({super.key});
+// Future<BitmapDescriptor> getCompanyMarkerIcon() async {
+//   try {
+//     // Log the asset loading attempt
+//     print('Loading company marker icon...');
 //
-//   Completer<GoogleMapController> _controller = Completer();
-//   LatLng _companyLocation = const LatLng(28.582813, 77.314373); // Company LatLng
+//     BitmapDescriptor companyIcon = await BitmapDescriptor.fromAssetImage(
+//       ImageConfiguration(size: Size(48, 48)), // Size of the icon
+//       'lib/assets/company_marker.png', // Path to your company marker icon
+//     );
 //
-//   final LocationController locationController = Get.put(LocationController());
-//
-//   void _onMapCreated(GoogleMapController controller) {
-//     _controller.complete(controller);
-//   }
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return OrientationBuilder(builder: (context, orientation) {
-//       return LayoutBuilder(builder: (context, constraints) {
-//         var screenWidth = constraints.maxWidth;
-//         var screenHeight = constraints.maxHeight;
-//
-//         var sizeWidth2 = orientation == Orientation.portrait
-//             ? screenWidth * 0.9
-//             : screenWidth * 0.88;
-//         var sizeHeight2 = orientation == Orientation.portrait
-//             ? screenHeight * 0.88
-//             : screenHeight * 0.88;
-//
-//         return Container(
-//           decoration: BoxDecoration(
-//             color: Colors.white,
-//             borderRadius: BorderRadius.vertical(top: Radius.circular(30.0)),
-//           ),
-//           child: Padding(
-//             padding: const EdgeInsets.all(18.0),
-//             child: Column(
-//               crossAxisAlignment: CrossAxisAlignment.start,
-//               children: [
-//                 // Map Container
-//                 Obx(() => Container(
-//                   height: sizeHeight2 * 0.70,
-//                   width: sizeWidth2,
-//                   decoration: BoxDecoration(
-//                     borderRadius: BorderRadius.circular(16),
-//                   ),
-//                   child: GoogleMap(
-//                     onMapCreated: _onMapCreated,
-//                     initialCameraPosition: CameraPosition(
-//                       target: LatLng(locationController.latitude.value, locationController.longitude.value),
-//                       zoom: 15.0,
-//                     ),
-//                     myLocationEnabled: true,
-//                     myLocationButtonEnabled: true,
-//                     markers: {
-//                       Marker(
-//                         markerId: MarkerId('center'),
-//                         position: _companyLocation,
-//                         infoWindow: InfoWindow(
-//                           title: "Company Location",
-//                         ),
-//                       ),
-//                     },
-//                   ),
-//                 )),
-//                 SizedBox(height: 10),
-//                 Obx(() => Text(
-//                   locationController.errorMessage.value.isNotEmpty
-//                       ? locationController.errorMessage.value
-//                       : "Checking Your Location...",
-//                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: Colors.black87),
-//                 )),
-//                 SizedBox(height: 10),
-//                 Container(
-//                   height: sizeHeight2 * 0.15,
-//                   width: sizeWidth2,
-//                   decoration: BoxDecoration(
-//                     color: Colors.blue,
-//                     borderRadius: BorderRadius.circular(32),
-//                   ),
-//                   child: TextButton(
-//                     onPressed: () async {
-//                       await locationController.checkAndRequestLocationPermission();
-//
-//                       if (locationController.isUserWithinCompanyRadius(
-//                           _companyLocation.latitude, _companyLocation.longitude, 200)) {
-//                         Get.snackbar(
-//                           "Success",
-//                           "You are within the company location.",
-//                           snackPosition: SnackPosition.BOTTOM,
-//                         );
-//                         // Navigate to Attendance Screen
-//                         Get.off(() => Attendance(id: '13'));
-//                       } else {
-//                         Get.snackbar(
-//                           "Location Error",
-//                           "You are not within the company location radius.",
-//                           snackPosition: SnackPosition.BOTTOM,
-//                         );
-//                       }
-//                     },
-//                     child: Text(
-//                       "Check - In",
-//                       style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18, color: Colors.white),
-//                     ),
-//                   ),
-//                 ),
-//               ],
-//             ),
-//           ),
-//         );
-//       });
-//     });
+//     print('Company marker icon loaded successfully');
+//     return companyIcon;
+//   } catch (e) {
+//     print("Error loading company marker icon: $e");
+//     return BitmapDescriptor.defaultMarker; // Fallback to default marker if loading fails
 //   }
 // }
-import 'dart:async';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
-//todayyyy
+//
+// Future<BitmapDescriptor> getUserMarkerIcon() async {
+//   try {
+//     // Log the asset loading attempt
+//     print('Loading user marker icon...');
+//
+//     BitmapDescriptor userIcon = await BitmapDescriptor.fromAssetImage(
+//       ImageConfiguration(size: Size(48, 48)), // Size of the icon
+//       'lib/assets/user_marker.png', // Path to your user marker icon
+//     );
+//
+//     print('User marker icon loaded successfully');
+//     return userIcon;
+//   } catch (e) {
+//     print("Error loading user marker icon: $e");
+//     return BitmapDescriptor.defaultMarker; // Fallback to default marker if loading fails
+//   }
+// }
 class AttendanceBottomSheet extends StatefulWidget {
   AttendanceBottomSheet({super.key});
 
@@ -373,15 +165,21 @@ class AttendanceBottomSheet extends StatefulWidget {
 }
 
 class _AttendanceBottomSheetState extends State<AttendanceBottomSheet> {
+
   Completer<GoogleMapController> _controller = Completer();
 
   final LocationController locationController = Get.put(LocationController());
+  final AttendanceController attendanceController = Get.put(AttendanceController());
 
   void _onMapCreated(GoogleMapController controller) {
     _controller.complete(controller);
   }
   StreamSubscription<Position>? positionStream;
-@override
+  // BitmapDescriptor? companyIcon;
+  // BitmapDescriptor? userIcon;
+
+
+  @override
 void initState(){
     super.initState();
 
@@ -400,10 +198,44 @@ void initState(){
 
       // Update the distance from the company as the user moves
       locationController.updateDistanceFromCompany();
+   //   _loadMarkerIcons();
     });
 }
-  ProfileEmployeeController profileEmployeeController = Get.put(ProfileEmployeeController());
 
+  // Future<void> _loadMarkerIcons() async {
+  //   companyIcon = await getCompanyMarkerIcon();
+  //   userIcon = await getUserMarkerIcon();
+  //
+  //   // Check if the icons are loaded
+  //   if (companyIcon != null) {
+  //     print("Company marker icon is set.");
+  //   } else {
+  //     print("Company marker icon is null.");
+  //   }
+  //
+  //   if (userIcon != null) {
+  //     print("User marker icon is set.");
+  //   } else {
+  //     print("User marker icon is null.");
+  //   }
+  //
+  // //  setState(() {}); // Ensure the UI updates after loading
+  // }
+  ProfileEmployeeController profileEmployeeController = Get.put(ProfileEmployeeController());
+  final MarkerController markerController = Get.put(MarkerController());
+  // Future<BitmapDescriptor> getCompanyMarkerIcon() async {
+  //   return await BitmapDescriptor.fromAssetImage(
+  //     ImageConfiguration(size: Size(48, 48)), // Size of the icon
+  //     'lib/assets/company.png', // Path to your company marker icon
+  //   );
+  // }
+  //
+  // Future<BitmapDescriptor> getUserMarkerIcon() async {
+  //   return await BitmapDescriptor.fromAssetImage(
+  //     ImageConfiguration(size: Size(48, 48)), // Size of the icon
+  //     'lib/assets/user_marker.png', // Path to your user marker icon
+  //   );
+  // }
   @override
   Widget build(BuildContext context) {
     LatLng _companyLocation = LatLng(locationController.companyLatitude.value,locationController.companyLongitude.value); // Company LatLng
@@ -458,15 +290,17 @@ void initState(){
                     },
                     markers: {
                       Marker(
-                        markerId: MarkerId('center'),
+                        markerId: MarkerId('company'),
                         position: _companyLocation,
+                        icon:markerController.companyIcon.value ?? BitmapDescriptor.defaultMarker,
                         infoWindow: InfoWindow(
                           title: "Company Location",
                         ),
                       ),
                       Marker(
-                        markerId: MarkerId('user location'),
+                        markerId: MarkerId('user'),
                         position: LatLng(locationController.latitude.value,locationController.longitude.value),
+                        icon: markerController.userIcon.value ?? BitmapDescriptor.defaultMarker,
                         infoWindow: InfoWindow(
                           title: "User Location",
                         ),
@@ -506,22 +340,10 @@ void initState(){
                     onPressed: () async {
                       // Request location permission and fetch current location
                        locationController.checkAndRequestLocationPermission();
-                      // await profileEmployeeController.getprofileemployeeModel?.data?.userid;
-                      // print("userIIDDD:${profileEmployeeController.getprofileemployeeModel?.data?.userid}");
-                      // Check if the user is within the 200-meter radius
                       if (locationController.isUserWithinCompanyRadius(
                           locationController.companyLatitude.value,
                           locationController.companyLongitude.value,
                           locationController.companyLocationModel!.data!.radious.toString())) {
-
-                        // Show a success message if within the radius
-                        // Get.snackbar(
-                        //   "Success",
-                        //   "You are within the company location.",
-                        //   snackPosition: SnackPosition.BOTTOM,
-                        // );
-                        // Navigate to the Attendance Screen
-                       // Get.off(() => Attendance(id: '13'));
                       } else {
                         // Show an error message if not within the radius
                         Get.snackbar(
@@ -531,11 +353,10 @@ void initState(){
                         );
                       }
                       print("checkkk");
-                      await locationController.checkInApi(
-                          // locationController.latitude.value,
-                          // locationController.longitude.value,
-                        //  profileEmployeeController.getprofileemployeeModel?.data?.userid
-                      );
+                      await locationController.checkInApi();
+                      await Future.delayed(Duration(seconds: 2));
+                      await attendanceController.AttendanceDetailApi();
+                      print("attDetail:${attendanceController.attendanceDetailsModel?.data?.officeHour}");
                       print("checkkk innn");
                     },
 

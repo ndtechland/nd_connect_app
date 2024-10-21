@@ -6,6 +6,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
+import 'package:nd_connect_techland/controllers/about_company_controller.dart';
+import 'package:nd_connect_techland/controllers/faq_controller.dart';
 import 'package:nd_connect_techland/modules/all_pages/events/events_calender.dart';
 import 'package:nd_connect_techland/modules/all_pages/pages/emploree_pages/profile_employee/employee_bank_nd.dart';
 import 'package:nd_connect_techland/modules/all_pages/pages/emploree_pages/profile_employee/profile_employee.dart';
@@ -52,9 +54,10 @@ class EmployeeNavBar extends StatelessWidget {
 
   AllSalarySlipController _allsalaryslipController = Get.put(AllSalarySlipController());
 
-  SupportEmployeeController _supportEmployeeController = Get.put(SupportEmployeeController());
+  AboutCompanyController aboutCompanyController = Get.put(AboutCompanyController());
   final EmployeeUpdatePersonalController _employeeUpdatePersonalController = Get.put(EmployeeUpdatePersonalController());
   HomedashboardController _homedashboardController = Get.put(HomedashboardController());
+  FaqController faqController = Get.put(FaqController());
 
   final snackBarDuration = Duration(seconds: 3); // Define your desired duration
   bool loading = false;
@@ -80,7 +83,8 @@ class EmployeeNavBar extends StatelessWidget {
         throw 'Could not launch $_aboudNdConnectUrl';
       }
     }
-    final Uri _aboudCompanyUrl = Uri.parse('https://connect.ndtechland.com/Ourstory');
+    final Uri _aboudCompanyUrl = Uri.parse('${aboutCompanyController.aboutCompanyModel?.data?.companylink}');
+    print("_aboudCompanyUrl:$_aboudCompanyUrl");
     Future<void> _launchCompanyUrl() async {
       if (!await launchUrl(_aboudCompanyUrl)) {
         throw 'Could not launch $_aboudCompanyUrl';
@@ -135,11 +139,7 @@ class EmployeeNavBar extends StatelessWidget {
                             //     0.05, // 20% of screen height if not provided
                             // width: MediaQuery.of(context).size.width * 0.09,
                             //                                    "${_getprofileepersonal.getprofileemployeeModel?.data?.personalEmailAddress}",
-                            child: _profileEmployeeController
-                                        .getprofileemployeeModel
-                                        ?.data
-                                        ?.empProfile !=
-                                    null
+                            child: _profileEmployeeController.getprofileemployeeModel?.data?.empProfile != null
                                 ? Image.network(
                                     // "${FixedText.apiurl2}"
                                     "${FixedText.imageUrlll}${_profileEmployeeController.getprofileemployeeModel?.data?.empProfile}",
@@ -447,7 +447,7 @@ class EmployeeNavBar extends StatelessWidget {
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.picture_as_pdf),
+                leading: const Icon(Icons.edit_document),
                 title: const Text('Appointment Letter'),
                 onTap: () async {
                   Get.dialog(CustomThreeInOutLoader(),
@@ -610,17 +610,19 @@ class EmployeeNavBar extends StatelessWidget {
               ListTile(
                 leading: const Icon(Icons.question_mark_sharp),
                 title: const Text('FAQs'),
-                onTap: () {
-                  Navigator.push(
+                onTap: ()async {
+                  await faqController.FaqApi();
+                 await Navigator.push(
                       context, MaterialPageRoute(builder: (context) => Faqs()));
                   //Faqs();
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.business_sharp),
+                leading: const Icon(Icons.add_business_rounded),
                 title: const Text('About Company'),
-                onTap: () {
-                  _launchCompanyUrl();
+                onTap: () async{
+                await  aboutCompanyController.AboutCompanyApi();
+                 await _launchCompanyUrl();
                   Get.back();
 
                 },

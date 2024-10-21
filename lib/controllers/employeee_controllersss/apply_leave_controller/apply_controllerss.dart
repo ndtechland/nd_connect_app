@@ -22,10 +22,10 @@ class LeaveApplyController extends GetxController {
   ///todo: leave Type..
   Rx<GetLeaveList?> selectedtypeenddropdown = (null as GetLeaveList?).obs;
   RxList<GetLeaveList> leaveTypeend = <GetLeaveList>[].obs;
-
+  LeaveDropdownModels? leaveDropdownModels;
   // Method to fetch leave categories from API
   // Method to fetch leave categories from API
-  void getCatLeavecatApi() async {
+  Future<void> getCatLeavecatApi() async {
     try {
       // Indicate loading state
       isLoading(true);

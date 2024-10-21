@@ -1,13 +1,22 @@
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:nd_connect_techland/models/leaves_detail_model.dart';
+import 'package:nd_connect_techland/models/total_leaves_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../services_apis/api_servicesss.dart';
 class TotalLeavesDateController extends GetxController {
+  final isLoading = false.obs;
   // Initialize selectedDate with the current date
   var selectedDate = DateTime.now().obs;
   //var selectedDate = Rxn<DateTime>();
-
+  TotalLeavesModel? totalLeavesModel;
+  LeavesDetailModel? leavesDetailModel;
   // List of tasks for the selected date
   var leaveList = <TotalLeavesDate>[].obs;
+  RxList<Type> foundLeaves = RxList<Type>([]);
+  var leaveData = {}.obs;
+
   var selectedLeaveIndex = (-1).obs; // New observable to track selected index
 
   // All tasks (this would typically come from a data source)
@@ -26,8 +35,61 @@ class TotalLeavesDateController extends GetxController {
     // Select the nearest TotalLeavesDate date
     selectNearestLeaveDate();
     leaveList.addAll(allLeave);
+    TotalLeaveApi();
+  }
+  Future<void> TotalLeaveApi() async{
+    isLoading.value = true;
+    try{
+      totalLeavesModel= await ApiProvider.TotalLeaves();
+      if(totalLeavesModel?.data?.totalLeaves==null){
+        print("total leaves null");
+        isLoading(true);
+        totalLeavesModel= await ApiProvider.TotalLeaves();
+      }
+      if(totalLeavesModel?.data?.totalLeaves!=null) {
+        print("total leaves :${totalLeavesModel?.data}");
+        foundLeaves.value = totalLeavesModel!.data!.type!;
+
+        isLoading(false);
+      }
+      isLoading(false);
+
+    }catch(e){
+      print("Error fetching total leaves:$e");
+
+    }
   }
 
+  void filterLeaves(String TotalLeavesName) {
+    List<Type>? finalResult = [];
+    if (TotalLeavesName.isEmpty) {
+      finalResult = totalLeavesModel!.data?.type;
+    } else {
+      finalResult = totalLeavesModel!.data!.type
+          ?.where((element) => element.leaveapplydate!
+          .toLowerCase()
+          .contains(TotalLeavesName.toLowerCase().trim()))
+          .toList();
+    }
+    foundLeaves.value = finalResult!;
+    print('Filtered leave: ${foundLeaves.length}');
+  }
+
+  Future<void> fetchLeavesData(int idd) async {
+    isLoading(true);
+    try {
+      leavesDetailModel = await ApiProvider.getLeavesDetail(idd);
+      // if (response['succeeded']) {
+      //   leaveData.value = response['data'];
+      // } else {
+      //   Get.snackbar('Error', response['message']);
+      // }
+    } catch (error) {
+      Get.snackbar('Error', 'An error occurred: $error');
+    } finally {
+      isLoading(false);
+    }
+  }
   void selectDate(DateTime date) {
     selectedDate.value = date;
     // Update TotalLeavesDate list based on selected date

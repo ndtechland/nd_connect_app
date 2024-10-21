@@ -11,8 +11,20 @@ import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'package:logging/logging.dart';
+import 'package:nd_connect_techland/controllers/attendance_controller.dart';
+import 'package:nd_connect_techland/controllers/location_controller.dart';
+import 'package:nd_connect_techland/models/about_company_model.dart';
+import 'package:nd_connect_techland/models/attendance_activity_model.dart';
+import 'package:nd_connect_techland/models/attendance_model.dart';
 import 'package:nd_connect_techland/models/company_location_model.dart';
+import 'package:nd_connect_techland/models/current_month_attendance_model.dart';
+import 'package:nd_connect_techland/models/faq_model.dart';
+import 'package:nd_connect_techland/models/leaves_detail_model.dart';
+import 'package:nd_connect_techland/models/task_history_model.dart';
+import 'package:nd_connect_techland/models/task_model.dart';
+import 'package:nd_connect_techland/models/total_attendance_model.dart';
 import 'package:nd_connect_techland/modules/all_pages/attendance/attendance.dart';
+import 'package:nd_connect_techland/modules/all_pages/total_attendance/current_month_attendance.dart';
 import 'package:nd_connect_techland/modules/bottom_bar/bottom_bar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -35,6 +47,7 @@ import '../models/employee_model/profile_model/profileUpdateEmployeeModel.dart';
 import '../models/employee_model/profile_model/profile_basic_detail_model.dart';
 import '../models/employee_model/profile_model/profile_info_model_personal.dart';
 import '../models/employee_model/support_comman_model.dart';
+import '../models/events_model.dart';
 import '../models/job_description_by_job_id.dart';
 import '../models/job_list_bycat_id_model.dart';
 import '../models/profile_model.dart';
@@ -42,6 +55,7 @@ import '../models/related_job_byjobId.dart';
 import '../models/saved_job_model.dart';
 import '../models/state_model.dart';
 import '../models/testimonial_model.dart';
+import '../models/total_leaves_model.dart';
 import '../modules/all_pages/pages/bookmark.dart';
 import '../modules/all_pages/pages/home.dart';
 import '../modules/all_pages/pages/login.dart';
@@ -51,7 +65,8 @@ var prefs = GetStorage();
 final box = GetStorage();
 
 final LoginController _loginController = Get.put(LoginController());
-
+final AttendanceController atteControler = Get.put(AttendanceController());
+final LocationController locationController = Get.put(LocationController());
 EmployeeLoginController _employeeloginController =
     Get.put(EmployeeLoginController());
 
@@ -849,7 +864,7 @@ static var baseUrl = FixedText.apiurl;
   }
 
   static Future<List<StateModelss>> getSatesApi1() async {
-    var url = "https://api.ndtechland.com/api/EmployeeApi/Getstate";
+    var url = "${baseUrl}EmployeeApi/Getstate";
     try {
       http.Response response = await http.get(Uri.parse(url));
       if (response.statusCode == 200) {
@@ -868,7 +883,8 @@ static var baseUrl = FixedText.apiurl;
     }
   }
 
-  ///todo: city by stste id...
+
+///todo: city by stste id...
   static Future<List<CityModell>> getCitiesApi(int stateID) async {
     var url = "https://api.ndtechland.com/api/EmployeeApi/getcity?stateid=$stateID";
     try {
@@ -961,9 +977,11 @@ static var baseUrl = FixedText.apiurl;
 
       return r;
     } else if (r.statusCode == 401) {
-      Get.snackbar('Message', 'Unauthorized: ${r.body}');
+      Get.snackbar('Message', 'Invalid UserName or Password',backgroundColor: Colors.red,colorText: Colors.white);
+    } else if (r.statusCode == 400) {
+      Get.snackbar('Message', 'Invalid UserName or Password',backgroundColor: Colors.red,colorText: Colors.white);
     } else {
-      Get.snackbar('Error', 'Error: ${r.body}');
+      Get.snackbar('Error', 'Error: ${r.body}',backgroundColor: Colors.red,colorText: Colors.white);
     }
 
     return r;
@@ -1314,7 +1332,6 @@ static var baseUrl = FixedText.apiurl;
     }
   }
 
-
 ///todo:ApplyLeave Api
   static Future<http.Response> ApplyLeave(Map<String, String> formData) async {
     var uri = Uri.parse("${baseUrl}LeaveStructure/EmployeeApplyLeave");
@@ -1379,6 +1396,7 @@ static var baseUrl = FixedText.apiurl;
 
     return httpResponse;
   }
+
 
 ///todo:updatePersonal1 Api
   static Future<http.Response> updatePersonal1(Map<String, String> formData,
@@ -1789,7 +1807,6 @@ static var baseUrl = FixedText.apiurl;
     }
   }
 
-
   ///todo:updateBankEmployeeApi Api
   static Future<http.Response> updateBankEmployeeApi(
       Map<String, String> formData,
@@ -1876,7 +1893,7 @@ static var baseUrl = FixedText.apiurl;
     return httpResponse;
   }
 
-  ///todo: update profile picture....employee....
+  ///todo: update profile picture....employee..
   static String apiUrl9 = "${baseUrl}EmployeeApi/EmpUpdateprofilepicture";
 
   ///todo:forgotPassword Api sonali
@@ -2218,7 +2235,8 @@ static var baseUrl = FixedText.apiurl;
         print("checkIn Body :${r.body}");
         print("checkIn :${r.statusCode}");
         var responseData = json.decode(r.body);
-        await Future.delayed(Duration(seconds: 1));
+        await Future.delayed(Duration(seconds: 2));
+        await atteControler.AttendanceDetailApi();
         Get.offAll(() => Attendance(id: "13"));
 
         // Show success toast
@@ -2272,6 +2290,123 @@ static var baseUrl = FixedText.apiurl;
       toastLength: Toast.LENGTH_LONG,
       gravity: ToastGravity.BOTTOM,
     );
+
+    return null;}
+  }
+
+
+  ///todo:sendLatLang Api
+  static Future<http.Response?> sendLatLang
+      (String CurrentLat,String Currentlong,
+    //  int Userid
+      ) async {
+    var prefs = GetStorage();
+
+    // Read saved user id and token
+    userId = prefs.read("userid").toString();
+    print('wwwuserid: $userId');
+
+    String token = GetStorage().read("token").toString();
+    var checkInUrl = "${baseUrl}EmployeeApi/EmployeeCheckIn";
+    // String employeeId = prefs.read("userid").toString();
+    print('useridddd:$userId');
+    var body = jsonEncode({
+      "CurrentLat": CurrentLat,
+      "Currentlong": Currentlong,
+      "Userid": userId,
+    });
+    print("checkin body:$body");
+    try{
+      http.Response r = await http.post(
+        Uri.parse(checkInUrl),
+        body: body,
+        headers: {
+          'Authorization': 'Bearer $token',
+          "Content-Type": "application/json",
+        },
+      );
+      print(r.body);
+
+      return r;
+    } catch(error) { print('Network error: $error');
+
+    return null;}
+  }
+
+  ///todo:breakIn Api
+  static Future<http.Response?> breakIn
+      (String CurrentLat,String Currentlong,bool breakIn
+    //  int Userid
+      ) async {
+    var prefs = GetStorage();
+
+    // Read saved user id and token
+    userId = prefs.read("userid").toString();
+    print('wwwuserid: $userId');
+
+    String token = GetStorage().read("token").toString();
+    var checkInUrl = "${baseUrl}EmployeeApi/EmployeeCheckIn";
+    // String employeeId = prefs.read("userid").toString();
+    print('useridddd:$userId');
+    var body = jsonEncode({
+      "CurrentLat": CurrentLat,
+      "Currentlong": Currentlong,
+      "Userid": userId,
+      "Breakin":breakIn,
+    });
+    print("Breakin body:$body");
+    try{
+      http.Response r = await http.post(
+        Uri.parse(checkInUrl),
+        body: body,
+        headers: {
+          'Authorization': 'Bearer $token',
+          "Content-Type": "application/json",
+        },
+      );
+      print(r.body);
+
+      return r;
+    } catch(error) { print('Network error: $error');
+
+    return null;}
+  }
+
+  ///todo:breakOut Api
+  static Future<http.Response?> breakOut
+      (String CurrentLat,String Currentlong,bool breakOutt
+    //  int Userid
+      ) async {
+    var prefs = GetStorage();
+
+    // Read saved user id and token
+    userId = prefs.read("userid").toString();
+    print('wwwuserid: $userId');
+
+    String token = GetStorage().read("token").toString();
+    var checkInUrl = "${baseUrl}EmployeeApi/EmployeeCheckIn";
+    // String employeeId = prefs.read("userid").toString();
+    print('useridddd:$userId');
+    var body = jsonEncode({
+      "CurrentLat": CurrentLat,
+      "Currentlong": Currentlong,
+      "Userid": userId,
+      "Breakout":breakOutt,
+    });
+    print("BreakOut body:$body");
+    try{
+      http.Response r = await http.post(
+        Uri.parse(checkInUrl),
+        body: body,
+        headers: {
+          'Authorization': 'Bearer $token',
+          "Content-Type": "application/json",
+        },
+      );
+      print(r.body);
+
+      return r;
+    } catch(error) { print('Network error: $error');
 
     return null;}
   }
@@ -2362,6 +2497,605 @@ static var baseUrl = FixedText.apiurl;
   return null;}
   }
 
+  ///todo: taskAssign Api
+  static Future<List<TasksModells>> getTaskAssign() async {
+    var taskUrl = '${baseUrl}EmployeeApi/EmpTasksassign';
+    token = prefs.read("token").toString();
+    print('token: $token');
+    try {
+      Map<String, String> headers = {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json'
+      };
+      print("taskUrl:${taskUrl}");
+      http.Response response = await http.get(Uri.parse(taskUrl),headers: headers);
+      if (response.statusCode == 200) {
+        print("taskUrl:200");
+        var jsonResponse = jsonDecode(response.body);
+        if (jsonResponse['data'] != null) {
+          print("tasksssss:${jsonResponse['data']}");
+          return (jsonResponse['data'] as List)
+              .map((item) => TasksModells.fromJson(item))
+              .toList();
+
+        }
+      }
+      return [];
+    } catch (error) {
+      print('Error fetching tasks: $error');
+      return [];
+    }
+  }
+
+  ///todo: taskDetail Api
+  static Future<Map<String, dynamic>> getTaskDetail(int id) async {
+    final url = Uri.parse('${baseUrl}EmployeeApi/EmpTasksassignbyid?id=$id');
+    token = prefs.read("token").toString();
+    print('token: $token');
+    try {
+      Map<String, String> headers = {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json'
+      };
+      final response = await http.get(url,headers: headers);
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        return {
+          'succeeded': false,
+          'statusCode': response.statusCode,
+          'status': 'Error',
+          'message': 'Failed to fetch data.'
+        };
+      }
+    } catch (error) {
+      return {
+        'succeeded': false,
+        'statusCode': 500,
+        'status': 'Error',
+        'message': 'An error occurred: $error'
+      };
+    }
+  }
+
+
+  ///todo:empTaskAssign Api
+  static Future<http.Response> TaskAssignApi(Map<String, String> formData) async {
+    var uri = Uri.parse("${baseUrl}EmployeeApi/AddEmpTasksassign");
+    var request = http.MultipartRequest('POST', uri);
+
+    // Print form data
+    print('Form Data Task Assign:');
+    formData.forEach((key, value) {
+      print('$key: $value');
+      request.fields[key] = value;
+    });
+    // Add form fields
+    formData.forEach((key, value) {
+      request.fields[key] = value;
+    });
+
+    ///token
+    String token = GetStorage().read("token").toString();
+
+    // Add headers
+    request.headers['Authorization'] = 'Bearer $token';
+
+    // Send the request
+    var response = await request.send();
+
+    // Parse the response
+    var httpResponse = await http.Response.fromStream(response);
+    // Print the entire response body
+    print('Response body EMpTaskAssign: ${httpResponse.body}');
+    if (httpResponse.statusCode == 200) {
+      print('Response body200 TaskAssign: ${httpResponse.body}');
+
+      Fluttertoast.showToast(
+        msg: "Apply Leave successfully!",
+        backgroundColor: Colors.green,
+        textColor: Colors.white,
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.CENTER,
+      );
+    } else if (httpResponse.statusCode == 501){
+      Fluttertoast.showToast(
+        msg: "Leave Already Applied",
+        backgroundColor: Colors.green,
+        textColor: Colors.white,
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.CENTER,
+      );
+    }
+    else {
+      print('Failed to apply Leave. Status code: ${httpResponse.statusCode}');
+
+      Fluttertoast.showToast(
+        msg: "Failed to apply Leave. Status code: ${httpResponse.statusCode}",
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.BOTTOM,
+      );
+    }
+
+    return httpResponse;
+  }
+
+  ///todo:subTaskCompleted Api
+  static Future<http.Response> subTaskCompleted(Map<String, int> formData) async {
+    var uri = Uri.parse("${baseUrl}EmployeeApi/SubTaskCompleted");
+    var request = http.MultipartRequest('POST', uri);
+
+    // Print form data
+    print('Form Data sub Task completed:');
+    formData.forEach((key, value) {
+      print('$key: $value');
+      request.fields[key] = value.toString();
+    });
+    // Add form fields
+    ///token
+    String token = GetStorage().read("token").toString();
+
+    // Add headers
+    request.headers['Authorization'] = 'Bearer $token';
+
+    // Send the request
+    var response = await request.send();
+
+    // Parse the response
+    var httpResponse = await http.Response.fromStream(response);
+    // Print the entire response body
+    print('Response body subTask: ${httpResponse.body}');
+    if (httpResponse.statusCode == 200) {
+      print('Response body200 subTask: ${httpResponse.body}');
+
+      Fluttertoast.showToast(
+        msg: "Task Submitted successfully!",
+        backgroundColor: Colors.green,
+        textColor: Colors.white,
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.CENTER,
+      );
+    } else if (httpResponse.statusCode == 501){
+      Fluttertoast.showToast(
+        msg: "Task Submitted Already",
+        backgroundColor: Colors.green,
+        textColor: Colors.white,
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.CENTER,
+      );
+    }
+    else {
+      print('Failed to Task Submitted. Status code: ${httpResponse.statusCode}');
+
+      Fluttertoast.showToast(
+        msg: "Failed to Task Submitted. Status code: ${httpResponse.statusCode}",
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.BOTTOM,
+      );
+    }
+    return httpResponse;
+  }
+
+
+  ///todo:TaskCompleted Api
+  static Future<http.Response> TaskCompleted(Map<String, int> formData) async {
+    var uri = Uri.parse("${baseUrl}EmployeeApi/CompletedTasksassign");
+    var request = http.MultipartRequest('POST', uri);
+
+    // Print form data
+    print('Form Data Task completed:');
+    formData.forEach((key, value) {
+      print('$key: $value');
+      request.fields[key] = value.toString();
+    });
+    // Add form fields
+    ///token
+    String token = GetStorage().read("token").toString();
+
+    // Add headers
+    request.headers['Authorization'] = 'Bearer $token';
+
+    // Send the request
+    var response = await request.send();
+
+    // Parse the response
+    var httpResponse = await http.Response.fromStream(response);
+    // Print the entire response body
+    print('Response body TaskCompleted: ${httpResponse.body}');
+    if (httpResponse.statusCode == 200) {
+      print('Response body200 TaskCompleted: ${httpResponse.body}');
+
+      Fluttertoast.showToast(
+        msg: "Task Completed successfully!",
+        backgroundColor: Colors.green,
+        textColor: Colors.white,
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.CENTER,
+      );
+    } else if (httpResponse.statusCode == 501){
+      Fluttertoast.showToast(
+        msg: "Task Completed Already",
+        backgroundColor: Colors.green,
+        textColor: Colors.white,
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.CENTER,
+      );
+    }
+    else {
+      print('Failed to TaskCompleted. Status code: ${httpResponse.statusCode}');
+
+      Fluttertoast.showToast(
+        msg: "Failed to Task Completed. Status code: ${httpResponse.statusCode}",
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.BOTTOM,
+      );
+    }
+    return httpResponse;
+  }
+
+
+  ///todo:UnCompletedTask Api
+  static Future<http.Response> UnCompletedTask(Map<String, String> formData) async {
+    var uri = Uri.parse("${baseUrl}EmployeeApi/UnCompletedTasksassign");
+    var request = http.MultipartRequest('POST', uri);
+
+    // Print form data
+    print('Form Data Task Uncompleted:');
+    formData.forEach((key, value) {
+      print('$key: $value');
+      request.fields[key] = value.toString();
+    });
+    // Add form fields
+    ///token
+    String token = GetStorage().read("token").toString();
+
+    // Add headers
+    request.headers['Authorization'] = 'Bearer $token';
+
+    // Send the request
+    var response = await request.send();
+
+    // Parse the response
+    var httpResponse = await http.Response.fromStream(response);
+    // Print the entire response body
+    print('Response body UnCompleted: ${httpResponse.body}');
+    if (httpResponse.statusCode == 200) {
+      print('Response body200 UnCompleted: ${httpResponse.body}');
+
+      Fluttertoast.showToast(
+        msg: "UnCompleted successfully!",
+        backgroundColor: Colors.green,
+        textColor: Colors.white,
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.CENTER,
+      );
+    }
+    else {
+      print('Failed to post reason. Status code: ${httpResponse.statusCode}');
+
+      Fluttertoast.showToast(
+        msg: "Failed to post reason. Try Again Later",
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.BOTTOM,
+      );
+    }
+    return httpResponse;
+  }
+
+
+  ///todo: EmpAttendancedatail Api
+  static Future<AttendanceDetailsModel?> EmpAttendancedatail() async {
+    var attUrl = '${baseUrl}EmployeeApi/Empattendancedatail';
+    token = prefs.read("token").toString();
+    print('attUrltoken: $token');
+    try {
+      Map<String, String> headers = {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json'
+      };
+      print("attUrl:${attUrl}");
+      http.Response response = await http.get(Uri.parse(attUrl),headers: headers);
+      if (response.statusCode == 200) {
+        print("attUrl:200");
+        AttendanceDetailsModel? attendanceDetailsModel = attendanceDetailsModelFromJson(response.body);
+        print("attendanceData:${
+        attendanceDetailsModel.data?.checkInTime
+        }");
+        return attendanceDetailsModel;
+      }
+      // return null;
+    } catch (error) {
+      print('Error fetching attendance details: $error');
+    }
+    return null;
+  }
+
+  ///todo: AttendanceActivity Api
+  static Future<AttendanceActivityModel?> AttendanceActivityApi() async {
+    var actiUrl = '${baseUrl}EmployeeApi/EmpLoginactivity';
+    token = prefs.read("token").toString();
+    print('actiUrltoken: $token');
+    try {
+      Map<String, String> headers = {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json'
+      };
+      print("actiUrl:${actiUrl}");
+      http.Response response = await http.get(Uri.parse(actiUrl),headers: headers);
+      if (response.statusCode == 200) {
+        print("attUrl:200");
+        AttendanceActivityModel? attendanceActivityModel = attendanceActivityModelFromJson(response.body);
+        print("attendanceActivity:${attendanceActivityModel.data?.checkOut}");
+        return attendanceActivityModel;
+      }
+      // return null;
+    } catch (error) {
+      print('Error fetching attendance details: $error');
+    }
+    return null;
+  }
+
+
+///todo: GetofficeEvents Api
+  static Future<EventsModell?> GetofficeEventsApi() async {
+    var eventsUrl = '${baseUrl}EmployeeApi/GetofficeEvents';
+    token = prefs.read("token").toString();
+    print('eventstoken: $token');
+    try {
+      Map<String, String> headers = {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json'
+      };
+      print("eventstoken:${eventsUrl}");
+      http.Response response = await http.get(Uri.parse(eventsUrl),headers: headers);
+      if (response.statusCode == 200) {
+        print("eventsUrl:200");
+        EventsModell? eventsModel = eventsModellFromJson(response.body);
+        print("eventsss:${eventsModel.data?.map((e)=>e.subtittle)}");
+        return eventsModel;
+      }
+      // return null;
+    } catch (error) {
+      print('Error fetching events details: $error');
+    }
+    return null;
+  }
+
+  ///todo: CurrentMonthAttendance Api
+  static Future<CurrentMonthAttendanceModel?> CurrentMonthAttendance() async {
+    var curAtt = '${baseUrl}EmployeeApi/EmpMonthlyattendanceDetails';
+    token = prefs.read("token").toString();
+    print('curAttToken: $token');
+    try {
+      Map<String, String> headers = {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json'
+      };
+      print("curAtt:${curAtt}");
+      http.Response response = await http.get(Uri.parse(curAtt),headers: headers);
+      if (response.statusCode == 200) {
+        print("curAtt:200");
+        CurrentMonthAttendanceModel? currentMonthAttendanceModel = currentMonthAttendanceModelFromJson(response.body);
+        print("curAttendanceData:${
+            currentMonthAttendanceModel.data?.attendance
+        }");
+        return currentMonthAttendanceModel;
+      }
+      // return null;
+    } catch (error) {
+      print('Error fetching attendance details: $error');
+    }
+    return null;
+  }
+
+
+  ///todo: TotalLeaves Api
+  static Future<TotalLeavesModel?> TotalLeaves() async {
+    var totalLeave = '${baseUrl}EmployeeApi/EmpTotalLeaves';
+    token = prefs.read("token").toString();
+    print('totalLeaveToken: $token');
+    try {
+      Map<String, String> headers = {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json'
+      };
+      print("totalLeave:${totalLeave}");
+      http.Response response = await http.get(Uri.parse(totalLeave),headers: headers);
+      if (response.statusCode == 200) {
+        print("totalLeave:200");
+        TotalLeavesModel? totalLeavesModel = totalLeavesModelFromJson(response.body);
+        print("totalLeaveData:${
+            totalLeavesModel.data?.type
+        }");
+        return totalLeavesModel;
+      }
+      // return null;
+    } catch (error) {
+      print('Error fetching total leaves: $error');
+    }
+    return null;
+  }
+
+
+  ///todo: getLeavesDetail Api
+  static Future<LeavesDetailModel?> getLeavesDetail(int id) async {
+    final url = Uri.parse('${baseUrl}EmployeeApi/EmpTotalLeavesbyid?id=$id');
+    token = prefs.read("token").toString();
+    print('token: $token');
+    try {
+      Map<String, String> headers = {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json'
+      };
+      final response = await http.get(url,headers: headers);
+      if (response.statusCode == 200) {
+        LeavesDetailModel? leaveDetaill = leavesDetailModelFromJson(response.body);
+        return leaveDetaill;
+      }
+    } catch (error) {
+      print('Error fetching total leaves detail: $error');
+    }
+    return null;
+  }
+
+  ///todo: AttendanceGraph Api
+  static Future<List<TotalAttendanceData>> AttendanceGraph() async {
+    var attGraphUrl = '${baseUrl}EmployeeApi/EmpattendanceGraph';
+    token = prefs.read("token").toString();
+    print('attGraph token: $token');
+    try {
+      Map<String, String> headers = {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json'
+      };
+      print("attGraphUrl:${attGraphUrl}");
+      http.Response response = await http.get(Uri.parse(attGraphUrl),headers: headers);
+      if (response.statusCode == 200) {
+        print("attGraph:200");
+        var jsonResponse = jsonDecode(response.body);
+        if (jsonResponse['data'] != null) {
+          print("attGraph:${jsonResponse['data']}");
+          return (jsonResponse['data'] as List)
+              .map((item) => TotalAttendanceData.fromJson(item))
+              .toList();
+
+        }
+      }
+      return [];
+    } catch (error) {
+      print('Error fetching attGraph: $error');
+      return [];
+    }
+  }
+
+  ///todo: TaskHistory Api
+  static Future<TaskHistoryModel?> TaskHistory() async {
+    var taskHis = '${baseUrl}EmployeeApi/EmpTasklist';
+    token = prefs.read("token").toString();
+    print('taskHistoryToken: $token');
+    try {
+      Map<String, String> headers = {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json'
+      };
+      print("taskHis:${taskHis}");
+      http.Response response = await http.get(Uri.parse(taskHis),headers: headers);
+      if (response.statusCode == 200) {
+        print("taskHis:200");
+        TaskHistoryModel? taskHistoryModel = taskHistoryModelFromJson(response.body);
+        print("taskHis:${
+            taskHistoryModel.data?.completed?.map((e)=>e.taskname)
+        }");
+      //  Get.to(()=>TaskHistory());
+        return taskHistoryModel;
+      }
+      // return null;
+    } catch (error) {
+      print('Error fetching taskkkk history: $error');
+    }
+    return null;
+  }
+
+  ///todo: getTaskHisDetail Api
+  static Future<Map<String, dynamic>> getTaskHisDetail(int id) async {
+    final url = Uri.parse('${baseUrl}EmployeeApi/EmpSubTasklist?SubTaskid=$id');
+    token = prefs.read("token").toString();
+    print('token: $token');
+    try {
+      Map<String, String> headers = {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json'
+      };
+      final response = await http.get(url,headers: headers);
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        return {
+          'succeeded': false,
+          'statusCode': response.statusCode,
+          'status': 'Error',
+          'message': 'Failed to fetch data.'
+        };
+      }
+    } catch (error) {
+      return {
+        'succeeded': false,
+        'statusCode': 500,
+        'status': 'Error',
+        'message': 'An error occurred: $error'
+      };
+    }
+  }
+
+  ///todo: GetFaq Api
+  static Future<List<FaqData>> GetFaq() async {
+    var getFaq = '${baseUrl}EmployeeApi/GeFaq';
+    token = prefs.read("token").toString();
+    print('getFaq token: $token');
+    try {
+      // Map<String, String> headers = {
+      //   'Authorization': 'Bearer $token',
+      //   'Content-Type': 'application/json'
+      // };
+      print("getFaqUrl:${getFaq}");
+      http.Response response = await http.get(Uri.parse(getFaq),);
+      if (response.statusCode == 200) {
+        print("getFaq:200");
+        var jsonResponse = jsonDecode(response.body);
+        if (jsonResponse['data'] != null) {
+          print("getFaq:${jsonResponse['data']}");
+          return (jsonResponse['data'] as List)
+              .map((item) => FaqData.fromJson(item))
+              .toList();
+
+        }
+      }
+      return [];
+    } catch (error) {
+      print('Error fetching FAQ: $error');
+      return [];
+    }
+  }
+
+///todo:aboutCompany Api
+  static Future<AboutCompanyModel?> aboutCompany() async{
+    var comUrl = "${baseUrl}HomeApi/Getaboutcompany";
+    token = prefs.read("token").toString();
+    print('comUrl token: $token');
+    try {
+      Map<String, String> headers = {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json'
+      };
+      print("comUrl:${comUrl}");
+      http.Response response = await http.get(Uri.parse(comUrl),headers: headers);
+      if (response.statusCode == 200) {
+        print("comUrl:200");
+        AboutCompanyModel aboutCompanyModel = aboutCompanyModelFromJson(response.body);
+        // var jsonResponse = jsonDecode(response.body);
+        // if (jsonResponse['data'] != null) {
+        //   print("comUrl:${jsonResponse['data']}");
+        //   return aboutCompanyModel;
+        // }
+        print("comUrl:${aboutCompanyModel.data?.companylink}");
+        return aboutCompanyModel;
+      }
+      // return null;
+    } catch (error) {
+      print('Error fetching FAQ: $error');
+      // return [];
+    }
+  }
+
+
   ///payment get api......
   static EmployeePaymentGetApi() async {
     var prefs = GetStorage();
@@ -2395,6 +3129,20 @@ static var baseUrl = FixedText.apiurl;
       print('GetJobamounteror: $error');
     }
   }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   ///todo: luckysix api
   ///todo: get profile api....game ..3

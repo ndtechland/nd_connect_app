@@ -3,14 +3,14 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:nd_connect_techland/components/styles.dart';
 import 'package:nd_connect_techland/controllers/attendance_controller.dart';
+import 'package:nd_connect_techland/controllers/task_list_controller.dart';
 import 'package:nd_connect_techland/modules/all_pages/attendance/attendance.dart';
-import 'package:nd_connect_techland/services_apis/fcm.dart';
 import 'package:nd_connect_techland/services_apis/notification_service.dart';
-
 import '../../controllers/bottom_nav_controller.dart';
 import '../../controllers/employee_controller/profile_controller/profile_info_employee_controller.dart';
 import '../../controllers/employeee_controllersss/employee_dashboard_controller/employee_dashboardcontroller.dart';
 import '../../controllers/employeee_controllersss/timer_controller.dart';
+import '../../controllers/events_controller.dart';
 import '../../controllers/location_controller.dart';
 import '../../services_apis/local_notification_service.dart';
 import '../../widget/upload_button.dart';
@@ -18,8 +18,6 @@ import '../all_pages/attendance/attendanceBottomSheet.dart';
 import '../all_pages/events/events_calender.dart';
 import '../all_pages/pages/emploree_pages/home_page_employee2.dart';
 import '../all_pages/task/task.dart';
-import '../all_pages/pages/emploree_pages/profile_employee/update_add_profile/personal_information_update.dart';
-import '../all_pages/pages/emploree_pages/support_comman_page.dart';
 import '../all_pages/pages/settings.dart';
 import 'package:get/get.dart';
 
@@ -62,6 +60,8 @@ class _BottomBarState extends State<BottomBar> {
   ValueNotifier<bool> isActive = ValueNotifier<bool>(false);
   ValueNotifier<bool> isLoading = ValueNotifier<bool>(false);
   final DateTimeController dateTimeController = Get.put(DateTimeController());
+  final DateTaskController dateTaskController = Get.put(DateTaskController());
+  final EventsController eventsController = Get.put(EventsController());
 
   @override
   void initState() {
@@ -69,15 +69,22 @@ class _BottomBarState extends State<BottomBar> {
     // Initial data fetching
     dateTimeController.currentTime.value;
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      dateTaskController.TaskAssignApi();
+      print("events: ${eventsController.events}");
+      eventsController.EventsApi();
+      attendanceController.AttendanceDetailApi();
       _homedashboardController.dashboarddApi();
       locationController.fetchCurrentLocation();
+      // locationController.startSendingLocation();
       locationController.getCoordinatesFromAddress();
       locationController.updateDistanceFromCompany();
       notificationService.notificationRequestPermission();
       notificationService.getDeviceToken();
       locationController.fetchCurrentLocation();
       locationController.fetchCompanyLocationApi();
+      locationController.updateDistanceFromCompany();
       attendanceController.fetchAttendanceData();
+      attendanceController.EmpActivityApi();
       LocalNotificationService.initialize(context);
     });
 
@@ -222,24 +229,35 @@ class _BottomBarState extends State<BottomBar> {
             child: GestureDetector(
               onTap: () async {
                 print("Middle button Tapped");
-                // Set loading state
-                isLoading.value = true;
-                isActive.value = true; // Optionally change state for the button
-
-                // Schedule the state updates to run after the build completes
-                WidgetsBinding.instance.addPostFrameCallback((_) async {
-                  await locationController.checkAndRequestLocationPermission();
-                  await locationController.fetchCurrentLocation();
-                  await locationController.fetchCompanyLocationApi();
-                  await locationController.getCoordinatesFromAddress();
-
-                  // Close loading state
-                  isLoading.value = false;
-                  isActive.value = false; // Optionally revert state after action
-
-                  showAttendanceBottomSheet(context);
-                  await locationController.updateDistanceFromCompany();
-                });
+                Get.to(() => Attendance(id: '13'));
+                // Set loading state to true
+                // isLoading.value = true;
+                // isActive.value = true;
+                // try {
+                //   if (attendanceController.attendanceDetailsModel?.data?.loginStatus == "Check-In") {
+                //     await locationController.checkAndRequestLocationPermission();
+                //     Get.to(() => Attendance(id: '13'));
+                //   } else if(attendanceController.attendanceDetailsModel?.data?.loginStatus == "Check-Out") {
+                //     await locationController.checkAndRequestLocationPermission();
+                //     await locationController.fetchCurrentLocation();
+                //     await locationController.fetchCompanyLocationApi();
+                //     await locationController.getCoordinatesFromAddress();
+                //     showAttendanceBottomSheet(context);
+                //
+                //     // Fetch and update distance
+                //     await locationController.updateDistanceFromCompany();
+                //   }
+                //   else{
+                //     Get.to(() => Attendance(id: '13'));
+                //   }
+                // } catch (e) {
+                //   print("Error during attendance process: $e");
+                // } finally {
+                //   // Reset the loading state after operations are complete
+                //   isLoading.value = false;
+                //   isActive.value = false;
+                // }
+                print("login status: ${attendanceController.attendanceActivityModel?.data?.loginStatus}");
               },
               child: ValueListenableBuilder<bool>(
                 valueListenable: isActive,
@@ -262,7 +280,6 @@ class _BottomBarState extends State<BottomBar> {
                             return Center(
                               child: CircularProgressIndicator(
                                 color: appColor2,
-                               // color: Colors.white,
                               ),
                             );
                           } else {
@@ -280,6 +297,7 @@ class _BottomBarState extends State<BottomBar> {
               ),
             ),
           ),
+
         ],
       ),
     );
