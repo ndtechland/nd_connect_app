@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-
 import '../../../../../components/styles.dart';
 import '../../../../../controllers/employeee_controllersss/apply_leave_controller/apply_controllerss.dart';
 import '../../../../../models/employee_model/apply_leave_model_dropdown.dart';
@@ -143,20 +142,16 @@ class MultipleDayLeavePage extends StatelessWidget {
                                                 color: Colors.grey
                                             ),
                                           ),
-                                          value: _leaveApplyController
-                                              .selectedCatDropdown.value,
+                                          value: _leaveApplyController.selectedCatDropdown.value,
                                           decoration: InputDecoration(
                                            // labelText: 'Select Leave Category',
                                             prefixIcon: Icon(Icons.category,color: Colors.orange,),
                                             suffixIcon: Obx(() =>
-                                                _leaveApplyController
-                                                        .isLoading.value
+                                                _leaveApplyController.isLoading.value
                                                     ? CircularProgressIndicator()
                                                     : TextButton(
                                                         clipBehavior: Clip.none,
-                                                        onPressed:
-                                                            _leaveApplyController!
-                                                                .getCatLeavecatApi,
+                                                        onPressed: _leaveApplyController!.getCatLeavecatApi,
                                                         child: Icon(
                                                           Icons.refresh,
                                                           size: 20,
@@ -171,33 +166,25 @@ class MultipleDayLeavePage extends StatelessWidget {
                                             labelStyle: const TextStyle(
                                                 color: Colors.black54,
                                                 fontSize: 15),
-                                            focusedBorder:
-                                                const UnderlineInputBorder(
-                                              borderSide:
-                                                  BorderSide(color: appColor),
+                                            focusedBorder: const UnderlineInputBorder(
+                                              borderSide: BorderSide(color: appColor),
                                             ),
                                           ),
                                           validator: (value) => value == null
                                               ? 'Please Select Leave category'
                                               : null,
                                           onChanged: (newValue) {
-                                            _leaveApplyController
-                                                .selectedCatDropdown
-                                                .value = newValue;
+                                            _leaveApplyController.selectedCatDropdown.value = newValue;
                                           },
-                                          items: _leaveApplyController
-                                              .leaveCategory
-                                              .map((category) {
+                                          items: _leaveApplyController.leaveCategory.map((category) {
                                             return DropdownMenuItem<
                                                 GetLeaveTypeList>(
                                               value: category,
                                               child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.start,
+                                                mainAxisAlignment: MainAxisAlignment.start,
                                                 children: [
                                                   Text(
-                                                    category.leavetype ??
-                                                        'Unknown',
+                                                    category.leavetype ?? 'Unknown',
                                                     style: TextStyle(
                                                         // fontSize:
                                                         //     size.height * 0.02,
@@ -206,16 +193,13 @@ class MultipleDayLeavePage extends StatelessWidget {
                                                         //      FontWeight.bold
                                                         ),
                                                   ), // Displaying Leave Type
-                                                  SizedBox(
-                                                      width: size.width * 0.3),
+                                                  SizedBox(width: size.width * 0.25),
                                                   Text(
                                                     "${category.leaveValue != null ? category.leaveValue.toString() : 'Unknown'}  Left",
                                                     style: TextStyle(
-                                                        fontSize:
-                                                            size.height * 0.02,
+                                                        fontSize: size.height * 0.02,
                                                         color: appColor,
-                                                        fontWeight:
-                                                            FontWeight.normal),
+                                                        fontWeight: FontWeight.normal),
                                                   ), // Displaying Leave Value
                                                 ],
                                               ),
@@ -310,21 +294,16 @@ class MultipleDayLeavePage extends StatelessWidget {
                                           borderRadius:
                                               BorderRadius.circular(10),
                                           iconEnabledColor: appColor,
-                                          value: _leaveApplyController
-                                              .selectedtypeenddropdown.value,
+                                          value: _leaveApplyController.selectedtypeenddropdown.value,
                                           decoration: InputDecoration(
                                             // labelText: 'Leave Type For End',
                                             prefixIcon: Icon(Icons.free_cancellation,color: Colors.cyan,),
-
                                             suffixIcon: Obx(() =>
-                                                _leaveApplyController
-                                                        .isLoading.value
+                                                _leaveApplyController.isLoading.value
                                                     ? CircularProgressIndicator()
                                                     : TextButton(
                                                         clipBehavior: Clip.none,
-                                                        onPressed:
-                                                            _leaveApplyController!
-                                                                .getLeavetypeEndApi,
+                                                        onPressed: _leaveApplyController!.getLeavetypeEndApi,
                                                         child: Icon(
                                                           Icons.refresh,
                                                           size: 20,
@@ -339,28 +318,21 @@ class MultipleDayLeavePage extends StatelessWidget {
                                             labelStyle: const TextStyle(
                                                 color: Colors.black54,
                                                 fontSize: 15),
-                                            focusedBorder:
-                                                const UnderlineInputBorder(
-                                              borderSide:
-                                                  BorderSide(color: appColor),
+                                            focusedBorder: const UnderlineInputBorder(
+                                              borderSide: BorderSide(color: appColor),
                                             ),
                                           ),
                                           validator: (value) => value == null
                                               ? 'Please Select End Leave Type'
                                               : null,
                                           onChanged: (newValue) {
-                                            _leaveApplyController
-                                                .selectedtypeenddropdown
-                                                .value = newValue;
+                                            _leaveApplyController.selectedtypeenddropdown.value = newValue;
                                           },
-                                          items: _leaveApplyController
-                                              .leaveTypeend
-                                              .map((type) {
+                                          items: _leaveApplyController.leaveTypeend.map((type) {
                                             return DropdownMenuItem<
                                                 GetLeaveList>(
                                               value: type,
-                                              child: Text(type.typeofleave ??
-                                                  'Unknown'),
+                                              child: Text(type.typeofleave ?? 'Unknown'),
                                             );
                                           }).toList(),
                                         )),
@@ -464,40 +436,14 @@ class MultipleDayLeavePage extends StatelessWidget {
                                     SizedBox(height: 30),
                                     MyElevatedButton(
                                       onPressed: () async {
-                                        if (_leaveApplyController
-                                                .leaveapplysignupKey
-                                                .currentState
-                                                ?.validate() ??
-                                            false) {
-                                          if (_leaveApplyController
-                                                  .selectedCatDropdown
-                                                  .value!
-                                                  .id !=
-                                              null) {
+                                        if (_leaveApplyController.leaveapplysignupKey.currentState?.validate() ?? false) {
+                                          if (_leaveApplyController.selectedCatDropdown.value!.id != null) {
                                             _leaveApplyController.applyLeave(
-                                              typeOfLeaveId:
-                                                  _leaveApplyController
-                                                      .selectedCatDropdown
-                                                      .value!
-                                                      .id
-                                                      .toString(),
-                                              startLeaveId:
-                                                  _leaveApplyController
-                                                      .selectedtypedropdown
-                                                      .value!
-                                                      .id
-                                                      .toString(),
-
-                                              endeaveId: _leaveApplyController
-                                                  .selectedtypeenddropdown
-                                                  .value!
-                                                  .id
-                                                  .toString(),
-                                              startDate:
-                                                  _startleavedateController
-                                                      .text,
-                                              endDate:
-                                                  _endleavedateController.text,
+                                              typeOfLeaveId: _leaveApplyController.selectedCatDropdown.value!.id.toString(),
+                                              startLeaveId: _leaveApplyController.selectedtypedropdown.value!.id.toString(),
+                                              endeaveId: _leaveApplyController.selectedtypeenddropdown.value!.id.toString(),
+                                              startDate: _startleavedateController.text,
+                                              endDate: _endleavedateController.text,
                                               reason: _reasonController.text,
 
                                               // Pass file name

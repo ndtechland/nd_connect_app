@@ -616,7 +616,7 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildTitleAndDescription(task),
+                  _buildTitleAndDescription(controller),
                   _buildTaskDates(task),
 
                 ],
@@ -633,7 +633,7 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
               SizedBox(height: 20),
 
               // Complete Task Button
-              _buildCompleteButton(task),
+              _buildCompleteButton(controller),
             ],
           ),
         ),
@@ -641,7 +641,7 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
     );
   }
 
-  Widget _buildTitleAndDescription(Task task) {
+  Widget _buildTitleAndDescription(DateTaskController controller) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -655,7 +655,7 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
         ),
         SizedBox(height: 8),
         Text(
-          task.taskTitle,
+          controller.subTaskCompletedModel?.data?.taskTittle ?? "No title available",
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w500,
@@ -673,7 +673,7 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
         ),
         SizedBox(height: 8),
         Text(
-          task.taskDescription,
+          controller.subTaskCompletedModel?.data?.taskDescription ?? "No description available",
           style: TextStyle(
             fontSize: 16,
             color: Colors.black54,
@@ -683,6 +683,7 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
     );
   }
 
+
   Widget _buildTaskDates(Task task) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -690,9 +691,9 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildDateRow("Start Date", task.date1.toString().substring(0, 10)),
+            _buildDateRow("Start Date", (controller.subTaskCompletedModel?.data!.duration.toString().substring(0, 10))??""),
             SizedBox(height: 8),
-            _buildDateRow("End Date", task.date2.toString().substring(0, 10)),
+            _buildDateRow("End Date", (controller.subTaskCompletedModel?.data!.duration.toString().substring(12, 23))??""),
           ],
         ),
       ],
@@ -725,7 +726,6 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
         var task = empData[index];
         var numValue = index < numb.length ? numb[index] : '';
         print("task:${task['id']}");
-
         return Padding(
           padding: const EdgeInsets.only(bottom: 12),
           child: Container(
@@ -767,7 +767,7 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
                           style: TextStyle(
                             color: Colors.black87,
                             fontSize: 16,
-                              decoration:task['taskStatus'] =="Pending"?TextDecoration.none:TextDecoration.lineThrough
+                              decoration:task['taskStatus'] =="Completed"?TextDecoration.lineThrough:TextDecoration.none
 
                           ),
                         ),
@@ -789,8 +789,9 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
     // bool isTaskCompleted = tasksController.completedTasks[task.id] ?? false;
 
     return GestureDetector(
-      onTap: () async{ status=="Pending"?
-        showDialog(context: context, builder: (context){
+      onTap: () async{
+        status=="Pending"
+           ? showDialog(context: context, builder: (context){
           return AlertDialog(
             title: Text(taskTittle),
             content: Text("Do you want to submit your task:"),
@@ -814,7 +815,36 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
               ),
             ],
           );
-        }):status=="Completed"?Container():Container();
+        })
+           : status=="Completed"
+           ? Container()
+           : status=="Reassigned"
+           ? showDialog(context: context, builder: (context){
+        return AlertDialog(
+          title: Text(taskTittle),
+          content: Text("Do you want to submit your task:"),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Get.back();
+              },
+              child: Text("Cancel"),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: appColor2,textStyle: TextStyle(color: Colors.white)
+              ),
+              onPressed: () async{
+                print("subTask submit: ${id}");
+                status=="Pending"? await tasksController.SubTaask(subTaskId: id):Get.offAll(()=>BottomBar());
+                Get.back();
+              },
+              child: Text("Submit",style: TextStyle(color: Colors.white),),
+            ),
+          ],
+        );
+      })
+           : Container();
         // Handle "Done" action
        //status=="Pending"? await tasksController.SubTaask(subTaskId: id):Get.offAll(()=>BottomBar());
         // tasksController.submitTask(task.id, {'taskId': task.id});
@@ -824,11 +854,11 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(8),
-          color:status=="Pending"? appColor2:Colors.orangeAccent,
-          border:status=="Pending"? Border.all(color: Colors.grey,width: 2):Border.all(color: Colors.orangeAccent)
+          color:status=="Pending"? appColor2:status=="Reassigned"?appColor2:status=="Completed"?Colors.orangeAccent:appColor2,
+          border:status=="Pending"? Border.all(color: Colors.grey,width: 2):status=="Reassigned"? Border.all(color: Colors.grey,width: 2):status=="UnCompleted"? Border.all(color: Colors.grey,width: 2):Border.all(color: Colors.orangeAccent)
         ),
         child: Text(
-          status=="Pending"?"Submit":"Done",
+          status=="Pending"?"Submit":status=="Reassigned"?"Submit":status=="Completed"?"Done":"Submit",
           style: TextStyle(
             color: Colors.white,
             fontSize: 14,
@@ -839,7 +869,7 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
     );
   }
 
-  Widget _buildCompleteButton(Task taskkk, ) {
+  Widget _buildCompleteButton(DateTaskController taskkk, ) {
     return Center(
       child: SizedBox(
         width: double.infinity,
@@ -849,13 +879,18 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(30),
             ),
-            backgroundColor:  taskkk.taskStatus=="Pending"?appColor2:taskkk.taskStatus=="Completed"?Colors.grey:Colors.red,
+            backgroundColor:  controller.subTaskCompletedModel?.data?.status=="Pending"
+                ?appColor2
+                :controller.subTaskCompletedModel?.data?.status=="Completed"
+                ?Colors.grey
+                :controller.subTaskCompletedModel?.data?.status=="Reassigned"?appColor2:Colors.red,
           ),
           onPressed: () async{
             print("completed task");
-            taskkk.taskStatus=="Pending"? showDialog(context: context, builder: (context){
+            controller.subTaskCompletedModel?.data?.status=="Pending"
+                ? showDialog(context: context, builder: (context){
               return AlertDialog(
-                title: Text(taskkk.taskTitle),
+                title: Text(controller.subTaskCompletedModel?.data?.taskTittle??""),
                 content: Text("Do you want to submit your task:"),
                 actions: [
                   TextButton(
@@ -870,8 +905,8 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
                     ),
                     onPressed: () async{
                       print("completed task");
-                      await tasksController.CompletedTaask(taskId: taskkk.id);
-                      print("completed task : ${taskkk.id}");
+                      await tasksController.CompletedTaask(taskId: controller.subTaskCompletedModel?.data?.id??0);
+                      print("completed task : ${controller.subTaskCompletedModel?.data?.id??0}");
 
                       Get.back();
                     },
@@ -879,19 +914,51 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
                   ),
                 ],
               );
-            }):taskkk.taskStatus=="Completed"?Fluttertoast.showToast(
+            })
+                : controller.subTaskCompletedModel?.data?.status=="Completed"? Fluttertoast.showToast(
               msg: "Task already submitted",
               backgroundColor: appColor2,
               textColor: Colors.white,
               toastLength: Toast.LENGTH_LONG,
-              gravity: ToastGravity.BOTTOM,
-            ):_showReasonDialog(taskkk);
-            print("completed task : ${taskkk.id}");
+              gravity: ToastGravity.BOTTOM,)
+                : controller.subTaskCompletedModel?.data?.status=="Reassigned"
+                ? showDialog(context: context, builder: (context){
+              return AlertDialog(
+                title: Text(controller.subTaskCompletedModel?.data?.taskTittle??""),
+                content: Text("Do you want to submit your task:"),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Get.back();
+                    },
+                    child: Text("Cancel"),
+                  ),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: appColor2,textStyle: TextStyle(color: Colors.white)
+                    ),
+                    onPressed: () async{
+                      print("completed task");
+                      await tasksController.CompletedTaask(taskId: controller.subTaskCompletedModel?.data?.id??0);
+                      print("completed task : ${controller.subTaskCompletedModel?.data?.id??0}");
+
+                      Get.back();
+                    },
+                    child: Text("Submit",style: TextStyle(color: Colors.white),),
+                  ),
+                ],
+              );
+            })
+                : _showReasonDialog(taskkk);
+            print("completed task : ${controller.subTaskCompletedModel?.data?.id}");
             // Handle complete task action
           },
           child: Text(
-            taskkk.taskStatus=="UnCompleted"?
-            "Give Reason": taskkk.taskStatus=="Completed"?"Task Submitted":"Complete Task",
+            controller.subTaskCompletedModel?.data?.status=="UnCompleted"?
+            "Give Reason": controller.subTaskCompletedModel?.data?.status=="Completed"?"Task Submitted":
+            controller.subTaskCompletedModel?.data?.status=="Reassigned"
+                ?"Complete Task"
+                :"Complete Task",
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -903,12 +970,12 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
     );
   }
 
-  void _showReasonDialog(Task task) {
+  void _showReasonDialog(DateTaskController task) {
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text("Task Overdue: ${task.taskTitle}"),
+          title: Text("Task Overdue: ${controller.subTaskCompletedModel?.data?.taskTittle}"),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -937,8 +1004,8 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
               ),
               onPressed: () async{
                 print("Reason: ${reasonController.text}");
-                await tasksController.InCompletedTaask(subtaskid: task.id.toString(), reason: reasonController.text);
-                print("Reason task: ${ task.id.toString()}${task.taskStatus}");
+                await tasksController.InCompletedTaask(subtaskid: (controller.subTaskCompletedModel?.data?.id).toString(), reason: reasonController.text);
+                print("Reason task: ${ (controller.subTaskCompletedModel?.data?.id).toString()}${controller.subTaskCompletedModel?.data?.status}");
 
                 // Handle reason submission logic
                 Get.back();

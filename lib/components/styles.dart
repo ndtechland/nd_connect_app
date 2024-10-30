@@ -214,7 +214,7 @@ Container textField2({
             ? Icon(
                 suffixIcon,
                 size: 23,
-                color: Colors.black12,
+                color: Colors.blue,
               )
             : null,
         prefixIcon: prefixIcon != null

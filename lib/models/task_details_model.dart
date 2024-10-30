@@ -45,6 +45,7 @@ class TaskDetailsData {
   String? taskTittle;
   String? taskDescription;
   String? status;
+  String? duration;
   List<Empdatum>? empdata;
 
   TaskDetailsData({
@@ -52,6 +53,7 @@ class TaskDetailsData {
     this.taskTittle,
     this.taskDescription,
     this.status,
+    this.duration,
     this.empdata,
   });
 
@@ -60,6 +62,7 @@ class TaskDetailsData {
     taskTittle: json["taskTittle"],
     taskDescription: json["taskDescription"],
     status: json["status"],
+    duration: json["duration"],
     empdata: json["empdata"] == null ? [] : List<Empdatum>.from(json["empdata"]!.map((x) => Empdatum.fromJson(x))),
   );
 
@@ -68,6 +71,7 @@ class TaskDetailsData {
     "taskTittle": taskTittle,
     "taskDescription": taskDescription,
     "status": status,
+    "duration": duration,
     "empdata": empdata == null ? [] : List<dynamic>.from(empdata!.map((x) => x.toJson())),
   };
 }

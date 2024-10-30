@@ -230,7 +230,7 @@ class SingleDayLeavePage extends StatelessWidget {
                                                         ),
                                                   ), // Displaying Leave Type
                                                   SizedBox(
-                                                      width: size.width * 0.3),
+                                                      width: size.width * 0.25),
                                                   Text(
                                                     "${category.leaveValue != null ? category.leaveValue.toString() : 'Unknown'}  Left",
                                                     style: TextStyle(
@@ -546,40 +546,14 @@ class SingleDayLeavePage extends StatelessWidget {
 
                                     MyElevatedButton(
                                       onPressed: () async {
-                                        if (_leaveApplyController
-                                                .leaveapplysignupKey
-                                                .currentState
-                                                ?.validate() ??
-                                            false) {
-                                          if (_leaveApplyController
-                                                  .selectedCatDropdown
-                                                  .value!
-                                                  .id !=
-                                              null) {
+                                        if (_leaveApplyController.leaveapplysignupKey.currentState?.validate() ?? false) {
+                                          if (_leaveApplyController.selectedCatDropdown.value!.id != null) {
                                             _leaveApplyController.applyLeave2(
-                                              typeOfLeaveId:
-                                                  _leaveApplyController
-                                                      .selectedCatDropdown
-                                                      .value!
-                                                      .id
-                                                      .toString(),
-                                              startLeaveId:
-                                                  _leaveApplyController
-                                                      .selectedtypedropdown
-                                                      .value!
-                                                      .id
-                                                      .toString(),
-
-                                              endeaveId: _leaveApplyController
-                                                  .selectedtypedropdown
-                                                  .value!
-                                                  .id
-                                                  .toString(),
-                                              startDate:
-                                                  _startleavedateController
-                                                      .text,
-                                              endDate: _startleavedateController
-                                                  .text,
+                                              typeOfLeaveId: _leaveApplyController.selectedCatDropdown.value!.id.toString(),
+                                              startLeaveId: _leaveApplyController.selectedtypedropdown.value!.id.toString(),
+                                              endeaveId: _leaveApplyController.selectedtypedropdown.value!.id.toString(),
+                                              startDate: _startleavedateController.text,
+                                              endDate: _startleavedateController.text,
                                               reason: _reasonController.text,
 
                                               // Pass file name
@@ -685,8 +659,8 @@ class SingleDayLeavePage extends StatelessWidget {
         'lib/assets/logo/logoo.png',
         // 'lib/assets/images/job.png',
         //color: Colors.white,
-        width: 100,
-        height: 80,
+        width: 80,
+        height: 60,
       ),
     );
   }

@@ -3,6 +3,7 @@ import 'package:nd_connect_techland/components/styles.dart';
 import 'package:get/get.dart';
 import 'package:nd_connect_techland/modules/all_pages/pages/willPop_scope_exit.dart';
 import '../../../controllers/bottom_nav_controller.dart';
+import '../../bottom_bar/bottom_bar.dart';
 import 'emploree_pages/change_password_employee.dart';
 import 'emploree_pages/profile_employee/update_add_profile/personal_information_update.dart';
 import 'emploree_pages/profile_employee/update_add_profile/update_add_bank_detail.dart';
@@ -34,6 +35,8 @@ class Settings extends StatelessWidget {
           backgroundColor: appColor2,
           leading: IconButton(onPressed: (){
             bottomNavController.changeTabIndex(0);
+            Get.offAll(()=>BottomBar());
+
           }, icon: Icon(Icons.arrow_back,color: Colors.white,)),
           centerTitle: true,
           title: Text("Settings",style: TextStyle(
@@ -104,37 +107,39 @@ class Settings extends StatelessWidget {
                     )),
               ),
             ),
-          ), Padding(
-            padding: const EdgeInsets.fromLTRB(12.0,8.0,12.0,0),
-            child: GestureDetector(
-              onTap: (){
-             //   Get.to(()=>PersonalUpdateProfile());
-              },
-              child: Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                elevation: 2,
-                child: Container(
-                    alignment: Alignment.centerLeft,
-                    width: double.infinity,
-                    height: 80,
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 18.0,right: 18.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text("Notification Settings",
-                            style: TextStyle(
-                                fontSize: 16,fontWeight: FontWeight.w600,color: appColor2
-                            ),),
-                          Icon(Icons.arrow_circle_right_rounded,color: appColor2,)
-                        ],
-                      ),
-                    )),
-              ),
-            ),
-          ), Padding(
+          ),
+          //       Padding(
+          //   padding: const EdgeInsets.fromLTRB(12.0,8.0,12.0,0),
+          //   child: GestureDetector(
+          //     onTap: (){
+          //    //   Get.to(()=>PersonalUpdateProfile());
+          //     },
+          //     child: Card(
+          //       shape: RoundedRectangleBorder(
+          //         borderRadius: BorderRadius.circular(10),
+          //       ),
+          //       elevation: 2,
+          //       child: Container(
+          //           alignment: Alignment.centerLeft,
+          //           width: double.infinity,
+          //           height: 80,
+          //           child: Padding(
+          //             padding: const EdgeInsets.only(left: 18.0,right: 18.0),
+          //             child: Row(
+          //               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          //               children: [
+          //                 Text("Notification Settings",
+          //                   style: TextStyle(
+          //                       fontSize: 16,fontWeight: FontWeight.w600,color: appColor2
+          //                   ),),
+          //                 Icon(Icons.arrow_circle_right_rounded,color: appColor2,)
+          //               ],
+          //             ),
+          //           )),
+          //     ),
+          //   ),
+          // ),
+                Padding(
             padding: const EdgeInsets.fromLTRB(12.0,8.0,12.0,0),
             child: GestureDetector(
               onTap: (){

@@ -115,7 +115,7 @@ class EventsController extends GetxController {
     }
 
     // Automatically select the first date with events
-   // _autoSelectDatesWithEvents();
+   _autoSelectDatesWithEvents();
   }
 
 
@@ -140,8 +140,10 @@ class EventsController extends GetxController {
   void _autoSelectDatesWithEvents() {
     final datesWithEvents = events.keys.toList();
     if (datesWithEvents.isNotEmpty) {
-      selectedDay.value = datesWithEvents.first;
-      focusedDay.value = datesWithEvents.first;
+      // selectedDay.value = datesWithEvents.first;
+      // focusedDay.value = datesWithEvents.first;
+      selectedDay.value = DateTime.now();
+      focusedDay.value = DateTime.now();
     }
   }
 

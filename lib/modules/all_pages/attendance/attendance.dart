@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:nd_connect_techland/controllers/attendance_controller.dart';
 import '../../../components/styles.dart';
@@ -6,7 +7,8 @@ import '../../../controllers/employee_controller/profile_controller/profile_info
 import 'package:intl/intl.dart';
 import '../../../controllers/location_controller.dart';
 import '../../bottom_bar/bottom_bar.dart';
-
+import 'attendanceBottomSheet.dart';
+import 'package:lottie/lottie.dart';
 class Attendance extends StatelessWidget {
   String id ='13';
    Attendance({super.key,required this.id});
@@ -15,12 +17,60 @@ class Attendance extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     bool shouldPop = true;
-
+    ValueNotifier<bool> isActive = ValueNotifier<bool>(false);
+    ValueNotifier<bool> isLoadinggg = ValueNotifier<bool>(false);
     final ProfileEmployeeController _getprofileepersonal =
         Get.put(ProfileEmployeeController());
     final AttendanceController attendanceController = Get.put(AttendanceController());
     final LocationController locationController = Get.put(LocationController());
     print("attendanceeDattaa:${attendanceController.attendanceActivityModel}");
+    void showModalRightSheet(BuildContext context) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return Align(
+            alignment: Alignment.centerRight,
+            child: Container(
+              width: MediaQuery.of(context).size.width * 0.6,
+              height: double.infinity,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.horizontal(left: Radius.circular(40.0)),
+              ),
+              child: AttendanceBottomSheet(),
+            ),
+          );
+        },
+      );
+    }
+
+    void showAttendanceBottomSheet(BuildContext context) {
+      final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
+
+      if (isLandscape) {
+        showModalRightSheet(context);
+      } else {
+        showModalBottomSheet(
+          context: context,
+          isScrollControlled: true,
+          backgroundColor: Colors.transparent,
+          builder: (context) {
+            return DraggableScrollableSheet(
+              initialChildSize: 0.5,
+              minChildSize: 0.3,
+              maxChildSize: 0.8,
+              builder: (_, controller) {
+                return Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.vertical(top: Radius.circular(40.0)),
+                  ),
+                  child: AttendanceBottomSheet(),
+                );
+              },
+            );
+          },
+        );
+      }
+    }
     return WillPopScope(
       onWillPop: () async {
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -49,71 +99,89 @@ class Attendance extends StatelessWidget {
               "Attendance",
               style: TextStyle(color: Colors.white, fontSize: 20),
             ),
-            actions: [
-              Padding(
-                padding: const EdgeInsets.only(right: 8.0),
-                child: GestureDetector(
-                  onTap: () {
-                    showDialog(
-                      context: context,
-                      builder: (context) => AlertDialog(
-                        shape: ContinuousRectangleBorder(
-                            side: BorderSide.none,
-                            borderRadius: BorderRadius.circular(12)
-                        ),
-                        title: Text('Check-Out'),
-                        content: Text('Do you really want to check out'),
-                        actions: [
-                          Container(
-                            height:40,
-                            width: 70,
-                            decoration: BoxDecoration(
-                                color: Colors.green,
-                                borderRadius: BorderRadius.circular(12)
-
-                            ),
-                            child: TextButton(
-                              onPressed: () => Navigator.pop(context),
-                              child: Text('No',style: TextStyle(color: Colors.white),),
-                            ),
-                          ),
-
-                          Container(
-                            height:40,
-                            width: 70,
-                            decoration: BoxDecoration(
-                                color: Colors.red,
-                                borderRadius: BorderRadius.circular(12)
-
-                            ),
-                            child: TextButton(
-                              onPressed: () async{
-                                print("cheedck-Outt");
-                                await locationController.employeeCheckOut();
-                                await attendanceController.EmpActivityApi();
-                                print("cheedck-Outt done");
-                                WidgetsBinding.instance.addPostFrameCallback((_) {
-                                  Get.offAll(() => BottomBar());
-                                });
-                              },
-                              child: Text('Yes',style: TextStyle(color: Colors.white),),
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                  child: CircleAvatar(
-                    radius: 16,
-                    backgroundColor: Colors.white,
-                    child: Icon(
-                      size: 20,
-                          Icons.logout_rounded,
-                          color: Colors.black87,
-                        ),
-                  ),
-                ),
-              )
+             actions: [
+               Text(
+                 attendanceController.attendanceDetailsModel?.data?.loginStatus=="Check-In"?"In":"Out",
+                 //locationController.statusColor.value==Color(0xfff44336)?"Out":"In",
+                 style: TextStyle(color:attendanceController.attendanceDetailsModel?.data?.loginStatus=="Check-In"?Colors.green:Colors.red),),
+               // ),
+               SizedBox(width: 4,),
+               Padding(
+                 padding: const EdgeInsets.only(right: 12.0),
+                 child: CircleAvatar(
+                   radius: 8,
+                   child: Container(
+                     decoration: BoxDecoration(
+                       color: attendanceController.attendanceDetailsModel?.data?.loginStatus=="Check-In"?Colors.green:Colors.red,
+                       shape: BoxShape.circle,
+                     ),
+                   ),
+                 ),
+               ),
+            //   Padding(
+            //     padding: const EdgeInsets.only(right: 8.0),
+            //     child: GestureDetector(
+            //       onTap: () {
+            //         showDialog(
+            //           context: context,
+            //           builder: (context) => AlertDialog(
+            //             shape: ContinuousRectangleBorder(
+            //                 side: BorderSide.none,
+            //                 borderRadius: BorderRadius.circular(12)
+            //             ),
+            //             title: Text('Check-Out'),
+            //             content: Text('Do you really want to check out'),
+            //             actions: [
+            //               Container(
+            //                 height:40,
+            //                 width: 70,
+            //                 decoration: BoxDecoration(
+            //                     color: Colors.green,
+            //                     borderRadius: BorderRadius.circular(12)
+            //
+            //                 ),
+            //                 child: TextButton(
+            //                   onPressed: () => Navigator.pop(context),
+            //                   child: Text('No',style: TextStyle(color: Colors.white),),
+            //                 ),
+            //               ),
+            //
+            //               Container(
+            //                 height:40,
+            //                 width: 70,
+            //                 decoration: BoxDecoration(
+            //                     color: Colors.red,
+            //                     borderRadius: BorderRadius.circular(12)
+            //
+            //                 ),
+            //                 child: TextButton(
+            //                   onPressed: () async{
+            //                     print("cheedck-Outt");
+            //                     await locationController.employeeCheckOut();
+            //                     await attendanceController.EmpActivityApi();
+            //                     print("cheedck-Outt done");
+            //                     WidgetsBinding.instance.addPostFrameCallback((_) {
+            //                       Get.offAll(() => BottomBar());
+            //                     });
+            //                   },
+            //                   child: Text('Yes',style: TextStyle(color: Colors.white),),
+            //                 ),
+            //               ),
+            //             ],
+            //           ),
+            //         );
+            //       },
+            //       child: CircleAvatar(
+            //         radius: 16,
+            //         backgroundColor: Colors.white,
+            //         child: Icon(
+            //           size: 20,
+            //               Icons.logout_rounded,
+            //               color: Colors.black87,
+            //             ),
+            //       ),
+            //     ),
+            //   )
             ],
           ),
           body: OrientationBuilder(builder: (context, orientation) {
@@ -153,7 +221,7 @@ class Attendance extends StatelessWidget {
               return SingleChildScrollView(
                 child: Obx(()=>(attendanceController.isLoading.value ||
                     isLoading.value)
-                    ? const Center(child: CircularProgressIndicator())
+                    ? Center(child: CircularProgressIndicator())
                     :
                 Container(
                     // height: screenHeight,
@@ -257,7 +325,7 @@ class Attendance extends StatelessWidget {
                                             context: context,
                                             initialDate: DateTime.now(),
                                             firstDate: DateTime(1950),
-                                            lastDate: DateTime(2100),
+                                            lastDate: DateTime.now(),
                                           );
 
                                           if (pickedDate != null) {
@@ -374,9 +442,13 @@ class Attendance extends StatelessWidget {
                                         height: sizeHeight2 * 0.1,
                                       ),
                                       Text(
-                                        "${attendanceController.attendanceDetailsModel?.data?.checkInTime}",
+                                        attendanceController.attendanceDetailsModel?.data?.checkInTime=="N/A" || attendanceController.attendanceDetailsModel?.data?.checkInTime==null?
+                                        "Not Check-in yet"
+                                            :"${attendanceController.attendanceDetailsModel?.data?.checkInTime}",
                                         style: TextStyle(
-                                            fontSize: 20,
+                                            fontSize:
+                                            attendanceController.attendanceDetailsModel?.data?.checkInTime=="N/A" || attendanceController.attendanceDetailsModel?.data?.checkInTime==null?
+                                            15:20,
                                             color: Colors.black87,
                                             fontWeight: FontWeight.w600),
                                       ),
@@ -388,22 +460,83 @@ class Attendance extends StatelessWidget {
                                           Text(
                                             "On-Time",
                                             style: TextStyle(
-                                                fontSize: 16,
+                                                fontSize: 14,
                                                 color: Colors.grey,
                                                 fontFamily: 'poppins',
                                                 fontWeight: FontWeight.w500),
                                           ),
-                                          Container(
-                                            alignment: Alignment.center,
-                                            height: imageHeight * 0.15,
-                                            width: imageWidth * 0.4,
-                                            decoration: BoxDecoration(
-                                              borderRadius: BorderRadius.circular(16),
-                                              color:  Colors.green.shade50,
-                                              border: Border.all(color: Colors.green, width: 1),
+                                          Spacer(),
+                                          attendanceController.selectedDate.value.year == DateTime.now().year &&
+                                              attendanceController.selectedDate.value.month == DateTime.now().month &&
+                                              attendanceController.selectedDate.value.day == DateTime.now().day ?
+                                          GestureDetector(
+                                            onTap: ()async{
+                                              print("checkk-iN");
+                                              try {
+                                                isLoading.value = true;
+                                                // if(isLoading.value = true){
+                                                //   showDialog(context: context,  builder: (context) => AlertDialog(
+                                                //    shape: ContinuousRectangleBorder(
+                                                //        side: BorderSide.none,
+                                                //        borderRadius: BorderRadius.circular(12)
+                                                //    ),
+                                                //    // title: Text('Check-Out'),
+                                                //    // content: Text('Do you really want to check out'),
+                                                //    actions: [ Padding(
+                                                //      padding: const EdgeInsets.all(18.0),
+                                                //      child: Center(child: CircularProgressIndicator()),
+                                                //    )
+                                                //     ]));
+                                                // }
+                                                if(attendanceController.attendanceDetailsModel?.data?.loginStatus == "Check-Out") {
+                                                  await locationController.checkAndRequestLocationPermission();
+                                                  await locationController.fetchCurrentLocation();
+                                                  await locationController.fetchCompanyLocationApi();
+                                                  await locationController.getCoordinatesFromAddress();
+                                                  showAttendanceBottomSheet(context);
+
+                                                  // Fetch and update distance
+                                                  await locationController.updateDistanceFromCompany();
+                                                }
+                                                else if (attendanceController.attendanceDetailsModel?.data?.loginStatus == "Check-In") {
+                                                  await locationController.checkAndRequestLocationPermission();
+                                                  Fluttertoast.showToast(
+                                                         msg: "You are already Check-In",
+                                                         backgroundColor: Colors.green,
+                                                         textColor: Colors.white,
+                                                         toastLength: Toast.LENGTH_LONG,
+                                                         gravity: ToastGravity.CENTER,
+                                                       );
+                                                  Get.to(() => Attendance(id: '13'));
+                                                } else{
+                                                   Get.to(() => Attendance(id: '13'));
+                                                 }
+                                              } catch (e) {
+                                                print("Error during attendance process: $e");
+                                              } finally {
+                                                // Reset the loading state after operations are complete
+                                                isLoading.value = false;
+                                                // isActive.value = false;
+                                              }
+                                            },
+                                            child: Container(
+                                              alignment: Alignment.center,
+                                              height: imageHeight * 0.15,
+                                              width: imageWidth * 0.35,
+                                              decoration: BoxDecoration(
+                                                borderRadius: BorderRadius.circular(16),
+                                                color:  Colors.green.shade50,
+                                                border: Border.all(color: Colors.green, width: 1),
+                                              ),
+                                              child:  Text(
+                                                "Check-in",
+                                                style: TextStyle(
+                                                  fontFamily: 'poppins',
+                                                  fontSize: 12,
+                                                ),
+                                              ),
                                             ),
-                                            child: ,
-                                          )
+                                          ):Container()
                                         ],
                                       ),
                                     ],
@@ -462,22 +595,104 @@ class Attendance extends StatelessWidget {
                                         height: 12,
                                       ),
                                       Text(
-                                        "${attendanceController.attendanceDetailsModel?.data?.checkOutTime}",
+                                        attendanceController.attendanceDetailsModel?.data?.checkInTime=="N/A" || attendanceController.attendanceDetailsModel?.data?.checkInTime==null?
+                                        "Not Check-in yet"
+                                        :"${attendanceController.attendanceDetailsModel?.data?.checkOutTime}",
                                         style: TextStyle(
-                                            fontSize: 20,
+                                            fontSize:
+                                            attendanceController.attendanceDetailsModel?.data?.checkInTime=="N/A" || attendanceController.attendanceDetailsModel?.data?.checkInTime==null?
+                                            15:20,
                                             color: Colors.black87,
                                             fontWeight: FontWeight.w600),
                                       ),
                                       SizedBox(
-                                        height: 10,
+                                        height: sizeHeight2 * 0.1,
                                       ),
-                                      Text(
-                                        "On-Time",
-                                        style: TextStyle(
-                                            fontSize: 16,
-                                            color: Colors.grey,
-                                            fontFamily: 'poppins',
-                                            fontWeight: FontWeight.w500),
+                                      Row(
+                                        children: [
+                                          Text(
+                                            "On-Time",
+                                            style: TextStyle(
+                                                fontSize: 14,
+                                                color: Colors.grey,
+                                                fontFamily: 'poppins',
+                                                fontWeight: FontWeight.w500),
+                                          ),
+                                          Spacer(),
+                                          attendanceController.selectedDate.value.year == DateTime.now().year &&
+                                              attendanceController.selectedDate.value.month == DateTime.now().month &&
+                                              attendanceController.selectedDate.value.day == DateTime.now().day ?
+                                          GestureDetector(
+                                                  onTap: () {
+                                                    showDialog(
+                                                      context: context,
+                                                      builder: (context) => AlertDialog(
+                                                        shape: ContinuousRectangleBorder(
+                                                            side: BorderSide.none,
+                                                            borderRadius: BorderRadius.circular(12)
+                                                        ),
+                                                        title: Text('Check-Out'),
+                                                        content: Text('Do you really want to check out'),
+                                                        actions: [
+                                                          Container(
+                                                            height:40,
+                                                            width: 70,
+                                                            decoration: BoxDecoration(
+                                                                color: Colors.green,
+                                                                borderRadius: BorderRadius.circular(12)
+
+                                                            ),
+                                                            child: TextButton(
+                                                              onPressed: () => Navigator.pop(context),
+                                                              child: Text('No',style: TextStyle(color: Colors.white),),
+                                                            ),
+                                                          ),
+
+                                                          Container(
+                                                            height:40,
+                                                            width: 70,
+                                                            decoration: BoxDecoration(
+                                                                color: Colors.red,
+                                                                borderRadius: BorderRadius.circular(12)
+
+                                                            ),
+                                                            child: TextButton(
+                                                              onPressed: () async{
+                                                                print("cheedck-Outt");
+                                                                await locationController.employeeCheckOut();
+                                                                await attendanceController.EmpActivityApi();
+                                                                print("cheedck-Outt done");
+                                                                WidgetsBinding.instance.addPostFrameCallback((_) {
+                                                                  Get.offAll(() => BottomBar());
+                                                                });
+                                                              },
+                                                              child: Text('Yes',style: TextStyle(color: Colors.white),),
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    );
+                                                  },
+                                                  child: Container(
+                                                        alignment: Alignment.center,
+                                                        height: imageHeight * 0.15,
+                                                        width: imageWidth * 0.35,
+                                                        decoration: BoxDecoration(
+                                                          borderRadius: BorderRadius.circular(16),
+                                                          color:  Colors.red.shade50,
+                                                          border: Border.all(color: Colors.red, width: 1),
+                                                        ),
+                                                        child:  Text(
+                                                          "Check-out",
+                                                          style: TextStyle(
+                                                            fontFamily: 'poppins',
+                                                            fontSize: 12,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                ):Container(),
+
+                                        ],
                                       ),
                                     ],
                                   ),
@@ -490,166 +705,249 @@ class Attendance extends StatelessWidget {
                           ),
 
                           //over time
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Container(
-                                height: categoryHeight * 0.5,
-                                width: categoryWidth * 0.85,
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(8),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black12,
-                                      blurRadius: 20.0,
-                                    ),
-                                  ],
-                                ),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(10.0),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          CircleAvatar(
-                                            radius: 14,
-                                            backgroundColor: Color(0xffdcf2fc),
-                                            child: Icon(
-                                              Icons.timer,
-                                              color: Colors.indigoAccent,
-                                              size: 18,
-                                            ),
-                                          ),
-                                          SizedBox(
-                                            width: 5,
-                                          ),
-                                          Text(
-                                            "Start-Overtime",
-                                            style: TextStyle(
-                                                fontSize: 14,
-                                                color: Colors.grey,
-                                                overflow: TextOverflow.ellipsis),
-                                          ),
-                                          // CircleAvatar(
-                                          //   radius: 16,
-                                          //   backgroundColor:Colors.green.shade50,
-                                          //   child: Icon(Icons.login_rounded,
-                                          //       color: Colors.green,
-                                          //     size: 20,
-                                          //   ),
-                                          // )
-                                        ],
-                                      ),
-                                      SizedBox(
-                                        height: 12,
-                                      ),
-                                      Text(
-                                        "${attendanceController.attendanceDetailsModel?.data?.startOverTime}",
-                                        style: TextStyle(
-                                            fontSize: 20,
-                                            color: Colors.black87,
-                                            fontWeight: FontWeight.w600),
-                                      ),
-                                      SizedBox(
-                                        height: 10,
-                                      ),
-                                      Text(
-                                        "On-Time",
-                                        style: TextStyle(
-                                            fontSize: 16,
-                                            color: Colors.grey,
-                                            fontFamily: 'poppins',
-                                            fontWeight: FontWeight.w500),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              Container(
-                                height: categoryHeight * 0.5,
-                                width: categoryWidth * 0.85,
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(8),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black12,
-                                      blurRadius: 20.0,
-                                    ),
-                                  ],
-                                ),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(10.0),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          CircleAvatar(
-                                            radius: 14,
-                                            backgroundColor: Colors.brown.shade50,
-                                            child: Icon(
-                                              Icons.timer_off,
-                                              color: Colors.brown,
-                                              size: 18,
-                                            ),
-                                          ),
-                                          SizedBox(
-                                            width: 5,
-                                          ),
-                                          Text(
-                                            "Finish-Overtime",
-                                            style: TextStyle(
-                                                fontSize: 13, color: Colors.grey),
-                                          ),
-                                          // CircleAvatar(
-                                          //   radius: 16,
-                                          //   backgroundColor:Colors.green.shade50,
-                                          //   child: Icon(Icons.login_rounded,
-                                          //       color: Colors.green,
-                                          //     size: 20,
-                                          //   ),
-                                          // )
-                                        ],
-                                      ),
-                                      SizedBox(
-                                        height: 12,
-                                      ),
-                                      Text(
-                                        "${attendanceController.attendanceDetailsModel?.data?.finishOverTime}",
-                                        style: TextStyle(
-                                            fontSize: 20,
-                                            color: Colors.black87,
-                                            fontWeight: FontWeight.w600),
-                                      ),
-                                      SizedBox(
-                                        height: 10,
-                                      ),
-                                      Text(
-                                        "On-Time",
-                                        style: TextStyle(
-                                            fontSize: 16,
-                                            color: Colors.grey,
-                                            fontFamily: 'poppins',
-                                            fontWeight: FontWeight.w500),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
+                          // Row(
+                          //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          //   children: [
+                          //     Container(
+                          //       height: categoryHeight * 0.5,
+                          //       width: categoryWidth * 0.85,
+                          //       decoration: BoxDecoration(
+                          //         color: Colors.white,
+                          //         borderRadius: BorderRadius.circular(8),
+                          //         boxShadow: [
+                          //           BoxShadow(
+                          //             color: Colors.black12,
+                          //             blurRadius: 20.0,
+                          //           ),
+                          //         ],
+                          //       ),
+                          //       child: Padding(
+                          //         padding: const EdgeInsets.all(10.0),
+                          //         child: Column(
+                          //           crossAxisAlignment: CrossAxisAlignment.start,
+                          //           children: [
+                          //             Row(
+                          //               // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          //               children: [
+                          //                 CircleAvatar(
+                          //                   radius: 14,
+                          //                   backgroundColor: Color(0xffdcf2fc),
+                          //                   child: Icon(
+                          //                     Icons.timer,
+                          //                     color: Colors.indigoAccent,
+                          //                     size: 18,
+                          //                   ),
+                          //                 ),
+                          //                 SizedBox(
+                          //                   width: 5,
+                          //                 ),
+                          //                 Text(
+                          //                   "Start-Overtime",
+                          //                   style: TextStyle(
+                          //                       fontSize: 14,
+                          //                       color: Colors.grey,
+                          //                       overflow: TextOverflow.ellipsis),
+                          //                 ),
+                          //                 // CircleAvatar(
+                          //                 //   radius: 16,
+                          //                 //   backgroundColor:Colors.green.shade50,
+                          //                 //   child: Icon(Icons.login_rounded,
+                          //                 //       color: Colors.green,
+                          //                 //     size: 20,
+                          //                 //   ),
+                          //                 // )
+                          //               ],
+                          //             ),
+                          //             SizedBox(
+                          //               height: 12,
+                          //             ),
+                          //             Text(
+                          //               attendanceController.attendanceDetailsModel?.data?.checkInTime=="N/A" || attendanceController.attendanceDetailsModel?.data?.checkInTime==null?
+                          //               "Not Check-in yet" :
+                          //               "${attendanceController.attendanceDetailsModel?.data?.startOverTime}",
+                          //               style: TextStyle(
+                          //                   fontSize:  attendanceController.attendanceDetailsModel?.data?.checkInTime=="N/A" || attendanceController.attendanceDetailsModel?.data?.checkInTime==null?
+                          //                   15 :20,
+                          //                   color: Colors.black87,
+                          //                   fontWeight: FontWeight.w600),
+                          //             ),
+                          //             SizedBox(
+                          //               height: sizeHeight2 * 0.1,
+                          //             ),
+                          //             Row(
+                          //               children: [
+                          //                 Text(
+                          //                   "On-Time",
+                          //                   style: TextStyle(
+                          //                       fontSize: 14,
+                          //                       color: Colors.grey,
+                          //                       fontFamily: 'poppins',
+                          //                       fontWeight: FontWeight.w500),
+                          //                 ),
+                          //                 Spacer(),
+                          //                 attendanceController.selectedDate.value.year == DateTime.now().year &&
+                          //                     attendanceController.selectedDate.value.month == DateTime.now().month &&
+                          //                     attendanceController.selectedDate.value.day == DateTime.now().day ?
+                          //                 GestureDetector(
+                          //                   onTap: ()async{
+                          //                     print("start-iN");
+                          //                     try {
+                          //                       isLoading.value = true;
+                          //                       // if(isLoading.value = true){
+                          //                       //   showDialog(context: context,  builder: (context) => AlertDialog(
+                          //                       //    shape: ContinuousRectangleBorder(
+                          //                       //        side: BorderSide.none,
+                          //                       //        borderRadius: BorderRadius.circular(12)
+                          //                       //    ),
+                          //                       //    // title: Text('Check-Out'),
+                          //                       //    // content: Text('Do you really want to check out'),
+                          //                       //    actions: [ Padding(
+                          //                       //      padding: const EdgeInsets.all(18.0),
+                          //                       //      child: Center(child: CircularProgressIndicator()),
+                          //                       //    )
+                          //                       //     ]));
+                          //                       // }
+                          //                       if(attendanceController.attendanceDetailsModel?.data?.loginStatus == "Check-Out") {
+                          //                         Fluttertoast.showToast(
+                          //                           msg: "You are not Checked-In",
+                          //                           backgroundColor: Colors.deepOrange,
+                          //                           textColor: Colors.white,
+                          //                           toastLength: Toast.LENGTH_LONG,
+                          //                           gravity: ToastGravity.CENTER,
+                          //                         );
+                          //                       }
+                          //                       else if (attendanceController.attendanceDetailsModel?.data?.loginStatus == "Check-In") {
+                          //                         await locationController.startOverTime();
+                          //                         Fluttertoast.showToast(
+                          //                           msg: "Your start over time request has been sent !!",
+                          //                           backgroundColor: Colors.green,
+                          //                           textColor: Colors.white,
+                          //                           toastLength: Toast.LENGTH_LONG,
+                          //                           gravity: ToastGravity.CENTER,
+                          //                         );
+                          //                         // Get.to(() => Attendance(id: '13'));
+                          //                       } else{
+                          //                         // Get.to(() => Attendance(id: '13'));
+                          //                       }
+                          //                     } catch (e) {
+                          //                       print("Error during attendance process: $e");
+                          //                     } finally {
+                          //                       // Reset the loading state after operations are complete
+                          //                       isLoading.value = false;
+                          //                       // isActive.value = false;
+                          //                     }
+                          //                   },
+                          //                   child: Container(
+                          //                     alignment: Alignment.center,
+                          //                     height: imageHeight * 0.15,
+                          //                     width: imageWidth * 0.35,
+                          //                     decoration: BoxDecoration(
+                          //                       borderRadius: BorderRadius.circular(16),
+                          //                       color:  Color(0xffdcf2fc),
+                          //                       border: Border.all(color: Colors.indigoAccent, width: 1),
+                          //                     ),
+                          //                     child:  Text(
+                          //                       "Start",
+                          //                       style: TextStyle(
+                          //                         fontFamily: 'poppins',
+                          //                         fontSize: 12,
+                          //                       ),
+                          //                     ),
+                          //                   ),
+                          //                 ):Container()
+                          //               ],
+                          //             ),
+                          //           ],
+                          //         ),
+                          //       ),
+                          //     ),
+                          //     Container(
+                          //       height: categoryHeight * 0.5,
+                          //       width: categoryWidth * 0.85,
+                          //       decoration: BoxDecoration(
+                          //         color: Colors.white,
+                          //         borderRadius: BorderRadius.circular(8),
+                          //         boxShadow: [
+                          //           BoxShadow(
+                          //             color: Colors.black12,
+                          //             blurRadius: 20.0,
+                          //           ),
+                          //         ],
+                          //       ),
+                          //       child: Padding(
+                          //         padding: const EdgeInsets.all(10.0),
+                          //         child: Column(
+                          //           crossAxisAlignment: CrossAxisAlignment.start,
+                          //           children: [
+                          //             Row(
+                          //               // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          //               children: [
+                          //                 CircleAvatar(
+                          //                   radius: 14,
+                          //                   backgroundColor: Colors.brown.shade50,
+                          //                   child: Icon(
+                          //                     Icons.timer_off,
+                          //                     color: Colors.brown,
+                          //                     size: 18,
+                          //                   ),
+                          //                 ),
+                          //                 SizedBox(
+                          //                   width: 5,
+                          //                 ),
+                          //                 Text(
+                          //                   "Finish-Overtime",
+                          //                   style: TextStyle(
+                          //                       fontSize: 13, color: Colors.grey),
+                          //                 ),
+                          //                 // CircleAvatar(
+                          //                 //   radius: 16,
+                          //                 //   backgroundColor:Colors.green.shade50,
+                          //                 //   child: Icon(Icons.login_rounded,
+                          //                 //       color: Colors.green,
+                          //                 //     size: 20,
+                          //                 //   ),
+                          //                 // )
+                          //               ],
+                          //             ),
+                          //             SizedBox(
+                          //               height: 12,
+                          //             ),
+                          //             Text(
+                          //               attendanceController.attendanceDetailsModel?.data?.checkInTime=="N/A" || attendanceController.attendanceDetailsModel?.data?.checkInTime==null?
+                          //               "Not Check-in yet" :
+                          //               "${attendanceController.attendanceDetailsModel?.data?.finishOverTime}",
+                          //               style: TextStyle(
+                          //                   fontSize: attendanceController.attendanceDetailsModel?.data?.checkInTime=="N/A" || attendanceController.attendanceDetailsModel?.data?.checkInTime==null?
+                          //                   15 :20,
+                          //                   color: Colors.black87,
+                          //                   fontWeight: FontWeight.w600),
+                          //             ),
+                          //             SizedBox(
+                          //               height: 10,
+                          //             ),
+                          //             Text(
+                          //               "On-Time",
+                          //               style: TextStyle(
+                          //                   fontSize: 16,
+                          //                   color: Colors.grey,
+                          //                   fontFamily: 'poppins',
+                          //                   fontWeight: FontWeight.w500),
+                          //             ),
+                          //           ],
+                          //         ),
+                          //       ),
+                          //     ),
+                          //   ],
+                          // ),
+                          // SizedBox(
+                          //   height: 20,
+                          // ),
                           SizedBox(
-                            height: 20,
+                            height: 10,
                           ),
-
                           ///total working hours
                           Container(
-                            height: categoryHeight * 0.4,
+                            height: categoryHeight * 0.5,
                             width: taskListWidth,
                             decoration: BoxDecoration(
                               color: Colors.white,
@@ -662,7 +960,7 @@ class Attendance extends StatelessWidget {
                               ],
                             ),
                             child: Padding(
-                              padding: const EdgeInsets.fromLTRB(18.0, 10, 18, 10),
+                              padding: const EdgeInsets.fromLTRB(18.0, 18, 18, 18),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -724,9 +1022,13 @@ class Attendance extends StatelessWidget {
                                                         fontWeight: FontWeight.w600
                                                     ),),
                                                     Spacer(),
+                                                    attendanceController.selectedDate.value.year == DateTime.now().year &&
+                                                        attendanceController.selectedDate.value.month == DateTime.now().month &&
+                                                        attendanceController.selectedDate.value.day == DateTime.now().day ?
                                                     IconButton(onPressed: ()async{
                                                       await locationController.breakInApi();
-                                                    }, icon: Icon(Icons.logout_sharp,size: 22)),
+                                                    }, icon: Icon(Icons.logout_sharp,size: 22))
+                                                        :Container(),
                                                   ],
                                                 ),
                                               ),
@@ -759,7 +1061,7 @@ class Attendance extends StatelessWidget {
                                                                     // fontFamily: 'poppins'
                                                                   ),),
                                                                 ),
-                                                                Text('${attendanceController.attendanceDetailsModel?.data?.loginactivities?[index].checkIn}', style: TextStyle(
+                                                                Text('${attendanceController.attendanceDetailsModel?.data?.loginactivities?[index].breakIn}', style: TextStyle(
                                                                     fontSize: 15,
                                                                     fontWeight: FontWeight.bold,
                                                                     color: Colors.black87
@@ -781,9 +1083,17 @@ class Attendance extends StatelessWidget {
                                                         fontWeight: FontWeight.w600
                                                     ),),
                                                     Spacer(),
-                                                    IconButton(onPressed: ()async{
-                                                      await locationController.breakOutApi();
-                                                    }, icon: Icon(Icons.logout_sharp,size: 22,)),
+                                                    attendanceController.selectedDate.value.year == DateTime.now().year &&
+                                                        attendanceController.selectedDate.value.month == DateTime.now().month &&
+                                                        attendanceController.selectedDate.value.day == DateTime.now().day ?
+                                                    IconButton(
+                                                      onPressed: () async {
+                                                        await locationController.breakOutApi();
+                                                      },
+                                                      icon: Icon(Icons.logout_sharp, size: 22),
+                                                    )
+                                                        : Container(),
+
                                                   ],
                                                 ),
                                               ),
@@ -794,7 +1104,7 @@ class Attendance extends StatelessWidget {
                                                   height: 50,
                                                   child: ListView.builder(
                                                       scrollDirection: Axis.horizontal,
-                                                      itemCount: attendanceController.breakOutTime.length,
+                                                      itemCount:attendanceController.attendanceDetailsModel?.data?.loginactivities?.length,
                                                       itemBuilder: (context,index){
                                                         return Card(  clipBehavior: Clip.antiAlias,
                                                           shape: RoundedRectangleBorder(
@@ -815,7 +1125,7 @@ class Attendance extends StatelessWidget {
                                                                     // fontFamily: 'poppins'
                                                                   ),),
                                                                 ),
-                                                                Text('${attendanceController.attendanceDetailsModel?.data?.loginactivities?[index].checkOut}', style: TextStyle(
+                                                                Text('${attendanceController.attendanceDetailsModel?.data?.loginactivities?[index].breakOut}', style: TextStyle(
                                                                     fontSize: 15,
                                                                     fontWeight: FontWeight.bold,
                                                                     color: Colors.black87
@@ -860,27 +1170,67 @@ class Attendance extends StatelessWidget {
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
                                     children: [
+                                      // Column(
+                                      //   crossAxisAlignment:
+                                      //       CrossAxisAlignment.start,
+                                      //   children: [
+                                      //     Text(
+                                      //       attendanceController.selectedDate.value.year == DateTime.now().year &&
+                                      //           attendanceController.selectedDate.value.month == DateTime.now().month &&
+                                      //           attendanceController.selectedDate.value.day == DateTime.now().day?
+                                      //       "Today":"${ DateFormat('d MMMM y').format(attendanceController.selectedDate.value).toString().substring(0,6)}",
+                                      //       style: TextStyle(
+                                      //           fontSize: 14,
+                                      //           color: Colors.grey,
+                                      //           fontFamily: 'poppins',
+                                      //           fontWeight: FontWeight.w500),
+                                      //     ),
+                                      //     Text(
+                                      //       "${attendanceController.attendanceDetailsModel?.data?.totalWorkingHours}",
+                                      //       style: TextStyle(
+                                      //           fontSize: 16,
+                                      //           color: Colors.black87,
+                                      //           fontWeight: FontWeight.w600),
+                                      //     ),
+                                      //   ],
+                                      // ),
                                       Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                                        crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
                                           Text(
-                                            "Today",
+                                            attendanceController.selectedDate.value.year == DateTime.now().year &&
+                                                attendanceController.selectedDate.value.month == DateTime.now().month &&
+                                                attendanceController.selectedDate.value.day == DateTime.now().day
+                                                ? "Today"
+                                                : "${DateFormat('d MMMM y').format(attendanceController.selectedDate.value).toString().substring(0,6)}",
                                             style: TextStyle(
-                                                fontSize: 14,
-                                                color: Colors.grey,
-                                                fontFamily: 'poppins',
-                                                fontWeight: FontWeight.w500),
+                                              fontSize: 14,
+                                              color: Colors.grey,
+                                              fontFamily: 'poppins',
+                                              fontWeight: FontWeight.w500,
+                                            ),
                                           ),
-                                          Text(
-                                            "${attendanceController.totalWorkingHours}",
-                                            style: TextStyle(
-                                                fontSize: 16,
-                                                color: Colors.black87,
-                                                fontWeight: FontWeight.w600),
-                                          ),
+                                          Obx(() => Row(
+                                            children: [
+                                              Text(
+                                                "${attendanceController.totalWorkingHours}",
+                                                style: TextStyle(
+                                                  fontSize: 16,
+                                                  color: Colors.black87,
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                              ),
+                                              Lottie.asset(
+                                                'lib/assets/refresh.json',
+                                                width: 20,
+                                                height: 20,
+                                                fit: BoxFit.fill,
+                                              )
+                                            ],
+                                          )),
                                         ],
                                       ),
+
                                       Container(
                                         height: sizeHeight2 * 0.35,
                                         width: 50,
@@ -922,6 +1272,11 @@ class Attendance extends StatelessWidget {
                           ),
 
                           SizedBox(
+                            height: 10,
+                          ),
+                          SizedBox(
+                            height: 10,
+                          ),  SizedBox(
                             height: 10,
                           ),
 

@@ -24,6 +24,7 @@ import '../../../../../../widget/elevated_button.dart';
 import '../../../../../bottom_bar/bottom_bar.dart';
 import '../back_aadharPage.dart';
 import '../panCard_page.dart';
+import '../profileImage_page.dart';
 import '../profile_employee.dart';
 
 //enum Gender { male, female, other }
@@ -132,11 +133,11 @@ class _PersonalUpdateProfileState extends State<PersonalUpdateProfile> {
       _pincodeController.text = _getprofileepersonal
               .getprofileemployeeModel?.data?.pincode
               .toString() ??
-          "";
+          "N/A";
       _aadharnoController.text = _getprofileepersonal
               .getprofileemployeeModel?.data?.aadharNo
               .toString() ??
-          "";
+          "N/A";
       _workEmailController.text = _getprofileepersonal
               .getprofileemployeeModel?.data?.workEmail
               .toString() ??
@@ -1088,7 +1089,7 @@ class _PersonalUpdateProfileState extends State<PersonalUpdateProfile> {
                                   Container(
                                     padding: EdgeInsets.symmetric(vertical: 0),
                                     child: TextFormField(
-                                      //readOnly: true,
+                                      readOnly: true,
                                       controller: _dateOfBirthController,
                                     decoration: InputDecoration(
                                         labelText: "Date Of Birth",
@@ -1131,6 +1132,7 @@ class _PersonalUpdateProfileState extends State<PersonalUpdateProfile> {
                                   Container(
                                     padding: EdgeInsets.symmetric(vertical: 0),
                                     child: TextFormField(
+                                      readOnly: true,
                                       controller: _companynameController,
                                       decoration: InputDecoration(
                                         labelText: "Company Name",
@@ -1153,6 +1155,7 @@ class _PersonalUpdateProfileState extends State<PersonalUpdateProfile> {
                                     padding: EdgeInsets.symmetric(vertical: 0),
                                     child: TextFormField(
                                       controller: _workEmailController,
+                                      readOnly: true,
                                       decoration: InputDecoration(
                                         labelText: "Work Email",
                                         hintStyle: (TextStyle(
@@ -1174,6 +1177,7 @@ class _PersonalUpdateProfileState extends State<PersonalUpdateProfile> {
                                     padding: EdgeInsets.symmetric(vertical: 0),
                                     child: TextFormField(
                                       controller: _joiningDateController,
+                                      readOnly: true,
                                       decoration: InputDecoration(
                                         labelText: "Joining Date",
                                         hintStyle: (TextStyle(
@@ -1195,6 +1199,7 @@ class _PersonalUpdateProfileState extends State<PersonalUpdateProfile> {
                                     padding: EdgeInsets.symmetric(vertical: 0),
                                     child: TextFormField(
                                       controller: _shiftController,
+                                      readOnly: true,
                                       decoration: InputDecoration(
                                         labelText: "Current Shift",
                                         hintStyle: (TextStyle(
@@ -1478,6 +1483,7 @@ class _PersonalUpdateProfileState extends State<PersonalUpdateProfile> {
                                         width: 200,
                                         padding: EdgeInsets.symmetric(vertical: 0),
                                         child: TextFormField(
+                                          readOnly: true,
                                           controller: _companyLocController,
                                           // validator: (value) {
                                           //   if (value == null || value.isEmpty) {
@@ -2509,53 +2515,61 @@ class _PersonalUpdateProfileState extends State<PersonalUpdateProfile> {
             ),
             Stack(
               children: [
-                CircleAvatar(
-                  radius: 40,
-                  backgroundColor: Colors.white,
-                  child: ClipOval(
-                    child: responsiveContainer(
-                      // padding: const EdgeInsets.only(right: 0),
-                      //height: 20,
-                      //width: 20,
-                      heightPortrait:
-                      MediaQuery.of(context).size.height * 0.12,
-                      widthPortrait:
-                      MediaQuery.of(context).size.width * 0.25,
-                      heightLandscape:
-                      MediaQuery.of(context).size.height * 0.3,
-                      widthLandscape:
-                      MediaQuery.of(context).size.width * 0.2,
-                      // height: MediaQuery.of(context).size.height *
-                      //     0.05, // 20% of screen height if not provided
-                      // width: MediaQuery.of(context).size.width * 0.09,
-                      //                                    "${_getprofileepersonal.getprofileemployeeModel?.data?.personalEmailAddress}",
-                      child:selectedProfileImage.value!=null?Image.memory(
-                        selectedProfileImage.value!,
-                        fit: BoxFit.cover,
-                        width: double.infinity,
-                        height: double.infinity,
-                      ): _getprofileepersonal
-                          .getprofileemployeeModel
-                          ?.data
-                          ?.empProfile !=
-                          null
-                          ? Image.network(
-                        // "${FixedText.apiurl2}"
-                        "${FixedText.imageUrlll}${_getprofileepersonal.getprofileemployeeModel?.data?.empProfile}",
-                        //color: appColor,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return Image.asset(
-                            'lib/assets/logo/logoo.png',
-                            fit: BoxFit.contain,
-                          );
-                        },
-                      )
-                          : Image.network(
-                        'https://ih1.redbubble.net/image.5098928927.2456/flat,750x,075,f-pad,750x1000,f8f8f8.u2.jpg',
-                        fit: BoxFit.fill,
+                GestureDetector(
+                  onTap: (){
+                    Navigator.push(context, MaterialPageRoute(builder: (context)=>ProfileImagePage()));
+                  },
+                  child: Hero(
+                    tag: 'profileImg',
+                    child: CircleAvatar(
+                      radius: 40,
+                      backgroundColor: Colors.white,
+                      child: ClipOval(
+                        child: responsiveContainer(
+                          // padding: const EdgeInsets.only(right: 0),
+                          //height: 20,
+                          //width: 20,
+                          heightPortrait:
+                          MediaQuery.of(context).size.height * 0.12,
+                          widthPortrait:
+                          MediaQuery.of(context).size.width * 0.25,
+                          heightLandscape:
+                          MediaQuery.of(context).size.height * 0.3,
+                          widthLandscape:
+                          MediaQuery.of(context).size.width * 0.2,
+                          // height: MediaQuery.of(context).size.height *
+                          //     0.05, // 20% of screen height if not provided
+                          // width: MediaQuery.of(context).size.width * 0.09,
+                          //                                    "${_getprofileepersonal.getprofileemployeeModel?.data?.personalEmailAddress}",
+                          child:selectedProfileImage.value!=null?Image.memory(
+                            selectedProfileImage.value!,
+                            fit: BoxFit.cover,
+                            width: double.infinity,
+                            height: double.infinity,
+                          ): _getprofileepersonal
+                              .getprofileemployeeModel
+                              ?.data
+                              ?.empProfile !=
+                              null
+                              ? Image.network(
+                            // "${FixedText.apiurl2}"
+                            "${FixedText.imageUrlll}${_getprofileepersonal.getprofileemployeeModel?.data?.empProfile}",
+                            //color: appColor,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Image.asset(
+                                'lib/assets/logo/logoo.png',
+                                fit: BoxFit.contain,
+                              );
+                            },
+                          )
+                              : Image.network(
+                            'https://ih1.redbubble.net/image.5098928927.2456/flat,750x,075,f-pad,750x1000,f8f8f8.u2.jpg',
+                            fit: BoxFit.fill,
+                          ),
+                          context: context,
+                        ),
                       ),
-                      context: context,
                     ),
                   ),
                 ),

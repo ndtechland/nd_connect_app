@@ -105,25 +105,25 @@ class AttendanceData {
 }
 
 class Loginactivity {
-  String? checkIn;
-  String? checkOut;
+  String? breakIn;
+  String? breakOut;
   String? loginStatus;
 
   Loginactivity({
-    this.checkIn,
-    this.checkOut,
+    this.breakIn,
+    this.breakOut,
     this.loginStatus,
   });
 
   factory Loginactivity.fromJson(Map<String, dynamic> json) => Loginactivity(
-    checkIn: json["checkIN"],
-    checkOut: json["checkOut"],
+    breakIn: json["breakIN"],
+    breakOut: json["breakOut"],
     loginStatus: json["loginStatus"],
   );
 
   Map<String, dynamic> toJson() => {
-    "checkIN": checkIn,
-    "checkOut": checkOut,
+    "breakIN": breakIn,
+    "breakOut": breakOut,
     "loginStatus": loginStatus,
   };
 }

@@ -109,6 +109,7 @@ class CurrentMonthAttendance extends StatelessWidget {
                             ),
                             SizedBox(height: 7,),
                             Text(
+                              currentMonthController.currentMonthAttendanceModel?.data?.totalWorkingDays==null?"0.0":
                               "${currentMonthController.currentMonthAttendanceModel?.data?.totalWorkingDays}",
                               style: TextStyle(
                                   fontSize: 20,
@@ -151,6 +152,8 @@ class CurrentMonthAttendance extends StatelessWidget {
                               height: 7,
                             ),
                             Text(
+                              currentMonthController.currentMonthAttendanceModel?.data?.totalPresentDays==null?"0.0":
+
                               "${currentMonthController.currentMonthAttendanceModel?.data?.totalPresentDays}",
                               style: TextStyle(
                                   fontSize: 20,
@@ -199,6 +202,7 @@ class CurrentMonthAttendance extends StatelessWidget {
                               height: 7,
                             ),
                             Text(
+                              currentMonthController.currentMonthAttendanceModel?.data?.totalAbsentDays==null?"0.0":
                               "${currentMonthController.currentMonthAttendanceModel?.data?.totalAbsentDays}",
                               style: TextStyle(
                                   fontSize: 20,
@@ -241,6 +245,7 @@ class CurrentMonthAttendance extends StatelessWidget {
                               height: 7,
                             ),
                             Text(
+                              currentMonthController.currentMonthAttendanceModel?.data?.attendance==null?"0.0":
                               "${currentMonthController.currentMonthAttendanceModel?.data?.attendance}",
                               style: TextStyle(
                                   fontSize: 20,

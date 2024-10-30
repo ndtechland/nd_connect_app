@@ -59,20 +59,55 @@ class AttendanceController extends GetxController {
   void onInit() {
     super.onInit();
     fetchAttendanceData();
-    AttendanceDetailApi();
+    // AttendanceDetailApi();
     EmpActivityApi();
+    updateWorkingHours();
+    updateAttendaneDetail();
   }
-Future<void> AttendanceDetailApi() async{
+
+  Future<void> updateAttendaneDetail() async {
+    try{
+      isLoading.value = true;
+      _timer?.cancel();  // Cancel any existing timer before starting a new one
+      _timer = Timer.periodic(Duration(minutes: 1), (Timer timer) {
+        print("updateAttendaneDetail...");
+        // debugPrint("Sending locationnn debug");
+
+        AttendanceDetailApi(DateTime.now());// Ensure this is a valid function
+      });}catch(e){
+      print('Error during updateAttendaneDetail: $e');
+
+    }finally {
+      // Set loading state to false after the API call completes
+      isLoading.value = false;
+    }
+  }
+Future<void> AttendanceDetailApi(DateTime date) async{
   isLoading.value = true;
     try{
-      attendanceDetailsModel= await ApiProvider.EmpAttendancedatail();
+      attendanceDetailsModel= await ApiProvider.EmpAttendancedatail(date);
       if(attendanceDetailsModel?.data?.officeHour==null){
         print("attendance detail null");
         isLoading(true);
-        attendanceDetailsModel= await ApiProvider.EmpAttendancedatail();
+        attendanceDetailsModel= await ApiProvider.EmpAttendancedatail(date);
       }
       if(attendanceDetailsModel?.data?.officeHour!=null) {
         print("attendance detail :${attendanceDetailsModel?.data}");
+        isLoading(false);
+      }
+      isLoading(false);
+
+    } catch(e){
+      print("Error fetching details:$e");
+
+    }
+}
+
+  Future<void> UpdateDetailApi(DateTime date) async{
+    try{
+      attendanceDetailsModel= await ApiProvider.AttendancedatailUpdate(date);
+      if(attendanceDetailsModel?.data?.officeHour!=null) {
+        print("attendance totalWorkingHours :${attendanceDetailsModel?.data?.totalWorkingHours}");
         isLoading(false);
       }
       isLoading(false);
@@ -81,7 +116,7 @@ Future<void> AttendanceDetailApi() async{
       print("Error fetching details:$e");
 
     }
-}
+  }
 Future<void> EmpActivityApi() async{
   isLoading.value = true;
     try{
@@ -105,7 +140,11 @@ Future<void> EmpActivityApi() async{
   // Method to update the date and fetch the data
   void updateSelectedDate(DateTime date) {
     selectedDate.value = date;
-    fetchAttendanceData();
+    print("selected date in attendance:${selectedDate.value}");
+    AttendanceDetailApi(selectedDate.value);
+    print("selected date in attendance:${selectedDate.value}");
+
+  //  fetchAttendanceData();
   }
 
   // Fetch the attendance data based on the selected date
@@ -176,7 +215,7 @@ Future<void> EmpActivityApi() async{
 
       // Start a timer to update total working hours every minute
       _timer = Timer.periodic(Duration(minutes: 1), (timer) {
-       updateWorkingHours();
+     //  updateWorkingHours();
       });
 
       // Immediately update total working hours
@@ -257,43 +296,90 @@ Future<void> EmpActivityApi() async{
 //     }
 //   }
 
+  // void updateWorkingHours() {
+  //   // Current time
+  //   DateTime now = DateTime.now();
+  //   DateFormat timeFormat = DateFormat("hh:mm a"); // Format for both now and check-in time
+  //
+  //   // Format 'now' to match the check-in time format
+  //   String nowStr = timeFormat.format(now).toUpperCase(); // Convert to uppercase
+  //   print("Formatted now: $nowStr");
+  //
+  //   try {
+  //     // Ensure the check-in time string is well formatted and trimmed
+  //     String? checkInStr =attendanceDetailsModel?.data?.checkInTime;
+  //    // checkInTime.value.trim().toUpperCase(); // Convert to uppercase
+  //     print("Check-in time string: '$checkInStr'");
+  //     print("Now time string: '$nowStr'");
+  //
+  //     // Check if the check-in time string is valid
+  //     if (!RegExp(r'^[0-9]{1,2}:[0-9]{2} [APM]{2}$').hasMatch(checkInStr!)) {
+  //       throw FormatException("Invalid time format: $checkInStr");
+  //     }
+  //
+  //     // Parse the formatted 'now' and 'check-in' times using the same format
+  //     DateTime checkIn = timeFormat.parse(checkInStr);
+  //     print("checkIn: $checkIn");
+  //     DateTime formattedNow = timeFormat.parse(nowStr); // Parse nowStr
+  //     print("formattedNow: $formattedNow");
+  //
+  //     // Calculate the working duration
+  //     Duration workingDuration = formattedNow.difference(checkIn);
+  //     print("workingDuration: $workingDuration");
+  //
+  //     // Format the working hours into a readable string
+  //     String formattedWorkingHours =
+  //         "${workingDuration.inHours}Hrs ${workingDuration.inMinutes.remainder(60)}min";
+  //
+  //     totalWorkingHours.value = formattedWorkingHours;
+  //     print("Total working hours: $formattedWorkingHours");
+  //   } catch (e) {
+  //     // Handle any parsing errors
+  //     print("Error parsing time: $e");
+  //     totalWorkingHours.value = "N/A";
+  //   }
+  // }
   void updateWorkingHours() {
-    // Current time
+    // Current date and time
     DateTime now = DateTime.now();
     DateFormat timeFormat = DateFormat("hh:mm a"); // Format for both now and check-in time
+    DateFormat dateFormat = DateFormat("yyyy-MM-dd"); // Format for checking the date
+    print("Formatted Current now: $now");
 
     // Format 'now' to match the check-in time format
     String nowStr = timeFormat.format(now).toUpperCase(); // Convert to uppercase
+    String currentDateStr = dateFormat.format(now); // Current date in yyyy-MM-dd
     print("Formatted now: $nowStr");
 
     try {
       // Ensure the check-in time string is well formatted and trimmed
-      String? checkInStr =attendanceDetailsModel?.data?.checkInTime;
-     // checkInTime.value.trim().toUpperCase(); // Convert to uppercase
+      String? checkInStr = attendanceDetailsModel?.data?.checkInTime;
+      String? checkInDateStr = attendanceDetailsModel?.data?.currentdate; // Expected to be in yyyy-MM-dd format
+
       print("Check-in time string: '$checkInStr'");
+      print("Check-in date string: '$checkInDateStr'");
       print("Now time string: '$nowStr'");
 
-      // Check if the check-in time string is valid
-      if (!RegExp(r'^[0-9]{1,2}:[0-9]{2} [APM]{2}$').hasMatch(checkInStr!)) {
-        throw FormatException("Invalid time format: $checkInStr");
+      // Check if the date is today
+      if (checkInDateStr == currentDateStr && checkInStr != null) {
+        // Parse the formatted 'now' and 'check-in' times using the same format
+        DateTime checkIn = timeFormat.parse(checkInStr);
+        DateTime formattedNow = timeFormat.parse(nowStr); // Parse nowStr
+
+        // Calculate the working duration
+        Duration workingDuration = formattedNow.difference(checkIn);
+
+        // Format the working hours into a readable string
+        String formattedWorkingHours =
+            "${workingDuration.inHours}Hrs ${workingDuration.inMinutes.remainder(60)}min";
+
+        totalWorkingHours.value = formattedWorkingHours;
+        print("Total working hours (calculated): $formattedWorkingHours");
+      } else {
+        // Use working hours from the API if the date is not today
+        totalWorkingHours.value = attendanceDetailsModel?.data?.totalWorkingHours ?? "N/A";
+        print("Total working hours (from API): ${totalWorkingHours.value}");
       }
-
-      // Parse the formatted 'now' and 'check-in' times using the same format
-      DateTime checkIn = timeFormat.parse(checkInStr);
-      print("checkIn: $checkIn");
-      DateTime formattedNow = timeFormat.parse(nowStr); // Parse nowStr
-      print("formattedNow: $formattedNow");
-
-      // Calculate the working duration
-      Duration workingDuration = formattedNow.difference(checkIn);
-      print("workingDuration: $workingDuration");
-
-      // Format the working hours into a readable string
-      String formattedWorkingHours =
-          "${workingDuration.inHours}Hrs ${workingDuration.inMinutes.remainder(60)}min";
-
-      totalWorkingHours.value = formattedWorkingHours;
-      print("Total working hours: $formattedWorkingHours");
     } catch (e) {
       // Handle any parsing errors
       print("Error parsing time: $e");

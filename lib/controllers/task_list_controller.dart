@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:nd_connect_techland/constants/themes/theme_colors.dart';
+import 'package:table_calendar/table_calendar.dart';
+
 import 'package:nd_connect_techland/models/task_model.dart';
 import 'package:nd_connect_techland/services_apis/api_servicesss.dart';
+
+import '../models/sub_task_model.dart';
+import '../models/task_details_model.dart';
 // class DateTaskController extends GetxController {
 //   // Initialize selectedDate with the current date
 //   var selectedDate = DateTime.now().obs;
@@ -79,21 +84,24 @@ import 'package:nd_connect_techland/services_apis/api_servicesss.dart';
 
 class DateTaskController extends GetxController {
   var selectedDate = DateTime.now().obs;
+  final Rx<DateTime> focusedDay = DateTime.now().obs;
+  final Rx<DateTime?> selectedDay = Rxn<DateTime>(null);
   final isLoading = false.obs;
   var taskList = <Task>[].obs;
-  var taskData = {}.obs;
+  var taskData = <String, dynamic>{}.obs; // Initialize as an empty RxMap
+  var taskDetail = TaskDetailModel().obs; // Initialize as an empty RxMap
+  var taskSubTitle = TaskDetailsData().obs; // Initialize as an empty RxMap
+
   var taskHisData = [].obs;
+  final Rx<CalendarFormat> calendarFormat = CalendarFormat.week.obs;
+  TaskModel? apiTasks;
   RxList<TasksModells> tasks = <TasksModells>[].obs;
   final RxMap<DateTime, List<TasksModells>> taskts =
       <DateTime, List<TasksModells>>{}.obs;
   final allTasks = <Task>[
     // Task(name: 'Task 1', date: DateTime(2024, 10, 1), taskStatus: 'Pending', taskTitle: 'ND Connect', taskDescription: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard dummy text ever since the 1500s'),
-    // Task(name: 'Task 2', date: DateTime(2024, 10, 3),taskStatus: 'Pending', taskTitle: 'ND Connect', taskDescription: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard dummy text ever since the 1500s'),
-    // Task(name: 'Task 3', date: DateTime(2024, 10, 5),taskStatus: 'Pending', taskTitle: 'ND Connect', taskDescription: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard dummy text ever since the 1500s'),
-    // Task(name: 'Task 4', date: DateTime(2024, 10, 6),taskStatus: 'Pending', taskTitle: 'ND Connect', taskDescription: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard dummy text ever since the 1500s'),
-    // Task(name: 'Task 4.1', date: DateTime(2024, 10, 7),taskStatus: 'Pending', taskTitle: 'ND Connect', taskDescription: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard dummy text ever since the 1500s'),
-    // Task(name: 'Task 5', date: DateTime(2024, 9, 30),taskStatus: 'Pending', taskTitle: 'ND Connect', taskDescription: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard dummy text ever since the 1500s'),
   ];
+  TaskDetailModel? subTaskCompletedModel;
   @override
   void onInit() {
     super.onInit();
@@ -101,13 +109,14 @@ class DateTaskController extends GetxController {
     TaskAssignApi();
   }
 
-  // Task Assign API function
   Future<void> TaskAssignApi() async {
     isLoading.value = true;
     try {
-      List<TasksModells> apiTasks = await ApiProvider.getTaskAssign();
-      if (apiTasks.isNotEmpty) {
-        tasks.value = apiTasks;
+       apiTasks = await ApiProvider.getTaskAssign();
+      if (apiTasks != null && apiTasks?.succeeded == true) {
+        // Safely casting the data to List<TasksModells>
+        tasks.value = List<TasksModells>.from(apiTasks?.data ?? []);
+        _updateEvents(apiTasks?.data ?? []);
         updateTasksForSelectedDate();
       }
     } catch (e) {
@@ -117,14 +126,38 @@ class DateTaskController extends GetxController {
     }
   }
 
-  Future<void> fetchTaskData(int idd) async {
+  // Task Assign API function
+  Future<void> TaskAssignApi1() async {
+    isLoading.value = true;
+    try {
+      // List<TasksModells> apiTasks = await ApiProvider.getTaskAssign();
+      // if (apiTasks.isNotEmpty) {
+      //   tasks.value = apiTasks;
+      //   updateTasksForSelectedDate();
+      //
+      // }
+      TaskModel? apiTasks = await ApiProvider.getTaskAssign();
+      if (apiTasks != null && apiTasks.succeeded == true) {
+        // Update events map with API data
+        // tasks.value = apiTasks??[];
+        _updateEvents(apiTasks.data ?? []);
+        updateTasksForSelectedDate();
+      }
+    } catch (e) {
+      print('Error fetching tasks: $e');
+    } finally {
+      isLoading.value = false;
+    }
+  }
+  Future<void> fetchTaskData1(int idd) async {
     isLoading(true);
     try {
-      var response = await ApiProvider.getTaskDetail(idd);
-      if (response['succeeded']) {
-        taskData.value = response['data'];
+      subTaskCompletedModel = await ApiProvider.getTaskDetail(idd);
+      if (subTaskCompletedModel?.statusCode == 200) {
+        print("Data fetched: ${subTaskCompletedModel?.data}");
+        taskData.value = Map<String, dynamic>.from(subTaskCompletedModel?.data?.toJson() ?? {});
       } else {
-        Get.snackbar('Error', response['message']);
+        Get.snackbar('Error', subTaskCompletedModel?.message ?? 'Error fetching data');
       }
     } catch (error) {
       Get.snackbar('Error', 'An error occurred: $error');
@@ -132,6 +165,111 @@ class DateTaskController extends GetxController {
       isLoading(false);
     }
   }
+
+
+
+  Future<void> fetchTaskData(int idd) async {
+    isLoading(true);
+    try {
+      subTaskCompletedModel = await ApiProvider.getTaskDetail(idd);
+      if (subTaskCompletedModel?.statusCode==200) {
+        taskDetail.value = subTaskCompletedModel!;
+      }
+      if (subTaskCompletedModel != null && subTaskCompletedModel?.data != null) {
+        taskData.value = (subTaskCompletedModel?.data?.toJson() ?? <String, dynamic>{}) as Map<String, dynamic>;
+        print("taskData:${taskData.length}");// Update taskData
+      }else {
+        print("Error:${subTaskCompletedModel!.message.toString()}");// Update taskData
+
+        Get.snackbar('Error', subTaskCompletedModel!.message.toString());
+      }
+    } catch (error) {
+      print("Error:${error}");// Update taskData
+
+      Get.snackbar('Error', 'An error occurred: $error');
+    } finally {
+      isLoading(false);
+    }
+  }
+
+  ///todo:like events controller start
+  ///
+  void _updateEvents(List<TasksModells> apiData) {
+    // Clear current events
+    taskts.clear();
+
+    for (var datum in apiData) {
+      if (datum.taskstartdate != null) {
+        // Use the date directly as it's already parsed as DateTime
+        final eventDate = datum.taskstartdate!;
+        final eventModel = TasksModells(
+          id: datum.id,
+          taskName: datum.taskName,
+          taskTittle: datum.taskTittle,
+          taskstartdate: eventDate,
+          taskEnddate: datum.taskEnddate,
+          taskDescription: datum.taskDescription,
+          taskStatus: datum.taskStatus,
+          // date: eventDate,
+          // tittle: datum.tittle ?? 'No Title',
+          // subtittle: datum.subtittle ?? 'No Subtitle',
+        );
+
+        print("eventDate: $eventDate");
+
+        // Creating the key with just the date (year, month, day)
+        final eventKey = DateTime(eventDate.year, eventDate.month, eventDate.day);
+
+        if (taskts.containsKey(eventKey)) {
+          taskts[eventKey]?.add(eventModel);
+        } else {
+          taskts[eventKey] = [eventModel];
+        }
+      }
+    }
+
+    // Automatically select the first date with events
+    _autoSelectDatesWithEvents();
+  }
+
+  void _autoSelectDatesWithEvents() {
+    final datesWithEvents = taskts.keys.toList();
+    if (datesWithEvents.isNotEmpty) {
+      // selectedDay.value = datesWithEvents.first;
+      // focusedDay.value = datesWithEvents.first;
+      selectedDay.value = DateTime.now();
+      focusedDay.value = DateTime.now();
+    }
+  }
+
+  void onDaySelected(DateTime selectedDay, DateTime focusedDay) {
+    this.selectedDay.value = selectedDay;
+    this.focusedDay.value = focusedDay;
+  }
+
+  void onFormatChanged(CalendarFormat format) {
+    calendarFormat.value = format;
+  }
+
+  void onPageChanged(DateTime focusedDay) {
+    this.focusedDay.value = focusedDay;
+  }
+
+  // Fetch events for a specific day
+  List<TasksModells> getTasksForDay(DateTime day) {
+    final taskDate = DateTime(day.year, day.month, day.day);
+    return taskts[taskDate] ?? [];
+  }
+
+  // Check if a day has events
+  bool hasTasks(DateTime day) {
+    final eventDate = DateTime(day.year, day.month, day.day);
+    return taskts.containsKey(eventDate);
+  }
+  ///todo:like events controller end
+
+
+
 
   // Future<void> fetchTaskHisDetailData(int idd) async {
   //   isLoading(true);
@@ -149,13 +287,10 @@ class DateTaskController extends GetxController {
   //   }
   // }
   // Function to select a specific date
+
   void selectDate(DateTime date) {
     selectedDate.value = date;
     updateTasksForSelectedDate();
-  }
-  bool hasEvents(DateTime day) {
-    final eventDate = DateTime(day.year, day.month, day.day);
-    return taskts.containsKey(eventDate);
   }
   void selectNearestTaskDate() {
     final today = DateTime.now();

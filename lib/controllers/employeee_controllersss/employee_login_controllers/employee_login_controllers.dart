@@ -4,11 +4,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:nd_connect_techland/modules/bottom_bar/bottom_bar.dart';
-
-
 import '../../../components/styles.dart';
 import '../../../models/employee_model/autologin_employee_model.dart';
-
 import '../../../services_apis/api_servicesss.dart';
 import '../../../services_apis/auto_login_employee.dart';
 import '../../employee_controller/profile_controller/profile_info_employee_controller.dart';
@@ -220,8 +217,9 @@ class EmployeeLoginController extends GetxController {
                   ),)
               ],
             ),
-            content: const Text(
-                """When you grant permission for  location access in our application, we may collect and process certain information related to your geographical location. This includes GPS coordinates, Wi-Fi network information, cellular tower data, Background Location, and other relevant data sources to determine your device's location."""),
+            content: const Text( '''By granting location access in this application, you allow us to collect and use your location data, including GPS coordinates, Wi-Fi network information, and cellular data. This information helps determine your presence within the designated workplace area, even when the app runs in the background. We only use this data to confirm attendance and ensure accurate time tracking in compliance with workplace policies.'''
+                //"""When you grant permission for  location access in our application, we may collect and process certain information related to your geographical location. This includes GPS coordinates, Wi-Fi network information, cellular tower data, Background Location, and other relevant data sources to determine your device's location."""
+            ),
             actions: [
               TextButton(
                 child: const Text("Reject"),

@@ -10,6 +10,7 @@ import 'package:nd_connect_techland/controllers/about_company_controller.dart';
 import 'package:nd_connect_techland/controllers/faq_controller.dart';
 import 'package:nd_connect_techland/modules/all_pages/events/events_calender.dart';
 import 'package:nd_connect_techland/modules/all_pages/pages/emploree_pages/profile_employee/employee_bank_nd.dart';
+import 'package:nd_connect_techland/modules/all_pages/pages/emploree_pages/profile_employee/profileImage_page.dart';
 import 'package:nd_connect_techland/modules/all_pages/pages/emploree_pages/profile_employee/profile_employee.dart';
 import 'package:nd_connect_techland/modules/all_pages/pages/emploree_pages/profile_employee/update_add_profile/personal_information_update.dart';
 import 'package:nd_connect_techland/modules/all_pages/pages/emploree_pages/profile_employee/update_add_profile/update_add_bank_detail.dart';
@@ -83,14 +84,13 @@ class EmployeeNavBar extends StatelessWidget {
         throw 'Could not launch $_aboudNdConnectUrl';
       }
     }
-    final Uri _aboudCompanyUrl = Uri.parse('${aboutCompanyController.aboutCompanyModel?.data?.companylink}');
-    print("_aboudCompanyUrl:$_aboudCompanyUrl");
-    Future<void> _launchCompanyUrl() async {
-      if (!await launchUrl(_aboudCompanyUrl)) {
-        throw 'Could not launch $_aboudCompanyUrl';
+    final Uri _aboudCompanyUrl1 = Uri.parse('${aboutCompanyController.aboutCompanyModel?.data?.companylink}');
+    print("_aboudCompanyUrl:$_aboudCompanyUrl1");
+    Future<void> _launchCompanyUrl1() async {
+      if (!await launchUrl(_aboudCompanyUrl1)) {
+        throw 'Could not launch $_aboudCompanyUrl1';
       }
     }
-
     return OrientationBuilder(builder: (context, orientation) {
       return LayoutBuilder(builder: (context, constraints) {
         var screenWidth = constraints.maxWidth;
@@ -119,44 +119,52 @@ class EmployeeNavBar extends StatelessWidget {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      CircleAvatar(
-                        radius: imageHeight * 0.4,
-                        backgroundColor: Colors.white,
-                        child: ClipOval(
-                          child: responsiveContainer(
-                            // padding: const EdgeInsets.only(right: 0),
-                            //height: 20,
-                            //width: 20,
-                            heightPortrait:
-                                MediaQuery.of(context).size.height * 0.12,
-                            widthPortrait:
-                                MediaQuery.of(context).size.width * 0.25,
-                            heightLandscape:
-                                MediaQuery.of(context).size.height * 0.3,
-                            widthLandscape:
-                                MediaQuery.of(context).size.width * 0.2,
-                            // height: MediaQuery.of(context).size.height *
-                            //     0.05, // 20% of screen height if not provided
-                            // width: MediaQuery.of(context).size.width * 0.09,
-                            //                                    "${_getprofileepersonal.getprofileemployeeModel?.data?.personalEmailAddress}",
-                            child: _profileEmployeeController.getprofileemployeeModel?.data?.empProfile != null
-                                ? Image.network(
-                                    // "${FixedText.apiurl2}"
-                                    "${FixedText.imageUrlll}${_profileEmployeeController.getprofileemployeeModel?.data?.empProfile}",
-                                    //color: appColor,
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (context, error, stackTrace) {
-                                      return Image.asset(
-                                        'lib/assets/logo/logoo.png',
-                                        fit: BoxFit.contain,
-                                      );
-                                    },
-                                  )
-                                : Image.network(
-                                    'https://ih1.redbubble.net/image.5098928927.2456/flat,750x,075,f-pad,750x1000,f8f8f8.u2.jpg',
-                                    fit: BoxFit.fill,
-                                  ),
-                            context: context,
+                      GestureDetector(
+                        onTap: (){
+                          Navigator.push(context, MaterialPageRoute(builder: (context)=>ProfileImagePage()));
+                        },
+                        child: Hero(
+                          tag: 'profileImg',
+                          child: CircleAvatar(
+                            radius: imageHeight * 0.4,
+                            backgroundColor: Colors.white,
+                            child: ClipOval(
+                              child: responsiveContainer(
+                                // padding: const EdgeInsets.only(right: 0),
+                                //height: 20,
+                                //width: 20,
+                                heightPortrait:
+                                    MediaQuery.of(context).size.height * 0.12,
+                                widthPortrait:
+                                    MediaQuery.of(context).size.width * 0.25,
+                                heightLandscape:
+                                    MediaQuery.of(context).size.height * 0.3,
+                                widthLandscape:
+                                    MediaQuery.of(context).size.width * 0.2,
+                                // height: MediaQuery.of(context).size.height *
+                                //     0.05, // 20% of screen height if not provided
+                                // width: MediaQuery.of(context).size.width * 0.09,
+                                //                                    "${_getprofileepersonal.getprofileemployeeModel?.data?.personalEmailAddress}",
+                                child: _profileEmployeeController.getprofileemployeeModel?.data?.empProfile != null
+                                    ? Image.network(
+                                        // "${FixedText.apiurl2}"
+                                        "${FixedText.imageUrlll}${_profileEmployeeController.getprofileemployeeModel?.data?.empProfile}",
+                                        //color: appColor,
+                                        fit: BoxFit.cover,
+                                        errorBuilder: (context, error, stackTrace) {
+                                          return Image.asset(
+                                            'lib/assets/logo/logoo.png',
+                                            fit: BoxFit.contain,
+                                          );
+                                        },
+                                      )
+                                    : Image.network(
+                                        'https://ih1.redbubble.net/image.5098928927.2456/flat,750x,075,f-pad,750x1000,f8f8f8.u2.jpg',
+                                        fit: BoxFit.fill,
+                                      ),
+                                context: context,
+                              ),
+                            ),
                           ),
                         ),
                       ),
@@ -620,19 +628,36 @@ class EmployeeNavBar extends StatelessWidget {
               ListTile(
                 leading: const Icon(Icons.add_business_rounded),
                 title: const Text('About Company'),
-                onTap: () async{
-                await  aboutCompanyController.AboutCompanyApi();
-                 await _launchCompanyUrl();
-                  Get.back();
+                onTap: () async {
+                Get.dialog(CustomThreeInOutLoader(), barrierDismissible: false);
 
+                // Call the API and wait for the response
+                await aboutCompanyController.AboutCompanyApi();
+
+                // Initialize _aboudCompanyUrl after the API response is received
+                final Uri? _aboudCompanyUrl = aboutCompanyController.aboutCompanyModel?.data?.companylink != null
+                ? Uri.tryParse('${aboutCompanyController.aboutCompanyModel?.data?.companylink}')
+                    : null;
+
+                print("_aboudCompanyUrl: $_aboudCompanyUrl");
+
+                // Close the dialog after API response
+                Get.back();
+
+                // Launch the URL if it's valid
+                if (_aboudCompanyUrl != null && await canLaunchUrl(_aboudCompanyUrl)) {
+                await launchUrl(_aboudCompanyUrl);
+                } else {
+                print('Could not launch $_aboudCompanyUrl');
+                 }
                 },
-              ), ListTile(
+               ),
+               ListTile(
                 leading: const Icon(Icons.business),
                 title: const Text('ND Connect'),
                 onTap: () {
                   _launchNdConnectUrl();
                   Get.back();
-
                 },
               ),
               ListTile(

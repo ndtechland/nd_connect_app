@@ -355,7 +355,7 @@ void initState(){
                       print("checkkk");
                       await locationController.checkInApi();
                       await Future.delayed(Duration(seconds: 2));
-                      await attendanceController.AttendanceDetailApi();
+                      await attendanceController.AttendanceDetailApi(DateTime.now());
                       print("attDetail:${attendanceController.attendanceDetailsModel?.data?.officeHour}");
                       print("checkkk innn");
                     },

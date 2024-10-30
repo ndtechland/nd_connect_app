@@ -106,8 +106,12 @@ class SplashScreen extends StatelessWidget {
                   await locationController.fetchCompanyLocationApi();
                   await locationController.getCoordinatesFromAddress();
                   await _homedashboardController.dashboarddApi();
-                  await attendanceController.EmpActivityApi();
-                  print("attendance activity:${attendanceController.attendanceActivityModel?.data?.loginStatus}");
+                  await attendanceController.AttendanceDetailApi(DateTime.now());
+                  await attendanceController.updateAttendaneDetail();
+                  await locationController.startSendingLocation();
+                  print("Sending splash.");
+
+                  print("attendance activity:${attendanceController.attendanceDetailsModel?.data?.loginStatus}");
                   _homedashboardController.update();
                   Future.delayed(Duration(seconds: 1));
                   await Navigator.pushReplacement(

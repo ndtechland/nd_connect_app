@@ -16,21 +16,14 @@ class HomedashboardController extends GetxController {
   var offLetter = ''.obs;
   Future<void> dashboarddApi() async {
     isLoading(true);
+    print("try dashboard");
     dashboardResponse = await ApiProvider.getDashboardApi();
 
-    if (dashboardResponse?.data?.totalAttendance == null) {
-      Timer(
-        const Duration(seconds: 1),
-        () {
-          //Get.snackbar("Fail", "${medicinecheckoutModel?.data}");
-          //Get.to(() => MedicineCart());
-          //Get.to((page))
-          ///
-        },
-      );
-      isLoading(true);
-      dashboardResponse = await ApiProvider.getDashboardApi();
-    }
+    // if (dashboardResponse?.data?.totalAttendance == null) {
+    //   print("try dashboard null");
+    //   isLoading(true);
+    //   dashboardResponse = await ApiProvider.getDashboardApi();
+    // }
     if (dashboardResponse?.data?.totalAttendance != null) {
       aptLetter.value =
       "${FixedText.apiurl2}${dashboardResponse!.data!.appointmentletter.toString()}";

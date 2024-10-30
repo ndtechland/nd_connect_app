@@ -192,6 +192,7 @@ import 'package:table_calendar/table_calendar.dart';
 
 import '../../../controllers/events_controller.dart';
 import '../../../models/events_model.dart';
+import '../../bottom_bar/bottom_bar.dart';
 import '../pages/willPop_scope_exit.dart';
 
 
@@ -582,6 +583,8 @@ class EventCalendarScreen extends StatelessWidget {
                         child: InkWell(
                           onTap: () {
                             bottomNavController.changeTabIndex(0);
+                            Get.offAll(()=>BottomBar());
+
                           },
                           child: Icon(Icons.arrow_back, color: Colors.white),
                         ),
@@ -751,10 +754,13 @@ class EventCalendarScreen extends StatelessWidget {
   // Build event list
   Widget _buildEventList(EventsController controller, DateTime? selectedDay) {
     if (selectedDay == null) {
-      return Center(child: Text("No date selected"));
+      selectedDay==DateTime.now();
     }
+    final nonNullableSelectedDay = selectedDay ?? DateTime.now();
 
-    List<EventModel> selectedEvents = controller.getEventsForDay(selectedDay);
+    List<EventModel> selectedEvents = controller.getEventsForDay(nonNullableSelectedDay);
+
+    // List<EventModel> selectedEvents = controller.getEventsForDay(selectedDay);
 
     // Debugging
     print('Events for $selectedDay: $selectedEvents');

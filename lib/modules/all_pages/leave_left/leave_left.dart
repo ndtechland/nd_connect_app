@@ -80,7 +80,9 @@ class LeaveLeft extends StatelessWidget {
           return Obx(
                 () => (_leaveApplyController.isLoading.value)
                 ? const Center(child: CircularProgressIndicator())
-                : Padding(
+                :
+                _leaveApplyController.leaveCategory.isEmpty?Container(child: Text("No Leave Left"),):
+                Padding(
               padding: const EdgeInsets.all(18.0),
               child: ListView.builder(
                 itemCount: _leaveApplyController.leaveCategory.length,
@@ -163,8 +165,170 @@ class LeaveLeft extends StatelessWidget {
       }),
     );
   }
-
   showdilogleave(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
+    showCupertinoDialog(
+      barrierDismissible: true, // Allow closing the dialog by tapping outside
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20), // Smooth rounded corners
+          ),
+          backgroundColor: Colors.white, // Dialog background color
+          child: Padding(
+            padding: const EdgeInsets.all(20), // Padding for the content
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                // Dialog Title with style
+                Text(
+                  "Select Leave Type",
+                  style: TextStyle(
+                    fontSize: size.height * 0.024,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87, // Darker black for a premium feel
+                    letterSpacing: 1.0,
+                  ),
+                ),
+                SizedBox(height: 20), // Spacing after title
+
+                // Single Day Leave button
+                GestureDetector(
+                  onTap: () {
+                    Get.to(SingleDayLeavePage());
+                  },
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [Colors.blue, Colors.blueAccent], // Gradient background
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(15), // Rounded corners
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.calendar_today, color: Colors.white, size: 20),
+                        SizedBox(width: 10),
+                        Text(
+                          "Single Day Leave",
+                          style: TextStyle(
+                            fontSize: size.height * 0.018,
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                SizedBox(height: 15), // Spacing between buttons
+
+                // Multiple Day Leave button
+                GestureDetector(
+                  onTap: () {
+                    Get.to(MultipleDayLeavePage());
+                  },
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [Colors.green.shade500, Colors.green], // Gradient background
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(15), // Rounded corners
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.date_range, color: Colors.white, size: 20),
+                        SizedBox(width: 10),
+                        Text(
+                          "Multiple Day Leave",
+                          style: TextStyle(
+                            fontSize: size.height * 0.018,
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                SizedBox(height: 15),
+                // Spacing between buttons
+
+                // Other Leave button
+                // GestureDetector(
+                //   onTap: () {
+                //     // Add navigation logic for other leave types
+                //   },
+                //   child: Container(
+                //     width: double.infinity,
+                //     padding: const EdgeInsets.symmetric(vertical: 16),
+                //     decoration: BoxDecoration(
+                //       gradient: LinearGradient(
+                //         colors: [Colors.redAccent, Colors.deepOrange], // Gradient background
+                //         begin: Alignment.topLeft,
+                //         end: Alignment.bottomRight,
+                //       ),
+                //       borderRadius: BorderRadius.circular(15), // Rounded corners
+                //       boxShadow: [
+                //         BoxShadow(
+                //           color: Colors.redAccent.withOpacity(0.4),
+                //           spreadRadius: 2,
+                //           blurRadius: 8,
+                //           offset: Offset(0, 4), // Shadow direction
+                //         ),
+                //       ],
+                //     ),
+                //     child: Row(
+                //       mainAxisAlignment: MainAxisAlignment.center,
+                //       children: [
+                //         Icon(Icons.hourglass_empty, color: Colors.white, size: 20),
+                //         SizedBox(width: 10),
+                //         Text(
+                //           "Other Leave",
+                //           style: TextStyle(
+                //             fontSize: size.height * 0.018,
+                //             color: Colors.white,
+                //             fontWeight: FontWeight.w600,
+                //           ),
+                //         ),
+                //       ],
+                //     ),
+                //   ),
+                // ),
+                // SizedBox(height: 20), // Spacing after buttons
+
+                // Cancel button
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context); // Close the dialog
+                  },
+                  child: Text(
+                    "Cancel",
+                    style: TextStyle(
+                      color: Colors.black87,
+                      fontSize: size.height * 0.018,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+  showdilogleave1(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     showCupertinoDialog(
       barrierDismissible: true, // Set barrierDismissible to true

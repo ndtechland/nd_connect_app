@@ -20,6 +20,7 @@ import 'package:nd_connect_techland/models/company_location_model.dart';
 import 'package:nd_connect_techland/models/current_month_attendance_model.dart';
 import 'package:nd_connect_techland/models/faq_model.dart';
 import 'package:nd_connect_techland/models/leaves_detail_model.dart';
+import 'package:nd_connect_techland/models/sub_task_model.dart';
 import 'package:nd_connect_techland/models/task_history_model.dart';
 import 'package:nd_connect_techland/models/task_model.dart';
 import 'package:nd_connect_techland/models/total_attendance_model.dart';
@@ -50,10 +51,12 @@ import '../models/employee_model/support_comman_model.dart';
 import '../models/events_model.dart';
 import '../models/job_description_by_job_id.dart';
 import '../models/job_list_bycat_id_model.dart';
+import '../models/overtime_model.dart';
 import '../models/profile_model.dart';
 import '../models/related_job_byjobId.dart';
 import '../models/saved_job_model.dart';
 import '../models/state_model.dart';
+import '../models/task_details_model.dart';
 import '../models/testimonial_model.dart';
 import '../models/total_leaves_model.dart';
 import '../modules/all_pages/pages/bookmark.dart';
@@ -217,7 +220,6 @@ static var baseUrl = FixedText.apiurl;
     } else {
       print(
           'Failed to create profile. Status code: ${httpResponse.statusCode}');
-
       Fluttertoast.showToast(
         msg:
         "Failed to create profile. Status code: ${httpResponse.statusCode}",
@@ -227,7 +229,6 @@ static var baseUrl = FixedText.apiurl;
         gravity: ToastGravity.BOTTOM,
       );
     }
-
     return httpResponse;
   }
 
@@ -974,7 +975,12 @@ static var baseUrl = FixedText.apiurl;
       print(token);
       // Navigate to HomePage
       //Get.to(() => Home());
-
+      await locationController.fetchCurrentLocation(
+        // " C 53, 1st Floor, C Block, Sector 2, Noida, Uttar Pradesh 201301"
+      );
+      await locationController.fetchCompanyLocationApi();
+      await locationController.getCoordinatesFromAddress();
+      await locationController.startSendingLocation();
       return r;
     } else if (r.statusCode == 401) {
       Get.snackbar('Message', 'Invalid UserName or Password',backgroundColor: Colors.red,colorText: Colors.white);
@@ -1041,7 +1047,7 @@ static var baseUrl = FixedText.apiurl;
     print('wwwuseridEE: $userId');
 
     token = prefs.read("token").toString();
-    print('token: $token');
+    print('tokenProfile: $token');
     var url = 'https://api.ndtechland.com/api/EmployeeApi/GetEmployeeBasicInfo';
     try {
       // Add the token to the headers
@@ -1210,8 +1216,9 @@ static var baseUrl = FixedText.apiurl;
     // Read saved user id and token
     userId = prefs.read("userid").toString();
     print('wwwuseridEE: $userId');
+    String token = GetStorage().read("token").toString();
 
-    token = prefs.read("token").toString();
+    // token = prefs.read("token").toString();
     print('tokendash: $token');
     var url = 'https://api.ndtechland.com/api/EmployeeApi/EmployeeDashboard';
     try {
@@ -1222,6 +1229,7 @@ static var baseUrl = FixedText.apiurl;
       };
 
       http.Response r = await http.get(Uri.parse(url), headers: headers);
+      print("dasBody:${r.body}");
       if (r.statusCode == 200) {
         print("url");
         print(url);
@@ -2236,7 +2244,8 @@ static var baseUrl = FixedText.apiurl;
         print("checkIn :${r.statusCode}");
         var responseData = json.decode(r.body);
         await Future.delayed(Duration(seconds: 2));
-        await atteControler.AttendanceDetailApi();
+        //await EmpAttendancedatail(DateTime.now());
+        await atteControler.AttendanceDetailApi(DateTime.now());
         Get.offAll(() => Attendance(id: "13"));
 
         // Show success toast
@@ -2260,7 +2269,7 @@ static var baseUrl = FixedText.apiurl;
         Get.snackbar('Error', r.body);
       } else if(r.statusCode ==409){
         Get.offAll(() => Attendance(id: "13"));
-
+        await atteControler.AttendanceDetailApi(DateTime.now());
         // Show success toast
         Fluttertoast.showToast(
           msg: "You are already Check-In",
@@ -2304,7 +2313,7 @@ static var baseUrl = FixedText.apiurl;
 
     // Read saved user id and token
     userId = prefs.read("userid").toString();
-    print('wwwuserid: $userId');
+    print('wwwuseridSend: $userId');
 
     String token = GetStorage().read("token").toString();
     var checkInUrl = "${baseUrl}EmployeeApi/EmployeeCheckIn";
@@ -2315,7 +2324,7 @@ static var baseUrl = FixedText.apiurl;
       "Currentlong": Currentlong,
       "Userid": userId,
     });
-    print("checkin body:$body");
+    print("sendLatLang body:$body");
     try{
       http.Response r = await http.post(
         Uri.parse(checkInUrl),
@@ -2474,14 +2483,14 @@ static var baseUrl = FixedText.apiurl;
   );
   } else {
   Fluttertoast.showToast(
-  msg: "Failed to check-out. Status code: ${r.statusCode}",
+  msg: "You can't be check out because you are out of company radius",
   backgroundColor: Colors.red,
   textColor: Colors.white,
   toastLength: Toast.LENGTH_LONG,
   gravity: ToastGravity.BOTTOM,
   );
   print('CheckOutttApi elseee');
-  Get.snackbar('Error', r.body);
+  // Get.snackbar('Error', r.body);
   }
   return r;
   } catch(error) { print('Network error: $error');
@@ -2498,7 +2507,7 @@ static var baseUrl = FixedText.apiurl;
   }
 
   ///todo: taskAssign Api
-  static Future<List<TasksModells>> getTaskAssign() async {
+  static Future<List<TasksModells>> getTaskAssign1() async {
     var taskUrl = '${baseUrl}EmployeeApi/EmpTasksassign';
     token = prefs.read("token").toString();
     print('token: $token');
@@ -2526,9 +2535,41 @@ static var baseUrl = FixedText.apiurl;
       return [];
     }
   }
+  static Future<TaskModel?> getTaskAssign() async {
+    var taskUrl = '${baseUrl}EmployeeApi/EmpTasksassign';
+    token = prefs.read("token").toString();
+    print('token: $token');
+    try {
+      Map<String, String> headers = {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json'
+      };
+      print("taskUrl:${taskUrl}");
+      http.Response response = await http.get(Uri.parse(taskUrl),headers: headers);
+      if (response.statusCode == 200) {
+        print("taskUrl:200");
+        // var jsonResponse = jsonDecode(response.body);
+        TaskModel? taskModel = taskModelFromJson(response.body);
+        // if (jsonResponse['data'] != null) {
+        //   print("tasksssss:${jsonResponse['data']}");
+        //   return (jsonResponse['data'] as List)
+        //       .map((item) => TasksModells.fromJson(item))
+        //       .toList();
+        //
+        // }
+        return taskModel;
+
+      }
+    } catch (error) {
+      print('Error fetching tasks: $error');
+
+    }
+    return null;
+
+  }
 
   ///todo: taskDetail Api
-  static Future<Map<String, dynamic>> getTaskDetail(int id) async {
+  static Future<TaskDetailModel?> getTaskDetail(int id) async {
     final url = Uri.parse('${baseUrl}EmployeeApi/EmpTasksassignbyid?id=$id');
     token = prefs.read("token").toString();
     print('token: $token');
@@ -2539,23 +2580,26 @@ static var baseUrl = FixedText.apiurl;
       };
       final response = await http.get(url,headers: headers);
       if (response.statusCode == 200) {
-        return jsonDecode(response.body);
+        TaskDetailModel? taskDetailModel=taskDetailModelFromJson(response.body);
+
+        return taskDetailModel;
       } else {
-        return {
-          'succeeded': false,
-          'statusCode': response.statusCode,
-          'status': 'Error',
-          'message': 'Failed to fetch data.'
-        };
+        // return {
+        //   'succeeded': false,
+        //   'statusCode': response.statusCode,
+        //   'status': 'Error',
+        //   'message': 'Failed to fetch data.'
+        // };
       }
     } catch (error) {
-      return {
-        'succeeded': false,
-        'statusCode': 500,
-        'status': 'Error',
-        'message': 'An error occurred: $error'
-      };
+      // return {
+      //   'succeeded': false,
+      //   'statusCode': 500,
+      //   'status': 'Error',
+      //   'message': 'An error occurred: $error'
+      // };
     }
+    return null;
   }
 
 
@@ -2792,23 +2836,52 @@ static var baseUrl = FixedText.apiurl;
 
 
   ///todo: EmpAttendancedatail Api
-  static Future<AttendanceDetailsModel?> EmpAttendancedatail() async {
-    var attUrl = '${baseUrl}EmployeeApi/Empattendancedatail';
+  // static Future<AttendanceDetailsModel?> EmpAttendancedatail(DateTime date) async {
+  //   var attUrl = '${baseUrl}EmployeeApi/Empattendancedatail?Currentdate=$date';
+  //   token = prefs.read("token").toString();
+  //   print('attUrltoken: $token');
+  //   try {
+  //     Map<String, String> headers = {
+  //       'Authorization': 'Bearer $token',
+  //       'Content-Type': 'application/json'
+  //     };
+  //     print("attUrl:${attUrl}");
+  //     http.Response response = await http.get(Uri.parse(attUrl),headers: headers);
+  //     if (response.statusCode == 200) {
+  //       print("attUrl:200");
+  //       AttendanceDetailsModel? attendanceDetailsModel = attendanceDetailsModelFromJson(response.body);
+  //       print("attendanceData:${
+  //       attendanceDetailsModel.data?.checkInTime
+  //       }");
+  //       return attendanceDetailsModel;
+  //     }
+  //     // return null;
+  //   } catch (error) {
+  //     print('Error fetching attendance details: $error');
+  //   }
+  //   return null;
+  // }
+  static Future<AttendanceDetailsModel?> EmpAttendancedatail(DateTime date) async {
+    // Format the date to 'yyyy-MM-dd'
+    String formattedDate = "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
+
+    var attUrl = '${baseUrl}EmployeeApi/Empattendancedatail?Currentdate=$formattedDate';
     token = prefs.read("token").toString();
     print('attUrltoken: $token');
+
     try {
       Map<String, String> headers = {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json'
       };
-      print("attUrl:${attUrl}");
-      http.Response response = await http.get(Uri.parse(attUrl),headers: headers);
+      print("attUrl: $attUrl");
+
+      http.Response response = await http.get(Uri.parse(attUrl), headers: headers);
       if (response.statusCode == 200) {
-        print("attUrl:200");
+        print("attUrl: 200");
         AttendanceDetailsModel? attendanceDetailsModel = attendanceDetailsModelFromJson(response.body);
-        print("attendanceData:${
-        attendanceDetailsModel.data?.checkInTime
-        }");
+        print("attendanceData: ${attendanceDetailsModel.data?.checkInTime}");
+        print("attendanceDataStatus: ${attendanceDetailsModel.data?.loginStatus}");
         return attendanceDetailsModel;
       }
       // return null;
@@ -2817,7 +2890,35 @@ static var baseUrl = FixedText.apiurl;
     }
     return null;
   }
+  static Future<AttendanceDetailsModel?> AttendancedatailUpdate(DateTime date) async {
+    // Format the date to 'yyyy-MM-dd'
+    String formattedDate = "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
 
+    var attUrl = '${baseUrl}EmployeeApi/Empattendancedatail?Currentdate=$formattedDate';
+    token = prefs.read("token").toString();
+    print('attUrltoken: $token');
+
+    try {
+      Map<String, String> headers = {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json'
+      };
+      print("attUrl: $attUrl");
+
+      http.Response response = await http.get(Uri.parse(attUrl), headers: headers);
+      if (response.statusCode == 200) {
+        print("attUrl: 200");
+        AttendanceDetailsModel? attendanceDetailsModel = attendanceDetailsModelFromJson(response.body);
+        print("attendanceData: ${attendanceDetailsModel.data?.checkInTime}");
+        print("attendanceDataStatus: ${attendanceDetailsModel.data?.loginStatus}");
+        return attendanceDetailsModel;
+      }
+      // return null;
+    } catch (error) {
+      print('Error fetching attendance details: $error');
+    }
+    return null;
+  }
   ///todo: AttendanceActivity Api
   static Future<AttendanceActivityModel?> AttendanceActivityApi() async {
     var actiUrl = '${baseUrl}EmployeeApi/EmpLoginactivity';
@@ -3085,8 +3186,38 @@ static var baseUrl = FixedText.apiurl;
         //   print("comUrl:${jsonResponse['data']}");
         //   return aboutCompanyModel;
         // }
-        print("comUrl:${aboutCompanyModel.data?.companylink}");
+        print("comUrlll:${aboutCompanyModel.data?.companylink}");
         return aboutCompanyModel;
+      }
+      // return null;
+    } catch (error) {
+      print('Error fetching FAQ: $error');
+      // return [];
+    }
+  }
+
+  ///todo:overtimeApi Api
+  static Future<http.Response?> overtimeApi() async{
+    var overTimeUrl = "${baseUrl}EmployeeApi/EmployeeOvertime";
+    token = prefs.read("token").toString();
+    print('overTimeUrl token: $token');
+    try {
+      Map<String, String> headers = {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json'
+      };
+      print("overTimeUrl:${overTimeUrl}");
+      http.Response response = await http.post(Uri.parse(overTimeUrl),headers: headers);
+      if (response.statusCode == 200) {
+        print("overTimeUrl:200");
+        OvertimeModel overtimeModel = overtimeModelFromJson(response.body);
+        // var jsonResponse = jsonDecode(response.body);
+        // if (jsonResponse['data'] != null) {
+        //   print("comUrl:${jsonResponse['data']}");
+        //   return aboutCompanyModel;
+        // }
+        print("start overTime:${overtimeModel.data?.startTime}");
+        return null;
       }
       // return null;
     } catch (error) {

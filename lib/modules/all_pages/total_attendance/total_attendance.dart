@@ -299,7 +299,7 @@ class _TotalAtendanceState extends State<TotalAtendance> {
                                         ),
                                         children: [
                                           TextSpan(
-                                            text: "/ year",
+                                            text: " year",
                                             style: TextStyle(
                                               color: Colors.grey,
                                               fontSize: 14,

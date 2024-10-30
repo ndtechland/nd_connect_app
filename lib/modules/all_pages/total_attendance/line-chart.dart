@@ -106,11 +106,30 @@ class LineChartWidget extends StatelessWidget {
         }
     );
   }
-  LineTouchData lineTouchData() => const LineTouchData(
-    handleBuiltInTouches: true,
-  );
+  // LineTouchData lineTouchData() => const LineTouchData(
+  //   handleBuiltInTouches: true,
+  // );
+   LineTouchData lineTouchData() => LineTouchData(
+     handleBuiltInTouches: true,
+     touchTooltipData: LineTouchTooltipData(
+       // tooltipBgColor: Colors.blueAccent.withOpacity(0.9),  // Tooltip background color
+       tooltipRoundedRadius: 8,
+       getTooltipItems: (List<LineBarSpot> touchedSpots) {
+         return touchedSpots.map((LineBarSpot touchedSpot) {
+           return LineTooltipItem(
+             'Value: ${touchedSpot.y}',  // Tooltip text
+             TextStyle(
+               color: Colors.white,  // Text color inside tooltip
+               fontWeight: FontWeight.bold,
+             ),
+           );
+         }).toList();
+       },
+     ),
+   );
 
-  FlGridData gridData() => FlGridData(
+
+   FlGridData gridData() => FlGridData(
     show: true,
     drawVerticalLine: true,
     horizontalInterval: 5,
@@ -387,8 +406,18 @@ class LineChartWidget extends StatelessWidget {
          isCurved: true,
          color: appColor2,
          barWidth: 4,
-         dotData: FlDotData(show: true),
-         belowBarData: BarAreaData(show: true, color: appColor2.withOpacity(0.1)),
+         dotData: FlDotData(
+           show: true,
+           // getDotPainter: (FlSpot spot, double xPercentage, LineChartBarData bar, int index) {
+           //   return FlDotCirclePainter(
+           //     radius: 4,  // Size of the dot
+           //     color: Colors.red,  // Fill color of the dot
+           //     strokeColor: Colors.white,  // Border color of the dot
+           //     strokeWidth: 2,  // Width of the dot border
+           //   );
+           // },
+         ),
+         belowBarData: BarAreaData(show: true, color: Colors.white.withOpacity(0.1)),
          spots: totalAttendanceController.attData.map((data) {
            // Map the month string to the corresponding X-axis index
            double xValue = monthToIndex[data.month] ?? 0.0;
