@@ -235,51 +235,52 @@ class AllSalarySlip extends StatelessWidget {
                                                         final parentContext =context;
                                                         String url ="${FixedText.offaptpdfurl}${salarySlip.salarySlipPath}";
                                                         print("Generated URL: $url");
-                                                        if (url != null &&
-                                                            Uri.tryParse(url)?.hasAbsolutePath ==true) {
-                                                          // Show a loading indicator (you can use a different approach here)
-                                                          final loadingOverlay =OverlayEntry( builder: (context) =>Center(
-                                                              child:
-                                                                  CircularProgressIndicator(),
-                                                            ),
-                                                          );
-                                                          Overlay.of(
-                                                                  parentContext)
-                                                              ?.insert(
-                                                                  loadingOverlay);
-
-                                                          try {
-                                                            final file =
-                                                                await loadPdfFromNetwork(
-                                                                    url);
-                                                            loadingOverlay
-                                                                .remove(); // Remove the loading overlay
-
-                                                            if (file != null) {
-                                                              openPdf(
-                                                                  parentContext,
-                                                                  file,
-                                                                  url);
-                                                            } else {
-                                                              _showErrorDialog(
-                                                                  parentContext,
-                                                                  'Failed to load PDF file.');
-                                                            }
-                                                          } catch (e) {
-                                                            print(
-                                                                'Error downloading PDF: $e');
-                                                            loadingOverlay
-                                                                .remove(); // Remove the loading overlay
-                                                            _showErrorDialog(
-                                                                parentContext,
-                                                                'Failed to download PDF file.');
-                                                          }
-                                                        } else {
-                                                          _showErrorDialog(
-                                                              parentContext,
-                                                              'Invalid URL.');
-                                                          Get.back();
-                                                        }
+                                                        await _allSalarySlipController.openDocument(url);
+                                                        // if (url != null &&
+                                                        //     Uri.tryParse(url)?.hasAbsolutePath ==true) {
+                                                        //   // Show a loading indicator (you can use a different approach here)
+                                                        //   final loadingOverlay =OverlayEntry( builder: (context) =>Center(
+                                                        //       child:
+                                                        //           CircularProgressIndicator(),
+                                                        //     ),
+                                                        //   );
+                                                        //   Overlay.of(
+                                                        //           parentContext)
+                                                        //       ?.insert(
+                                                        //           loadingOverlay);
+                                                        //
+                                                        //   try {
+                                                        //     final file =
+                                                        //         await loadPdfFromNetwork(
+                                                        //             url);
+                                                        //     loadingOverlay
+                                                        //         .remove(); // Remove the loading overlay
+                                                        //
+                                                        //     if (file != null) {
+                                                        //       openPdf(
+                                                        //           parentContext,
+                                                        //           file,
+                                                        //           url);
+                                                        //     } else {
+                                                        //       _showErrorDialog(
+                                                        //           parentContext,
+                                                        //           'Failed to load PDF file.');
+                                                        //     }
+                                                        //   } catch (e) {
+                                                        //     print(
+                                                        //         'Error downloading PDF: $e');
+                                                        //     loadingOverlay
+                                                        //         .remove(); // Remove the loading overlay
+                                                        //     _showErrorDialog(
+                                                        //         parentContext,
+                                                        //         'Failed to download PDF file.');
+                                                        //   }
+                                                        // } else {
+                                                        //   _showErrorDialog(
+                                                        //       parentContext,
+                                                        //       'Invalid URL.');
+                                                        //   Get.back();
+                                                        // }
                                                       },
                                                       text: btnText('View'),
                                                       height: 31,

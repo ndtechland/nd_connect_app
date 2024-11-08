@@ -71,6 +71,16 @@ class Attendance extends StatelessWidget {
         );
       }
     }
+    String _getGreeting() {
+      final hour = DateTime.now().hour;
+      if (hour < 12) {
+        return "Morning, ";
+      } else if (hour < 17) {
+        return "Afternoon, ";
+      } else {
+        return "Evening, ";
+      }
+    }
     return WillPopScope(
       onWillPop: () async {
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -244,7 +254,7 @@ class Attendance extends StatelessWidget {
                                   children: [
                                     RichText(
                                       text: TextSpan(
-                                          text: "Morning, ",
+                                          text: _getGreeting(),
                                           style: TextStyle(
                                               fontSize: 20,
                                               fontWeight: FontWeight.bold,
@@ -290,7 +300,7 @@ class Attendance extends StatelessWidget {
                                           ),
                                           children: [
                                             TextSpan(
-                                              text: "${_getprofileepersonal.getprofileemployeeModel?.data?.shiftTime.toString()}",
+                                              text: "${attendanceController.attendanceDetailsModel?.data?.officeHour.toString()}",
                                               style: TextStyle(
                                                   fontWeight: FontWeight.w600,
                                                   fontSize: 12,
@@ -301,42 +311,57 @@ class Attendance extends StatelessWidget {
                                   ],
                                 ),
                               ),
-                              SizedBox(
-                                width: MediaQuery.of(context).size.width/2.95,
-                                height: MediaQuery.of(context).size.height/15,
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  // Text("Search",style: TextStyle(),),
-                                  Text(
-                                    DateFormat('d MMM y').format(attendanceController.selectedDate.value),
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.w500,
-                                        fontSize: 13,
-                                        color: appColor2),
-                                  ),
-                                  SizedBox(width: 6,),
-                                  Align(
-                                    alignment: Alignment.topRight,
-                                    child: InkWell(
-                                        onTap: ()async{
-                                          DateTime? pickedDate = await showDatePicker(
-                                            context: context,
-                                            initialDate: DateTime.now(),
-                                            firstDate: DateTime(1950),
-                                            lastDate: DateTime.now(),
-                                          );
+                              GestureDetector(
+                                onTap: ()async{
+                                  DateTime? pickedDate = await showDatePicker(
+                                    context: context,
+                                    initialDate: DateTime.now(),
+                                    firstDate: DateTime(1950),
+                                    lastDate: DateTime.now(),
+                                  );
 
-                                          if (pickedDate != null) {
-                                            String formattedDate = DateFormat('yyyy-MM-dd').format(pickedDate);
-                                            attendanceController.updateSelectedDate(pickedDate);
-                                          }
-                                        },
-                                        child: Icon(Icons.search,color: Colors.red,)),
-                                  )
-                                ],
-                              ),
+                                  if (pickedDate != null) {
+                                    String formattedDate = DateFormat('yyyy-MM-dd').format(pickedDate);
+                                    attendanceController.updateSelectedDate(pickedDate);
+                                  }
+                                },
+                                child: SizedBox(
+                                  width: MediaQuery.of(context).size.width/2.95,
+                                  height: MediaQuery.of(context).size.height/30,
+                                  child: Row(
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    // Text("Search",style: TextStyle(),),
+                                    Text(
+                                      DateFormat('d MMM y').format(attendanceController.selectedDate.value),
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.w500,
+                                          fontSize: 14,
+                                          color: appColor2),
+                                    ),
+                                    SizedBox(width: 6,),
+                                    Align(
+                                      //alignment: Alignment.topRight,
+                                      child: InkWell(
+                                          onTap: ()async{
+                                            DateTime? pickedDate = await showDatePicker(
+                                              context: context,
+                                              initialDate: DateTime.now(),
+                                              firstDate: DateTime(1950),
+                                              lastDate: DateTime.now(),
+                                            );
+
+                                            if (pickedDate != null) {
+                                              String formattedDate = DateFormat('yyyy-MM-dd').format(pickedDate);
+                                              attendanceController.updateSelectedDate(pickedDate);
+                                            }
+                                          },
+                                          child: Icon(Icons.search,color: Colors.red,)),
+                                    )
+                                  ],
+                                ),
+                                ),
                               )
                               // Container(
                               //   child: CircleAvatar(
@@ -457,15 +482,15 @@ class Attendance extends StatelessWidget {
                                       ),
                                       Row(
                                         children: [
-                                          Text(
-                                            "On-Time",
-                                            style: TextStyle(
-                                                fontSize: 14,
-                                                color: Colors.grey,
-                                                fontFamily: 'poppins',
-                                                fontWeight: FontWeight.w500),
-                                          ),
-                                          Spacer(),
+                                          // Text(
+                                          //   "${attendanceController.attendanceDetailsModel?.data?.ontime}",
+                                          //   style: TextStyle(
+                                          //       fontSize: 14,
+                                          //       color: Colors.grey,
+                                          //       fontFamily: 'poppins',
+                                          //       fontWeight: FontWeight.w500),
+                                          // ),
+                                         // Spacer(),
                                           attendanceController.selectedDate.value.year == DateTime.now().year &&
                                               attendanceController.selectedDate.value.month == DateTime.now().month &&
                                               attendanceController.selectedDate.value.day == DateTime.now().day ?
@@ -610,15 +635,15 @@ class Attendance extends StatelessWidget {
                                       ),
                                       Row(
                                         children: [
-                                          Text(
-                                            "On-Time",
-                                            style: TextStyle(
-                                                fontSize: 14,
-                                                color: Colors.grey,
-                                                fontFamily: 'poppins',
-                                                fontWeight: FontWeight.w500),
-                                          ),
-                                          Spacer(),
+                                          // Text(
+                                          //   "On-Time",
+                                          //   style: TextStyle(
+                                          //       fontSize: 14,
+                                          //       color: Colors.grey,
+                                          //       fontFamily: 'poppins',
+                                          //       fontWeight: FontWeight.w500),
+                                          // ),
+                                          // Spacer(),
                                           attendanceController.selectedDate.value.year == DateTime.now().year &&
                                               attendanceController.selectedDate.value.month == DateTime.now().month &&
                                               attendanceController.selectedDate.value.day == DateTime.now().day ?
@@ -640,7 +665,6 @@ class Attendance extends StatelessWidget {
                                                             decoration: BoxDecoration(
                                                                 color: Colors.green,
                                                                 borderRadius: BorderRadius.circular(12)
-
                                                             ),
                                                             child: TextButton(
                                                               onPressed: () => Navigator.pop(context),
@@ -654,16 +678,33 @@ class Attendance extends StatelessWidget {
                                                             decoration: BoxDecoration(
                                                                 color: Colors.red,
                                                                 borderRadius: BorderRadius.circular(12)
-
                                                             ),
                                                             child: TextButton(
                                                               onPressed: () async{
                                                                 print("cheedck-Outt");
-                                                                await locationController.employeeCheckOut();
+                                                                // attendanceController.attendanceDetailsModel?.data?.loginStatus=='Check-In'?
+                                                                // await locationController.employeeCheckOut():
+                                                                // Fluttertoast.showToast(
+                                                                //   msg: "You can't check-out without a prior check-in.",
+                                                                //   backgroundColor: Colors.red,
+                                                                //   textColor: Colors.white,
+                                                                //   toastLength: Toast.LENGTH_LONG,
+                                                                //   gravity: ToastGravity.CENTER,
+                                                                // );
                                                                 await attendanceController.EmpActivityApi();
                                                                 print("cheedck-Outt done");
-                                                                WidgetsBinding.instance.addPostFrameCallback((_) {
-                                                                  Get.offAll(() => BottomBar());
+                                                                WidgetsBinding.instance.addPostFrameCallback((_) async{
+                                                                  attendanceController.attendanceDetailsModel?.data?.loginStatus=='Check-In'?
+                                                                  await locationController.employeeCheckOut():
+                                                                  Fluttertoast.showToast(
+                                                                  msg: "You can't check-out without a prior check-in.",
+                                                                  backgroundColor: Colors.red,
+                                                                  textColor: Colors.white,
+                                                                  toastLength: Toast.LENGTH_LONG,
+                                                                  gravity: ToastGravity.CENTER,
+                                                                  );
+                                                                  Get.back();
+                                                                  // Get.offAll(() => BottomBar());
                                                                 });
                                                               },
                                                               child: Text('Yes',style: TextStyle(color: Colors.white),),
@@ -942,11 +983,56 @@ class Attendance extends StatelessWidget {
                           // SizedBox(
                           //   height: 20,
                           // ),
+                          // SizedBox(
+                          //   height: 10,
+                          // ),
+                          Container(
+                            height: categoryHeight * 0.2,
+                            width: taskListWidth,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(8),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black12,
+                                  blurRadius: 20.0,
+                                ),
+                              ],
+                            ),
+                            padding: const EdgeInsets.fromLTRB(18.0, 0, 18, 0),
+                            child: Row(
+                              children: [
+                                Icon(Icons.timer,color: Colors.blue,),
+                                SizedBox(width: 10,),
+                                RichText(
+                                  text: TextSpan(
+                                    text:"You're ",
+                                    style: TextStyle(
+                                        fontSize: 16,
+                                        color: Colors.black87,
+                                        fontFamily: 'poppins',
+                                        fontWeight: FontWeight.w500),
+                                    children: [
+                                      TextSpan(
+                                        text:"${attendanceController.attendanceDetailsModel?.data?.ontime}",
+                                        style: TextStyle(
+                                            fontSize: 16,
+                                            color: Colors.red,
+                                            fontFamily: 'poppins',
+                                            fontWeight: FontWeight.w600),
+                                      ),
+                                    ]
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                           SizedBox(
-                            height: 10,
+                            height: 20,
                           ),
                           ///total working hours
                           Container(
+
                             height: categoryHeight * 0.5,
                             width: taskListWidth,
                             decoration: BoxDecoration(
@@ -981,8 +1067,8 @@ class Attendance extends StatelessWidget {
                                         ),
                                       ),
                                       Spacer(),
-                              GestureDetector(
-                                onTap: () async{
+                                  GestureDetector(
+                                  onTap: () async{
                                   await attendanceController.EmpActivityApi();
                                   // Navigate to TaskDetailPage and pass the task ID (for example: 'taskId-$index')
                                   showDialog(
@@ -1040,7 +1126,9 @@ class Attendance extends StatelessWidget {
 
                                                   child: ListView.builder(
                                                     scrollDirection: Axis.horizontal,
-                                                    itemCount: attendanceController.attendanceDetailsModel?.data?.loginactivities?.length,
+                                                    itemCount:
+                                                    attendanceController.attendanceDetailsModel?.data?.loginactivities?.length==null?0:
+                                                    attendanceController.attendanceDetailsModel?.data?.loginactivities?.length,
                                                       itemBuilder: (context,index){
                                                         return Card(  clipBehavior: Clip.antiAlias,
                                                           shape: RoundedRectangleBorder(
@@ -1061,7 +1149,9 @@ class Attendance extends StatelessWidget {
                                                                     // fontFamily: 'poppins'
                                                                   ),),
                                                                 ),
-                                                                Text('${attendanceController.attendanceDetailsModel?.data?.loginactivities?[index].breakIn}', style: TextStyle(
+                                                                Text(
+                                                                  attendanceController.attendanceDetailsModel?.data?.loginactivities?[index].breakIn==null?"":
+                                                                  '${attendanceController.attendanceDetailsModel?.data?.loginactivities?[index].breakIn}', style: TextStyle(
                                                                     fontSize: 15,
                                                                     fontWeight: FontWeight.bold,
                                                                     color: Colors.black87
@@ -1104,7 +1194,9 @@ class Attendance extends StatelessWidget {
                                                   height: 50,
                                                   child: ListView.builder(
                                                       scrollDirection: Axis.horizontal,
-                                                      itemCount:attendanceController.attendanceDetailsModel?.data?.loginactivities?.length,
+                                                      itemCount:
+                                                      attendanceController.attendanceDetailsModel?.data?.loginactivities?.length==null?0:
+                                                      attendanceController.attendanceDetailsModel?.data?.loginactivities?.length,
                                                       itemBuilder: (context,index){
                                                         return Card(  clipBehavior: Clip.antiAlias,
                                                           shape: RoundedRectangleBorder(
@@ -1125,7 +1217,9 @@ class Attendance extends StatelessWidget {
                                                                     // fontFamily: 'poppins'
                                                                   ),),
                                                                 ),
-                                                                Text('${attendanceController.attendanceDetailsModel?.data?.loginactivities?[index].breakOut}', style: TextStyle(
+                                                                Text(
+                                                                  attendanceController.attendanceDetailsModel?.data?.loginactivities?[index].breakOut==null?"":
+                                                                  '${attendanceController.attendanceDetailsModel?.data?.loginactivities?[index].breakOut}', style: TextStyle(
                                                                     fontSize: 15,
                                                                     fontWeight: FontWeight.bold,
                                                                     color: Colors.black87
@@ -1146,7 +1240,7 @@ class Attendance extends StatelessWidget {
                                     },
                                   );
                                 },
-                                child: Container(
+                                  child: Container(
                                   alignment: Alignment.center,
                                   height: imageHeight * 0.15,
                                   width: imageWidth * 0.4,
@@ -1213,19 +1307,30 @@ class Attendance extends StatelessWidget {
                                           Obx(() => Row(
                                             children: [
                                               Text(
-                                                "${attendanceController.totalWorkingHours}",
+                                                attendanceController.attendanceDetailsModel?.data?.totalWorkingHours==null?"0h0m":
+                                                "${attendanceController.attendanceDetailsModel?.data?.totalWorkingHours}",
                                                 style: TextStyle(
                                                   fontSize: 16,
                                                   color: Colors.black87,
                                                   fontWeight: FontWeight.w600,
                                                 ),
                                               ),
-                                              Lottie.asset(
-                                                'lib/assets/refresh.json',
-                                                width: 20,
-                                                height: 20,
-                                                fit: BoxFit.fill,
+                                              SizedBox(width: 10,),
+                                              attendanceController.selectedDate.value.year == DateTime.now().year &&
+                                                  attendanceController.selectedDate.value.month == DateTime.now().month &&
+                                                  attendanceController.selectedDate.value.day == DateTime.now().day ?
+                                              GestureDetector(
+                                                onTap: ()async{
+                                                  await attendanceController.AttendanceDetailApi(DateTime.now());
+                                                  },
+                                                child: Lottie.asset(
+                                                  'lib/assets/refresh.json',
+                                                  width: 20,
+                                                  height: 20,
+                                                  fit: BoxFit.fill,
+                                                ),
                                               )
+                                                  : Container()
                                             ],
                                           )),
                                         ],
@@ -1256,6 +1361,8 @@ class Attendance extends StatelessWidget {
                                                 fontWeight: FontWeight.w500),
                                           ),
                                           Text(
+                                            attendanceController.attendanceDetailsModel?.data?.monthlyWorkingHours==null?"0h0m":
+
                                             "${attendanceController.attendanceDetailsModel?.data?.monthlyWorkingHours}",
                                             style: TextStyle(
                                                 fontSize: 16,
@@ -1307,6 +1414,7 @@ class Attendance extends StatelessWidget {
                                       height: 5,
                                     ),
                                     Text(
+                                      attendanceController.attendanceDetailsModel?.data?.presencepercentage==null?"0":
                                       "${attendanceController.attendanceDetailsModel?.data?.presencepercentage}",
                                       style: TextStyle(
                                         fontSize: 20,
@@ -1345,6 +1453,7 @@ class Attendance extends StatelessWidget {
                                       height: 5,
                                     ),
                                     Text(
+                                      attendanceController.attendanceDetailsModel?.data?.absencepercentage==null?"0":
                                       "${attendanceController.attendanceDetailsModel?.data?.absencepercentage}",
                                       style: TextStyle(
                                         fontSize: 20,
@@ -1383,6 +1492,7 @@ class Attendance extends StatelessWidget {
                                       height: 5,
                                     ),
                                     Text(
+                                      attendanceController.attendanceDetailsModel?.data?.overtimeWorkingHours==null?"0":
                                       "${attendanceController.attendanceDetailsModel?.data?.overtimeWorkingHours}",
                                       style: TextStyle(
                                         fontSize: 20,

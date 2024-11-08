@@ -579,11 +579,15 @@ class TaskList extends StatelessWidget {
       calendarStyle: CalendarStyle(
         todayDecoration: BoxDecoration(
           color: Colors.blueAccent,
-          shape: BoxShape.circle,
+          borderRadius: BorderRadius.circular(8),
+
+         // shape: BoxShape.circle,
         ),
         selectedDecoration: BoxDecoration(
-          color: Colors.orange, // Transparent as custom markers are used
-          shape: BoxShape.circle,
+          color: Colors.orange,
+          borderRadius: BorderRadius.circular(8),
+          // Transparent as custom markers are used
+         // shape: BoxShape.circle,
         ),
         defaultDecoration: BoxDecoration(
           color: Colors.transparent,
@@ -593,7 +597,9 @@ class TaskList extends StatelessWidget {
         ),
         outsideDecoration: BoxDecoration(
           color: Colors.grey.shade100,
-          shape: BoxShape.circle,
+          borderRadius: BorderRadius.circular(8),
+
+         // shape: BoxShape.circle,
         ),
       ),
       calendarBuilders: CalendarBuilders(

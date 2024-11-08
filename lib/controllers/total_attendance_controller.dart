@@ -5,16 +5,31 @@ import '../services_apis/api_servicesss.dart';
 
 class TotalAttendanceController extends GetxController{
   final isLoading = false.obs;
-  RxList<TotalAttendanceData> attData = <TotalAttendanceData>[].obs;
-
+  RxList<Graphlist> attData = <Graphlist>[].obs;
+  var attYear = "".obs;
+  TotalAttendanceData? totalAttendanceData;
   Future<void> AttendanceGraphApi() async {
     isLoading.value = true;
     try {
-      List<TotalAttendanceData> apiTasks = await ApiProvider.AttendanceGraph();
+      List<Graphlist> apiTasks = await ApiProvider.AttendanceGraph();
       if (apiTasks.isNotEmpty) {
         attData.value = apiTasks;
-
+        // attYear.value= apiTasks
       }
+    } catch (e) {
+      print('Error fetching tasks: $e');
+    } finally {
+      isLoading.value = false;
+    }
+  }
+  Future<void> AttendanceGraphApi1() async {
+    isLoading.value = true;
+    try {
+      totalAttendanceData = await ApiProvider.AttendanceGraph1();
+      // if (totalAttendanceData?.isNotEmpty) {
+      //   attYear.value = year as String;
+      //   // attYear.value= apiTasks
+      // }
     } catch (e) {
       print('Error fetching tasks: $e');
     } finally {

@@ -54,7 +54,7 @@ class LineChartWidget extends StatelessWidget {
               } else if (totalAttendanceController.attData.isEmpty) {
                 return Text('No data available');
               } else {
-                String yearr = totalAttendanceController.attData.map((f)=>f.year).toString();
+                // String yearr = totalAttendanceController.attData.map((f)=>f.year).toString();
                 return Material(
                   color: AppColors.th1wht2,
                   shadowColor: AppColors.black,
@@ -73,7 +73,7 @@ class LineChartWidget extends StatelessWidget {
                     child: Column(
                       children: [
                         SizedBox(height: 8,),
-                        Text("${yearr.toString().substring(1,5)}", style: TextStyle(
+                        Text("${totalAttendanceController.totalAttendanceData?.year.toString()}", style: TextStyle(
                             color: Colors.red, fontWeight: FontWeight.w600
                         ),),
                         SizedBox(

@@ -34,6 +34,20 @@ class _ChangeEmployeePasswordState extends State<ChangeEmployeePassword> {
   // FocusNode for User login
   final FocusNode _employeeFocusNode = FocusNode();
   final FocusNode _employeeFocusNode2 = FocusNode();
+  bool obscureText1 = true;
+
+  void _toggleVisibility1() {
+    setState(() {
+      obscureText1 = !obscureText1;
+    });
+  }
+ bool obscureText2 = true;
+
+  void _toggleVisibility2() {
+    setState(() {
+      obscureText2 = !obscureText2;
+    });
+  }
 
   // FocusNode for Employee login
   @override
@@ -50,46 +64,197 @@ class _ChangeEmployeePasswordState extends State<ChangeEmployeePassword> {
                         _employeeloginController.isLoading.value)
                     ? Center(child: CircularProgressIndicator())
                     : SingleChildScrollView(
-                        child: Center(
-                          child: Container(
-                            width: double.infinity,
-                            //height: size.height * 0.0,
-                            margin: const EdgeInsets.symmetric(
-                                horizontal: 24, vertical: 30),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(20),
-                              boxShadow: const [
-                                BoxShadow(
-                                  color: Colors.black12,
-                                  blurRadius: 20.0,
-                                ),
-                              ],
-                            ),
-                            child: Column(
-                              children: [
-                                Container(
-                                    // height: size.height,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(10),
-                                      color: Colors.white, // Change color here
+                        child: Form(
+                          key: _changepassempController.changepasswordemployeeFormKey,
+                          child: Center(
+                            child: Padding(
+                              padding: const EdgeInsets.all(18.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  Text("Your new password must be different from previous used passwords.",
+                                      style:TextStyle(
+                                          fontSize: 16
+                                      )),
+                                  SizedBox(height: 20,),
+                                  Text("Old Password",
+                                      style:TextStyle(
+                                          fontSize: 16,fontWeight: FontWeight.w600,color: Colors.black87
+                                      )),
+                                  SizedBox(height: 10,),
+                                  Container(
+                                    decoration:BoxDecoration(
+                                      border: Border.all(color: Colors.black54,width: 1),
+                                      borderRadius: BorderRadius.circular(10.0)
+                                    ) ,
+                                    padding: EdgeInsets.only(left: 14),
+                                    child: TextFormField(
+                                      controller: _changepassempController.passwordController1,
+                                      decoration: const InputDecoration(
+                                        border: InputBorder.none,
+                                        hintText: 'Old Password',
+                                        hintStyle: TextStyle(fontSize: 14)
+                                      ),
                                     ),
-                                    child: buildUserLoginForm()),
-                              ],
+                                  ),
+                                  SizedBox(height: 20,),
+                                  Text("New Password",
+                                      style:TextStyle(
+                                          fontSize: 16,fontWeight: FontWeight.w600,color: Colors.black87
+                                      )),
+                                  SizedBox(height: 10,),
+                              Container(
+                                alignment: Alignment.center,
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: Colors.black54, width: 1),
+                                  borderRadius: BorderRadius.circular(10.0),
+                                ),
+                                padding: EdgeInsets.only(left: 14),
+                                child: TextFormField(
+                                  controller: _changepassempController.passwordController2,
+                                  obscureText: obscureText1,
+                                  decoration: InputDecoration( // Remove const here
+                                    border: InputBorder.none,
+                                    suffixIcon: IconButton(
+                                      icon: Icon(
+                                        obscureText1 ? Icons.visibility_off : Icons.visibility,
+                                        color: obscureText1 ? Colors.red : Colors.green,
+                                      ),
+                                      onPressed: _toggleVisibility1,
+                                    ),
+                                    hintText: 'New Password',
+                                    hintStyle: TextStyle(fontSize: 14),
+                                  ),
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Please enter your password';
+                                    }
+                                    return null;
+                                  },
+                                  focusNode: _userFocusNode2,
+                                ),
+                              ),
+                                  SizedBox(height: 5,),
+                                  Text("Must be atleats 8 characters",
+                                      style:TextStyle(
+                                          fontSize: 12,color: Colors.black45,fontWeight: FontWeight.w600,
+                                      )),
+                                  SizedBox(height: 20,),
+                                  Text("Confirm Password",
+                                      style:TextStyle(
+                                          fontSize: 16,fontWeight: FontWeight.w600,color: Colors.black87
+                                      )),
+                                  SizedBox(height: 10,),
+                                  Container(
+                                    decoration:BoxDecoration(
+                                      border: Border.all(color: Colors.black54,width: 1),
+                                      borderRadius: BorderRadius.circular(10.0)
+                                    ) ,
+                                    padding: EdgeInsets.only(left: 14),
+                                    child: TextFormField(
+                                      controller: _changepassempController.passwordController3,
+                                      obscureText: obscureText2,
+                                      decoration:  InputDecoration(
+                                        border: InputBorder.none,
+                                          suffixIcon: IconButton(
+                                            icon: Icon(
+                                              obscureText2 ? Icons.visibility_off : Icons.visibility,
+                                              color: obscureText2 ? Colors.red : Colors.green,
+                                            ),
+                                            onPressed: _toggleVisibility2,
+                                          ),
+                                        hintText: 'Confirm Password',
+                                        hintStyle: TextStyle(fontSize: 14),
+                                      ),
+                                      validator: (value) {
+                                        if (value == null || value.isEmpty) {
+                                          return 'Re enter your password';
+                                        }
+                                        if (value !=
+                                            _changepassempController.passwordController2.text) {
+                                          return 'Passwords do not match';
+                                        }
+                                        return null;
+                                      },
+                                      focusNode: _userFocusNode3,
+                                    ),
+                                  ),
+                                  SizedBox(height: 20,),
+
+                                  Center(
+                                    child: MyElevatedButton(
+                                      onPressed: () {
+                                        print("changePass");
+
+                                        if (_changepassempController
+                                            .changepasswordemployeeFormKey.currentState
+                                            ?.validate() ??
+                                            false) {
+                                          _changepassempController.checkPasswordchange(context);
+                                        }
+                                        print("changePass done");
+
+                                      },
+                                      text: Text('Update',
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 17
+                                        ),),
+                                      height: 40,
+                                      width: 200,
+                                    ),
+                                  ),
+                                  Container(
+                                    width: double.infinity,
+                                    //height: size.height * 0.0,
+                                    // margin: const EdgeInsets.symmetric(
+                                    //     horizontal: 24, vertical: 30),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(20),
+                                      boxShadow: const [
+                                        BoxShadow(
+                                          color: Colors.black12,
+                                          blurRadius: 20.0,
+                                        ),
+                                      ],
+                                    ),
+                                    child: Column(
+                                      children: [
+
+                                        Container(
+                                            // height: size.height,
+                                            decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.circular(10),
+                                              color: Colors.white, // Change color here
+                                            ),
+                                            child: Container()
+                                         //   buildUserLoginForm()
+                                        ),
+
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ),
                       ),
               ),
-              appBar: PreferredSize(
-                preferredSize: Size.fromHeight(
-                    MediaQuery.of(context).size.width >
-                            MediaQuery.of(context).size.height
-                        ? MediaQuery.of(context).size.height *
-                            0.35 // Landscape mode
-                        : MediaQuery.of(context).size.height *
-                            0.2), // Portrait mode
-                child: AppBar(
+              appBar:
+              // PreferredSize(
+              //   preferredSize: Size.fromHeight(
+              //       MediaQuery.of(context).size.width >
+              //               MediaQuery.of(context).size.height
+              //           ? MediaQuery.of(context).size.height *
+              //               0.35 // Landscape mode
+              //           : MediaQuery.of(context).size.height *
+              //               0.2), // Portrait mode
+              //   child:
+            AppBar(
                   leading: IconButton(
                     icon: Icon(Icons.arrow_back,color: Colors.white,),
                     onPressed: (){
@@ -98,32 +263,36 @@ class _ChangeEmployeePasswordState extends State<ChangeEmployeePassword> {
                   ),
                   // automaticallyImplyLeading: false,
                   backgroundColor: appColor2,
-                  flexibleSpace: responsiveContainer(
-                    heightLandscape: size.height * 0.49,
-                    heightPortrait: size.height * 0.29,
-                    color: logoColor,
-                    context: context,
-                    child: Padding(
-                      padding: const EdgeInsets.all(9.0),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          logoImg(),
-                          SizedBox(
-                            height: 10,
-                          ),
-                          responsiveText(
-                              text: 'Change Password!',
-                              fontSizeLandscape: 19,
-                              fontSizePortrait: 20,
-                              color: Colors.white,
-                              context: context),
-                        ],
-                      ),
-                    ),
-                  ),
+                  title: Text("Create New Password",style: TextStyle(
+                    color: Colors.white,
+                  ),),
+                  centerTitle: true,
+                  // flexibleSpace: responsiveContainer(
+                  //   heightLandscape: size.height * 0.49,
+                  //   heightPortrait: size.height * 0.29,
+                  //   color: logoColor,
+                  //   context: context,
+                  //   child: Padding(
+                  //     padding: const EdgeInsets.all(9.0),
+                  //     child: Column(
+                  //       mainAxisAlignment: MainAxisAlignment.end,
+                  //       children: [
+                  //         logoImg(),
+                  //         SizedBox(
+                  //           height: 10,
+                  //         ),
+                  //         responsiveText(
+                  //             text: 'Change Password!',
+                  //             fontSizeLandscape: 19,
+                  //             fontSizePortrait: 20,
+                  //             color: Colors.white,
+                  //             context: context),
+                  //       ],
+                  //     ),
+                  //   ),
+                 // ),
                 ),
-              ),
+            //  ),
             );
           },
         );

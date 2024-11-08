@@ -849,8 +849,10 @@ class HomeEmployee2 extends StatelessWidget {
                                             responsiveText(
                                               context: context,
                                               text:
-                                              //_homedashboardController.dashboardResponse?.data?.leave==null?"34":
-                                              ("${_homedashboardController.dashboardResponse?.data?.leave}"),
+                                              (
+                                                  _homedashboardController.dashboardResponse?.data?.leave==null?"0":
+                                                  "${_homedashboardController.dashboardResponse?.data?.leave}"
+                                              ),
                                               fontSizePortrait: 18,
                                               fontSizeLandscape: 18,
                                               color: Colors.white,
@@ -892,6 +894,7 @@ class HomeEmployee2 extends StatelessWidget {
                               GestureDetector(
                                 onTap: ()async{
                                   await attTotalController.AttendanceGraphApi();
+                                  await attTotalController.AttendanceGraphApi1();
                                   Get.to(()=>TotalAtendance());
                                 },
                                 child: Container(
@@ -930,8 +933,10 @@ class HomeEmployee2 extends StatelessWidget {
                                             responsiveText(
                                               context: context,
                                               text:
-                                              //_homedashboardController.dashboardResponse?.data?.totalAttendance==null?"2876":
-                                              ("${_homedashboardController.dashboardResponse?.data?.totalAttendance}"),
+                                              (
+                                                  _homedashboardController.dashboardResponse?.data?.totalAttendance==null?"0":
+                                                  "${_homedashboardController.dashboardResponse?.data?.totalAttendance}"
+                                              ),
                                               fontSizePortrait: 18,
                                               fontSizeLandscape: 18,
                                               color: Colors.white,
@@ -1085,8 +1090,10 @@ class HomeEmployee2 extends StatelessWidget {
                                               responsiveText(
                                                 context: context,
                                                 text:
-                                                //_homedashboardController.dashboardResponse?.data?.leaveLeft==null?"1/3":
-                                                ("${_homedashboardController.dashboardResponse?.data?.leaveLeft}"),
+                                                (
+                                                    _homedashboardController.dashboardResponse?.data?.leaveLeft==null?"0/0":
+                                                    "${_homedashboardController.dashboardResponse?.data?.leaveLeft}"
+                                                ),
                                                 fontSizePortrait: 18,
                                                 fontSizeLandscape: 18,
                                                 color: Colors.white,
@@ -1162,8 +1169,10 @@ class HomeEmployee2 extends StatelessWidget {
                                             responsiveText(
                                               context: context,
                                               text:
-                                              //_homedashboardController.dashboardResponse?.data?.attendance==null?"4567":
-                                              ("${_homedashboardController.dashboardResponse?.data?.attendance}"),
+                                              (
+                                                  _homedashboardController.dashboardResponse?.data?.attendance==null?"0":
+                                                  "${_homedashboardController.dashboardResponse?.data?.attendance}"
+                                              ),
                                               fontSizePortrait: 16,
                                               fontSizeLandscape: 16,
                                               color: Colors.white,
@@ -2091,6 +2100,7 @@ class HomeEmployee2 extends StatelessWidget {
             // ),
 
             Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 SizedBox(height: 8,),
                 Text(DateFormat('d MMM y').format(DateTime.now()),
@@ -2108,7 +2118,9 @@ class HomeEmployee2 extends StatelessWidget {
                           child: Text("Distance: ")
                       ),
                       SizedBox(
-                          child: Text("${locationController.distanceFromCompany.value.toStringAsFixed(2)}m",
+                          child: Text(
+                            locationController.latitude.value==0.0 && locationController.longitude.value==0.0?"N/A":
+                            "${locationController.distanceFromCompany.value.toStringAsFixed(2)}m",
                           style: TextStyle(
                             color: Colors.red,
                             fontWeight: FontWeight.w600
@@ -2274,11 +2286,28 @@ class HomeEmployee2 extends StatelessWidget {
                   onPressed: () {
                     Navigator.pop(context); // Close the dialog
                   },
-                  child: Text(
-                    "Cancel",
-                    style: TextStyle(
-                      color: Colors.black87,
-                      fontSize: size.height * 0.018,
+                  child: Container(
+                    alignment: Alignment.center,
+                    width: 100,
+                    height: 40,
+                    //padding: const EdgeInsets.symmetric(vertical: 16,horizontal: 20),
+                    decoration: BoxDecoration(
+                      color: Colors.redAccent.shade200,
+
+                      // gradient: LinearGradient(
+                      //   colors: [Colors.red.shade500, Colors.red], // Gradient background
+                      //   begin: Alignment.topLeft,
+                      //   end: Alignment.bottomRight,
+                      // ),
+                      borderRadius: BorderRadius.circular(12), // Rounded corners
+                    ),
+                    child: Text(
+                      "Cancel",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: size.height * 0.018,
+                      ),
                     ),
                   ),
                 ),

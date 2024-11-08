@@ -62,26 +62,26 @@ class AttendanceController extends GetxController {
     // AttendanceDetailApi();
     EmpActivityApi();
     updateWorkingHours();
-    updateAttendaneDetail();
+    //updateAttendaneDetail();
   }
 
-  Future<void> updateAttendaneDetail() async {
-    try{
-      isLoading.value = true;
-      _timer?.cancel();  // Cancel any existing timer before starting a new one
-      _timer = Timer.periodic(Duration(minutes: 1), (Timer timer) {
-        print("updateAttendaneDetail...");
-        // debugPrint("Sending locationnn debug");
-
-        AttendanceDetailApi(DateTime.now());// Ensure this is a valid function
-      });}catch(e){
-      print('Error during updateAttendaneDetail: $e');
-
-    }finally {
-      // Set loading state to false after the API call completes
-      isLoading.value = false;
-    }
-  }
+  // Future<void> updateAttendaneDetail() async {
+  //   try{
+  //     isLoading.value = true;
+  //     _timer?.cancel();  // Cancel any existing timer before starting a new one
+  //     _timer = Timer.periodic(Duration(minutes: 1), (Timer timer) {
+  //       print("updateAttendaneDetail...");
+  //       // debugPrint("Sending locationnn debug");
+  //
+  //       AttendanceDetailApi(DateTime.now());// Ensure this is a valid function
+  //     });}catch(e){
+  //     print('Error during updateAttendaneDetail: $e');
+  //
+  //   }finally {
+  //     // Set loading state to false after the API call completes
+  //     isLoading.value = false;
+  //   }
+  // }
 Future<void> AttendanceDetailApi(DateTime date) async{
   isLoading.value = true;
     try{

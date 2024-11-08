@@ -196,6 +196,8 @@ class EmployeeLoginController extends GetxController {
         // Redirect to Dashboard or Home page
         await _homedashboardController.dashboarddApi();
         await _profileEmployeeController.profileemployeeApi();
+        await _profileEmployeeController.profileEmployeBankApi();
+
         // await _homedashboardController.dashboarddApi();
 
         Get.off(() => BottomBar());
@@ -228,7 +230,7 @@ class EmployeeLoginController extends GetxController {
               TextButton(
                 child: const Text("Accept"),
                 onPressed: () async{
-                  await locationController.checkAndRequestLocationPermission();
+                  locationController.checkAndRequestLocationPermission();
                   Get.back();
 
                 },

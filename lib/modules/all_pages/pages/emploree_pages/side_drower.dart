@@ -455,7 +455,7 @@ class EmployeeNavBar extends StatelessWidget {
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.edit_document),
+                leading:  Icon(Icons.document_scanner),
                 title: const Text('Appointment Letter'),
                 onTap: () async {
                   Get.dialog(CustomThreeInOutLoader(),

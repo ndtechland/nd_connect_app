@@ -14,6 +14,7 @@ import 'package:nd_connect_techland/controllers/bottom_nav_controller.dart';
 import 'package:nd_connect_techland/modules/all_pages/pages/emploree_pages/profile_employee/aadharPage.dart';
 import '../../../../../../components/responsive_text.dart';
 import '../../../../../../components/styles.dart';
+import '../../../../../../controllers/attendance_controller.dart';
 import '../../../../../../controllers/employee_controller/profile_controller/profile_info_employee_controller.dart';
 import '../../../../../../controllers/employeee_controllersss/employee_edit_profile_controller/employee_update_personal_controller.dart';
 import '../../../../../../controllers/location_controller.dart';
@@ -918,7 +919,7 @@ class _PersonalUpdateProfileState extends State<PersonalUpdateProfile> {
   //   }
   // }
   final LocationController locationController = Get.put(LocationController());
-
+  final AttendanceController attendanceController = Get.put(AttendanceController());
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
@@ -2444,73 +2445,96 @@ class _PersonalUpdateProfileState extends State<PersonalUpdateProfile> {
                         fontSize: 20, fontFamily: 'medium', color: Colors.white),
                   ),
                 ),
-                Container(
-                  width: 50,
-                  alignment: Alignment.topRight,
-                  child:  Padding(
-                    padding: const EdgeInsets.only(right: 8.0),
-                    child: GestureDetector(
-                      onTap: () {
-                        showDialog(
-                          context: context,
-                          builder: (context) => AlertDialog(
-                            shape: ContinuousRectangleBorder(
-                                side: BorderSide.none,
-                                borderRadius: BorderRadius.circular(12)
-                            ),
-                            title: Text('Check-Out'),
-                            content: Text('Do you really want to check out'),
-                            actions: [
-                              Container(
-                                height:40,
-                                width: 70,
-                                decoration: BoxDecoration(
-                                    color: Colors.green,
-                                    borderRadius: BorderRadius.circular(12)
-
-                                ),
-                                child: TextButton(
-                                  onPressed: () => Navigator.pop(context),
-                                  child: Text('No',style: TextStyle(color: Colors.white),),
-                                ),
-                              ),
-
-                              Container(
-                                height:40,
-                                width: 70,
-                                decoration: BoxDecoration(
-                                    color: Colors.red,
-                                    borderRadius: BorderRadius.circular(12)
-
-                                ),
-                                child: TextButton(
-                                  onPressed: () async{
-                                    print("cheedck-Outt");
-                                    await locationController.employeeCheckOut();
-                                    print("cheedck-Outt done");
-                                    WidgetsBinding.instance.addPostFrameCallback((_) {
-                                      Get.offAll(() => BottomBar());
-                                    });
-                                  },
-                                  child: Text('Yes',style: TextStyle(color: Colors.white),),
-                                ),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
+                Row(
+                  children: [
+                    Text(
+                      attendanceController.attendanceDetailsModel?.data?.loginStatus=="Check-In"?"In":"Out",
+                      //locationController.statusColor.value==Color(0xfff44336)?"Out":"In",
+                      style: TextStyle(color:attendanceController.attendanceDetailsModel?.data?.loginStatus=="Check-In"?Colors.green:Colors.red),),
+                    SizedBox(width: 4,),
+                    Padding(
+                      padding: const EdgeInsets.only(right: 12.0),
                       child: CircleAvatar(
-                        radius: 16,
-                        backgroundColor: Colors.white,
-                        child: Icon(
-                          size: 20,
-                          Icons.logout_rounded,
-                          color: Colors.black87,
+                        radius: 6,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: attendanceController.attendanceDetailsModel?.data?.loginStatus=="Check-In"?Colors.green:Colors.red,
+                            shape: BoxShape.circle,
+                          ),
                         ),
                       ),
                     ),
-                  )
+                  ],
                 ),
+                // ),
+
+                // Container(
+                //   width: 50,
+                //   alignment: Alignment.topRight,
+                //   child:  Padding(
+                //     padding: const EdgeInsets.only(right: 8.0),
+                //     child: GestureDetector(
+                //       onTap: () {
+                //         showDialog(
+                //           context: context,
+                //           builder: (context) => AlertDialog(
+                //             shape: ContinuousRectangleBorder(
+                //                 side: BorderSide.none,
+                //                 borderRadius: BorderRadius.circular(12)
+                //             ),
+                //             title: Text('Check-Out'),
+                //             content: Text('Do you really want to check out'),
+                //             actions: [
+                //               Container(
+                //                 height:40,
+                //                 width: 70,
+                //                 decoration: BoxDecoration(
+                //                     color: Colors.green,
+                //                     borderRadius: BorderRadius.circular(12)
+                //
+                //                 ),
+                //                 child: TextButton(
+                //                   onPressed: () => Navigator.pop(context),
+                //                   child: Text('No',style: TextStyle(color: Colors.white),),
+                //                 ),
+                //               ),
+                //
+                //               Container(
+                //                 height:40,
+                //                 width: 70,
+                //                 decoration: BoxDecoration(
+                //                     color: Colors.red,
+                //                     borderRadius: BorderRadius.circular(12)
+                //
+                //                 ),
+                //                 child: TextButton(
+                //                   onPressed: () async{
+                //                     print("cheedck-Outt");
+                //                     await locationController.employeeCheckOut();
+                //                     print("cheedck-Outt done");
+                //                     WidgetsBinding.instance.addPostFrameCallback((_) {
+                //                       Get.offAll(() => BottomBar());
+                //                     });
+                //                   },
+                //                   child: Text('Yes',style: TextStyle(color: Colors.white),),
+                //                 ),
+                //               ),
+                //             ],
+                //           ),
+                //         );
+                //       },
+                //       child: CircleAvatar(
+                //         radius: 16,
+                //         backgroundColor: Colors.white,
+                //         child: Icon(
+                //           size: 20,
+                //           Icons.logout_rounded,
+                //           color: Colors.black87,
+                //         ),
+                //       ),
+                //     ),
+                //   )
+                // ),
               ],
             ),
             Stack(

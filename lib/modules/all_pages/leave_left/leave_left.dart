@@ -313,11 +313,28 @@ class LeaveLeft extends StatelessWidget {
                   onPressed: () {
                     Navigator.pop(context); // Close the dialog
                   },
-                  child: Text(
-                    "Cancel",
-                    style: TextStyle(
-                      color: Colors.black87,
-                      fontSize: size.height * 0.018,
+                  child: Container(
+                    alignment: Alignment.center,
+                    width: 100,
+                    height: 40,
+                    //padding: const EdgeInsets.symmetric(vertical: 16,horizontal: 20),
+                    decoration: BoxDecoration(
+                      color: Colors.redAccent.shade200,
+
+                      // gradient: LinearGradient(
+                      //   colors: [Colors.red.shade500, Colors.red], // Gradient background
+                      //   begin: Alignment.topLeft,
+                      //   end: Alignment.bottomRight,
+                      // ),
+                      borderRadius: BorderRadius.circular(12), // Rounded corners
+                    ),
+                    child: Text(
+                      "Cancel",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: size.height * 0.018,
+                      ),
                     ),
                   ),
                 ),

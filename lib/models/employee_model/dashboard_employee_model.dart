@@ -44,7 +44,7 @@ class DashboardData {
   String? totalAttendance;
   String? attendance;
   double? leaveLeft;
-  int? leave;
+  double? leave;
   String? offerletter;
   String? appointmentletter;
 
@@ -61,7 +61,7 @@ class DashboardData {
     totalAttendance: json["totalAttendance"],
     attendance: json["attendance"],
     leaveLeft: json["leaveLeft"].toDouble(),
-    leave: json["leave"],
+    leave: json["leave"].toDouble(),
     offerletter: json["offerletter"],
     appointmentletter: json["appointmentletter"],
   );

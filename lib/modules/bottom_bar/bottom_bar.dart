@@ -10,6 +10,7 @@ import '../../controllers/bottom_nav_controller.dart';
 import '../../controllers/employee_controller/profile_controller/profile_info_employee_controller.dart';
 import '../../controllers/employeee_controllersss/employee_dashboard_controller/employee_dashboardcontroller.dart';
 import '../../controllers/employeee_controllersss/timer_controller.dart';
+import '../../controllers/event_controller2.dart';
 import '../../controllers/events_controller.dart';
 import '../../controllers/location_controller.dart';
 import '../../services_apis/local_notification_service.dart';
@@ -62,6 +63,7 @@ class _BottomBarState extends State<BottomBar> {
   final DateTimeController dateTimeController = Get.put(DateTimeController());
   final DateTaskController dateTaskController = Get.put(DateTaskController());
   final EventsController eventsController = Get.put(EventsController());
+  final EventController2 eventsController2 = Get.put(EventController2());
 
   @override
   void initState() {
@@ -72,6 +74,7 @@ class _BottomBarState extends State<BottomBar> {
       dateTaskController.TaskAssignApi();
       print("events: ${eventsController.events}");
       eventsController.EventsApi();
+      eventsController2.EventsHolidayApi();
       attendanceController.AttendanceDetailApi(DateTime.now());
       print("attendanceStatusINit:${attendanceController.attendanceDetailsModel?.data?.loginStatus}");
       _homedashboardController.dashboarddApi();
@@ -86,7 +89,7 @@ class _BottomBarState extends State<BottomBar> {
       locationController.updateDistanceFromCompany();
       attendanceController.fetchAttendanceData();
       attendanceController.EmpActivityApi();
-      attendanceController.updateAttendaneDetail();
+     // attendanceController.updateAttendaneDetail();
       // _homedashboardController.dashboarddApi();
 
       LocalNotificationService.initialize(context);
