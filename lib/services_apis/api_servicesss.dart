@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
@@ -3399,6 +3400,86 @@ static var baseUrl = FixedText.apiurl;
     }
   }
 
+  static Future<http.Response?> DeviceID() async {
+    var deviceIdUrl = "${baseUrl}EmployeeApi/EmployeeOvertime";
+    token = prefs.read("token").toString();
+    var userId = prefs.read("Id").toString();
+
+    // Fetch device token from Firebase Messaging
+    String? deviceToken;
+    try {
+      deviceToken = await FirebaseMessaging.instance.getToken();
+      if (deviceToken == null) {
+        throw Exception("Failed to retrieve device token");
+      }
+    } catch (e) {
+      print("Error fetching device token: $e");
+      return null;
+    }
+
+    print('Overtime URL token: $token');
+    print('Device Token: $deviceToken');
+
+    try {
+      Map<String, String> headers = {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json'
+      };
+
+      // JSON body with userId, deviceId, and deviceToken
+      var body = jsonEncode({
+        "userid": userId,
+        "DeviceId": deviceToken,
+      });
+
+      print("Device ID URL: $deviceIdUrl");
+
+      // Make the POST request with headers and body
+      http.Response response = await http.post(
+        Uri.parse(deviceIdUrl),
+        headers: headers,
+        body: body,
+      );
+
+      // Log response status and body for debugging
+      print("Response status: ${response.statusCode}");
+      print("Response body: ${response.body}");
+
+      if (response.statusCode == 200) {
+        print("Device ID and token posted successfully");
+      } else {
+        print("Failed to post device ID. Status code: ${response.statusCode}");
+      }
+
+      return response;
+    } catch (e) {
+      print('Error posting device ID: $e');
+      return null;
+    }
+  }
+  ///todo: deviceId api
+  static Future<http.Response?> DeviceIDD(String deviceId) async{
+    var deviceIdUrl = "${baseUrl}EmployeeApi/EmployeeOvertime";
+    token = prefs.read("token").toString();
+    var userId = prefs.read("Id").toString();
+    print('overTimeUrl token: $token');
+    try {
+      Map<String, String> headers = {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json'
+      };
+      var body={
+        {
+          "userid":userId,
+          "DeviceId":deviceId
+        }
+      };
+      print("deviceIdUrl:${deviceIdUrl}");
+      http.Response response = await http.post(Uri.parse(deviceIdUrl),headers: headers);
+
+    } catch(e){
+      print('Error fetching deviceId: $e');
+    }}
 
 
 

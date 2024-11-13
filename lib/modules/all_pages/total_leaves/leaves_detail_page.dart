@@ -178,9 +178,28 @@ class _TaskDetailPageState extends State<LeaveDetailPage> {
                         ),),
                       ],
                     ),
+                    SizedBox(height: 10,),
+                    Row(
+                      children: [
+                        Icon(Icons.paid,color: Colors.redAccent,),
+                        SizedBox(width: 10,),
+                        Text("Leave Dates :",style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                            fontFamily: 'poppins'
+                        ),),
+                        SizedBox(width: 10,),
+                        Text("${totalLeavesDateController.leavesDetailModel?.data?.leaveStartdate} - ${totalLeavesDateController.leavesDetailModel?.data?.leaveEnddate}",style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            fontFamily: 'poppins'
+                        ),),
+                      ],
+                    ),
 
                     SizedBox(height: 10,),
                     Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Icon(Icons.type_specimen_rounded,color: Colors.deepPurple,),
                         SizedBox(width: 10,),
@@ -190,11 +209,15 @@ class _TaskDetailPageState extends State<LeaveDetailPage> {
                             fontFamily: 'poppins'
                         ),),
                         SizedBox(width: 10,),
-                        Text("${widget.leaveType}",style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                            fontFamily: 'poppins'
-                        ),),
+                        Expanded(
+                          child: Text("${widget.leaveType}",style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                              fontFamily: 'poppins',
+                            overflow: TextOverflow.visible, // Prevent text truncation
+
+                          ),),
+                        ),
                       ],
                     ),
 

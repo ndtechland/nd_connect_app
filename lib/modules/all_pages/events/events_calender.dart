@@ -183,6 +183,7 @@
 //   }
 // }
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
@@ -1094,9 +1095,9 @@ class EventCalendarScreen extends StatelessWidget {
               Container(
                 color: colorrs[index % colorrs.length],
                 width: 10,
-                height: 72,
+                height: 90,
               ),
-              SizedBox(width: 10.0),
+             // SizedBox(width: 10.0),
               Expanded(
                 child: ListTile(
                   onTap: ()async{
@@ -1117,7 +1118,24 @@ class EventCalendarScreen extends StatelessWidget {
                       print('Could not launch $meetUrl');
                     }                  },
                   title: Text(event.eventTittle.toString()),
-                  subtitle: Text(event.eventTime.toString()),
+                  subtitle:  Row(
+                    children: [
+                      Expanded(
+                        child: SelectableText(event.eventDescription.toString()),
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.copy, size: 18, color: Colors.grey),
+                        onPressed: () {
+                          Clipboard.setData(
+                            ClipboardData(text: event.eventDescription.toString()),
+                          );
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text("Event description copied!")),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
                 ),
               ),
               Padding(
@@ -1141,23 +1159,29 @@ class EventCalendarScreen extends StatelessWidget {
                       print('Could not launch $meetUrl');
                       }
                     },
-                  child: Container(
-                    alignment: Alignment.center,
-                    height: 20,
-                    width: 70,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(16),
-                      color: Colors.indigo.shade50,
-                      border: Border.all(color: appColor2, width: 1),
-                    ),
-                    child: Text(
-                      "Join",
-                      style: TextStyle(
-                        fontFamily: 'poppins',
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600
+                  child: Column(
+                    children: [
+                      Text(event.eventTime.toString()),
+                      SizedBox(height: 10,),
+                      Container(
+                        alignment: Alignment.center,
+                        height: 20,
+                        width: 70,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(16),
+                          color: Colors.indigo.shade50,
+                          border: Border.all(color: appColor2, width: 1),
+                        ),
+                        child: Text(
+                          "Join",
+                          style: TextStyle(
+                            fontFamily: 'poppins',
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600
+                          ),
+                        ),
                       ),
-                    ),
+                    ],
                   ),
                 ),
               )

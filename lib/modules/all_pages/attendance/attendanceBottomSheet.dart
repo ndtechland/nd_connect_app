@@ -340,18 +340,18 @@ void initState(){
                     onPressed: () async {
                       // Request location permission and fetch current location
                        locationController.checkAndRequestLocationPermission();
-                      if (locationController.isUserWithinCompanyRadius(
-                          locationController.companyLatitude.value,
-                          locationController.companyLongitude.value,
-                          locationController.companyLocationModel!.data!.radious.toString())) {
-                      } else {
-                        // Show an error message if not within the radius
-                        Get.snackbar(
-                          "Location Error",
-                          "You are not within the company location radius.",
-                          snackPosition: SnackPosition.BOTTOM,
-                        );
-                      }
+                      // if (locationController.isUserWithinCompanyRadius(
+                      //     locationController.companyLatitude.value,
+                      //     locationController.companyLongitude.value,
+                      //     locationController.companyLocationModel!.data!.radious.toString())) {
+                      // } else {
+                      //   // Show an error message if not within the radius
+                      //   Get.snackbar(
+                      //     "Location Error",
+                      //     "You are not within the company location radius.",
+                      //     snackPosition: SnackPosition.BOTTOM,
+                      //   );
+                      // }
                       print("checkkk");
                       await locationController.checkInApi();
                       await Future.delayed(Duration(seconds: 2));

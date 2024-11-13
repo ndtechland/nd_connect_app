@@ -1112,7 +1112,14 @@ class Attendance extends StatelessWidget {
                                                         attendanceController.selectedDate.value.month == DateTime.now().month &&
                                                         attendanceController.selectedDate.value.day == DateTime.now().day ?
                                                     IconButton(onPressed: ()async{
-                                                      await locationController.breakInApi();
+                                                      attendanceController.attendanceDetailsModel?.data?.loginStatus=='Check-In'?
+                                                      await locationController.breakInApi():
+                                                      Fluttertoast.showToast(
+                                                      msg: 'You can\'t take break first check in',
+                                                      backgroundColor: Colors.red,
+                                                      textColor: Colors.white,
+                                                      toastLength: Toast.LENGTH_LONG,
+                                                      gravity: ToastGravity.CENTER,);
                                                     }, icon: Icon(Icons.logout_sharp,size: 22))
                                                         :Container(),
                                                   ],
@@ -1123,7 +1130,6 @@ class Attendance extends StatelessWidget {
                                                 padding: const EdgeInsets.only(left: 18.0,right: 10),
                                                 child: Container(
                                                   height: 50,
-
                                                   child: ListView.builder(
                                                     scrollDirection: Axis.horizontal,
                                                     itemCount:
@@ -1178,7 +1184,14 @@ class Attendance extends StatelessWidget {
                                                         attendanceController.selectedDate.value.day == DateTime.now().day ?
                                                     IconButton(
                                                       onPressed: () async {
-                                                        await locationController.breakOutApi();
+                                                        attendanceController.attendanceDetailsModel?.data?.loginStatus=='Check-In'?
+                                                        await locationController.breakOutApi():
+                                                        Fluttertoast.showToast(
+                                                        msg: 'You can\'t take break first check in',
+                                                        backgroundColor: Colors.red,
+                                                        textColor: Colors.white,
+                                                        toastLength: Toast.LENGTH_LONG,
+                                                        gravity: ToastGravity.CENTER,);
                                                       },
                                                       icon: Icon(Icons.logout_sharp, size: 22),
                                                     )

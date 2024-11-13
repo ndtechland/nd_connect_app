@@ -194,6 +194,7 @@ class EmployeeLoginController extends GetxController {
 
         Get.snackbar("Success", "Logged in successfully!",backgroundColor: Colors.white,colorText: appColor2);
         // Redirect to Dashboard or Home page
+        await deviceTokenId();
         await _homedashboardController.dashboarddApi();
         await _profileEmployeeController.profileemployeeApi();
         await _profileEmployeeController.profileEmployeBankApi();
@@ -245,6 +246,11 @@ class EmployeeLoginController extends GetxController {
     } finally {
       isLoading.value = false;
     }
+  }
+
+  Future<void> deviceTokenId() async{
+    var deviceToken = await ApiProvider.DeviceID();
+    print("deviceToken:$deviceToken");
   }
   String? validateUser(String value) {
     if (value.isEmpty) {

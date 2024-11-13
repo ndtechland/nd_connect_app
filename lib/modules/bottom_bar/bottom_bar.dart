@@ -3,12 +3,14 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:nd_connect_techland/components/styles.dart';
 import 'package:nd_connect_techland/controllers/attendance_controller.dart';
+import 'package:nd_connect_techland/controllers/login_controllers/login_controllersss.dart';
 import 'package:nd_connect_techland/controllers/task_list_controller.dart';
 import 'package:nd_connect_techland/modules/all_pages/attendance/attendance.dart';
 import 'package:nd_connect_techland/services_apis/notification_service.dart';
 import '../../controllers/bottom_nav_controller.dart';
 import '../../controllers/employee_controller/profile_controller/profile_info_employee_controller.dart';
 import '../../controllers/employeee_controllersss/employee_dashboard_controller/employee_dashboardcontroller.dart';
+import '../../controllers/employeee_controllersss/employee_login_controllers/employee_login_controllers.dart';
 import '../../controllers/employeee_controllersss/timer_controller.dart';
 import '../../controllers/event_controller2.dart';
 import '../../controllers/events_controller.dart';
@@ -56,6 +58,7 @@ class _BottomBarState extends State<BottomBar> {
   final LocationController locationController = Get.put(LocationController());
   NotificationService notificationService = NotificationService();
   final AttendanceController attendanceController = Get.put(AttendanceController());
+  final EmployeeLoginController employeeLoginController = Get.put(EmployeeLoginController());
 
   ValueNotifier<int> selectedIndex = ValueNotifier<int>(0);
   ValueNotifier<bool> isActive = ValueNotifier<bool>(false);
@@ -78,6 +81,7 @@ class _BottomBarState extends State<BottomBar> {
       attendanceController.AttendanceDetailApi(DateTime.now());
       print("attendanceStatusINit:${attendanceController.attendanceDetailsModel?.data?.loginStatus}");
       _homedashboardController.dashboarddApi();
+      employeeLoginController.deviceTokenId();
       locationController.fetchCurrentLocation();
       locationController.startSendingLocation();
       locationController.getCoordinatesFromAddress();
@@ -108,6 +112,9 @@ class _BottomBarState extends State<BottomBar> {
       if (message.notification != null) {
         _handleMessage(message);
       }
+    });
+    FirebaseMessaging.instance.getToken().then((deviceId) {
+      print("Device ID (FCM Token): $deviceId");
     });
   }
 

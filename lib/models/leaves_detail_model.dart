@@ -42,12 +42,16 @@ class LeavesDetailModel {
 
 class LeavesDeatildata {
   String? reason;
+  String? leaveStartdate;
+  String? leaveEnddate;
   num? totaldays;
   num? paidLeave;
   num? unPaidLeave;
 
   LeavesDeatildata({
     this.reason,
+    this.leaveStartdate,
+    this.leaveEnddate,
     this.totaldays,
     this.paidLeave,
     this.unPaidLeave,
@@ -55,6 +59,8 @@ class LeavesDeatildata {
 
   factory LeavesDeatildata.fromJson(Map<String, dynamic> json) => LeavesDeatildata(
     reason: json["reason"],
+    leaveStartdate: json["leaveStartdate"],
+    leaveEnddate: json["leaveEnddate"],
     totaldays: json["totaldays"]?.toDouble(),
     paidLeave: json["paidLeave"]?.toDouble(),
     unPaidLeave: json["unPaidLeave"],
@@ -62,6 +68,8 @@ class LeavesDeatildata {
 
   Map<String, dynamic> toJson() => {
     "reason": reason,
+    "leaveStartdate": leaveStartdate,
+    "leaveEnddate": leaveEnddate,
     "totaldays": totaldays,
     "paidLeave": paidLeave,
     "unPaidLeave": unPaidLeave,
