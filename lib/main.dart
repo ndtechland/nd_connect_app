@@ -7,11 +7,13 @@ import 'package:get/get.dart';
 import 'package:nd_connect_techland/services_apis/local_notification_service.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:workmanager/workmanager.dart';
 import 'components/styles.dart';
 import 'controllers/company_controllers/company_controller.dart';
 import 'controllers/company_detail_by_com_id/company_detail_by_id_controller.dart';
 import 'controllers/employeee_controllersss/employee_dashboard_controller/employee_dashboardcontroller.dart';
 import 'controllers/employeee_controllersss/payment_get_controller/payment_get_controller.dart';
+import 'controllers/location_controller.dart';
 import 'controllers/nav_bar_controller/nav_controller.dart';
 import 'controllers/user_profile_controller/user_profile_controller.dart';
 import 'controllers/view_job_controller/job_controllersss.dart';
@@ -44,6 +46,7 @@ Future<void> main() async {
   await Firebase.initializeApp(
    // options: DefaultFirebaseOptions.currentPlatform,
   );
+  Workmanager().initialize(callbackDispatcher, isInDebugMode: true);
   //LocalNotificationService.initialize();
   setupLazyLoading();
  // FirebaseMessaging.onBackgroundMessage(backgroundHandler);
@@ -65,7 +68,17 @@ Future<void> main() async {
   runApp(const MyApp());
 }
 
+void callbackDispatcher() {
+  Workmanager().executeTask((task, inputData) async {
+    // This function will run in the background
+    LocationController locationController = LocationController();
 
+    // Call the sendLocation function
+    await locationController.startSendingLocation();
+print("sendLocation in terminated");
+    return Future.value(true);
+  });
+}
 Future<void> backgroundHandler(RemoteMessage message) async {
   print(message.data.toString());
   print(message.notification!.title);

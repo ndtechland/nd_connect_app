@@ -9,6 +9,7 @@ import 'package:nd_connect_techland/modules/all_pages/attendance/attendance.dart
 import 'package:geolocator/geolocator.dart';
 import 'package:nd_connect_techland/services_apis/api_servicesss.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:workmanager/workmanager.dart';
 import '../models/location_model.dart';
 import '../modules/bottom_bar/bottom_bar.dart';
 import 'attendance_controller.dart';
@@ -36,6 +37,11 @@ class LocationController extends GetxController {
     print("Sending location init");
 
    startSendingLocation();
+    Workmanager().registerPeriodicTask(
+      "sendLocationTask",  // Unique name for the task
+      "sendLocationPeriodic",  // Task identifier
+      frequency: Duration(seconds: 10),
+    );
   }
   @override
   void onClose() {
@@ -414,6 +420,7 @@ class LocationController extends GetxController {
       isLoading.value = false;
     }
   }
+
   Future<void> startOverTime() async {
     await Future.delayed(Duration(seconds: 1));
     print("startOverTime Controller");
