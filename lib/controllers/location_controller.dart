@@ -40,7 +40,7 @@ class LocationController extends GetxController {
     Workmanager().registerPeriodicTask(
       "sendLocationTask",  // Unique name for the task
       "sendLocationPeriodic",  // Task identifier
-      frequency: Duration(seconds: 10),
+      frequency: Duration(minutes: 15),
     );
   }
   @override

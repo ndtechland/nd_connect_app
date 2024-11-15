@@ -72,10 +72,16 @@ void callbackDispatcher() {
   Workmanager().executeTask((task, inputData) async {
     // This function will run in the background
     LocationController locationController = LocationController();
+    //if (task == "sendLocationPeriodic") {
+    print("sendLocation :");
 
+      await locationController.startSendingLocation();
+
+   // }
     // Call the sendLocation function
-    await locationController.startSendingLocation();
+    // await locationController.startSendingLocation();
 print("sendLocation in terminated");
+print("sendLocation :${locationController.startSendingLocation()}");
     return Future.value(true);
   });
 }
