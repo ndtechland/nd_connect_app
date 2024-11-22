@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:nd_connect_techland/controllers/attendance_controller.dart';
+import 'package:nd_connect_techland/modules/all_pages/attendance/work_from_home.dart';
 import '../../../components/styles.dart';
 import '../../../controllers/employee_controller/profile_controller/profile_info_employee_controller.dart';
 import 'package:intl/intl.dart';
 import '../../../controllers/location_controller.dart';
+import '../../../widget/custom_loader.dart';
 import '../../bottom_bar/bottom_bar.dart';
 import 'attendanceBottomSheet.dart';
 import 'package:lottie/lottie.dart';
@@ -71,6 +73,14 @@ class Attendance extends StatelessWidget {
         );
       }
     }
+
+    Future<void> _refreshData() async {
+      // Add logic to refresh data, e.g., fetching from an API
+      await Future.delayed(Duration(seconds: 2));
+      await attendanceController.AttendanceDetailApi(DateTime.now());
+      print("Data refreshed");
+    }
+
     String _getGreeting() {
       final hour = DateTime.now().hour;
       if (hour < 12) {
@@ -94,8 +104,8 @@ class Attendance extends StatelessWidget {
             backgroundColor: appColor2,
             leading: IconButton(
                 onPressed: () async{
-                 await attendanceController.EmpActivityApi();
-                  Get.offAll(()=>BottomBar());
+                 await attendanceController.AttendanceDetailApi(DateTime.now());
+                 await Get.to(()=>BottomBar());
                  // Navigator.push(context,MaterialPageRoute(builder: (context)=>BottomBar()));
                 //  Navigator.pop(context);
                   // bottomNavController.changeTabIndex(0);
@@ -228,1297 +238,1419 @@ class Attendance extends StatelessWidget {
               var taskListHeight = orientation == Orientation.portrait
                   ? screenHeight * 0.4
                   : screenHeight ;
-              return SingleChildScrollView(
-                child: Obx(()=>(attendanceController.isLoading.value ||
-                    isLoading.value)
-                    ? Center(child: CircularProgressIndicator())
-                    :
-                Container(
-                    // height: screenHeight,
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(18.0, 18, 18, 0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          //name date calendar
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              SizedBox(
-                                width: MediaQuery.of(context).size.width/1.8,
-                                height:taskListHeight * 0.2,
-                                // color: Colors.pink,
+              return RefreshIndicator(
+                onRefresh: _refreshData,
+                child: SingleChildScrollView(
+                  physics: AlwaysScrollableScrollPhysics(),
+                  child: Obx(()=>(attendanceController.isLoading.value ||
+                      isLoading.value)
+                      ? Center(child: CircularProgressIndicator())
+                      :
+                  Container(
+                      // height: screenHeight,
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(18.0, 18, 18, 0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            //name date calendar
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                SizedBox(
+                                  width: MediaQuery.of(context).size.width/1.8,
+                                  height:taskListHeight * 0.2,
+                                  // color: Colors.pink,
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      RichText(
+                                        text: TextSpan(
+                                            text: _getGreeting(),
+                                            style: TextStyle(
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.black87
+                                                // fontFamily: 'poppins'
+                                                ),
+                                            children: [
+                                              TextSpan(
+                                                text: "${_getprofileepersonal.getprofileemployeeModel?.data?.fullName}",
+                                                style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 20,
+                                                    color: Colors.blue),
+                                              )
+                                            ]),
+                                      ),
+                                      // Text("Morning, ${_getprofileepersonal.getprofileemployeeModel?.data?.fullName}",
+                                      //   style: TextStyle(
+                                      //   fontSize: 20,
+                                      //   fontWeight: FontWeight.w600,
+                                      //  // fontFamily: 'poppins'
+                                      // ),),
+                                      // SizedBox(
+                                      //   height: 5,
+                                      // ),
+                                      // Text(
+                                      //   DateFormat('d MMM y').format(attendanceController.selectedDate.value),
+                                      //   style: TextStyle(
+                                      //       fontWeight: FontWeight.w500,
+                                      //       fontSize: 15,
+                                      //       color: Colors.black),
+                                      // ),
+                                      SizedBox(
+                                        height: 10,
+                                      ),
+                                      RichText(
+                                        text: TextSpan(
+                                            text: "Office Hour-> ",
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.w700,
+                                              color: Colors.black87,
+                                              fontSize: fontsize*0.2,
+                                            ),
+                                            children: [
+                                              TextSpan(
+                                                text: "${attendanceController.attendanceDetailsModel?.data?.officeHour.toString()}",
+                                                style: TextStyle(
+                                                    fontWeight: FontWeight.w600,
+                                                    fontSize: 12,
+                                                    color: Colors.orange[700]),
+                                              )
+                                            ]),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                GestureDetector(
+                                  onTap: ()async{
+                                    DateTime? pickedDate = await showDatePicker(
+                                      context: context,
+                                      initialDate: DateTime.now(),
+                                      firstDate: DateTime(1950),
+                                      lastDate: DateTime.now(),
+                                    );
+
+                                    if (pickedDate != null) {
+                                      String formattedDate = DateFormat('yyyy-MM-dd').format(pickedDate);
+                                      attendanceController.updateSelectedDate(pickedDate);
+                                    }
+                                  },
+                                  child: SizedBox(
+                                    width: MediaQuery.of(context).size.width/2.95,
+                                    height: MediaQuery.of(context).size.height/30,
+                                    child: Row(
+                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+                                      // Text("Search",style: TextStyle(),),
+                                      Text(
+                                        DateFormat('d MMM y').format(attendanceController.selectedDate.value),
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 14,
+                                            color: appColor2),
+                                      ),
+                                      SizedBox(width: 6,),
+                                      Align(
+                                        //alignment: Alignment.topRight,
+                                        child: InkWell(
+                                            onTap: ()async{
+                                              DateTime? pickedDate = await showDatePicker(
+                                                context: context,
+                                                initialDate: DateTime.now(),
+                                                firstDate: DateTime(1950),
+                                                lastDate: DateTime.now(),
+                                              );
+
+                                              if (pickedDate != null) {
+                                                String formattedDate = DateFormat('yyyy-MM-dd').format(pickedDate);
+                                                attendanceController.updateSelectedDate(pickedDate);
+                                              }
+                                            },
+                                            child: Icon(Icons.search,color: Colors.red,)),
+                                      )
+                                    ],
+                                  ),
+                                  ),
+                                )
+                                // Container(
+                                //   child: CircleAvatar(
+                                //     radius: 26,
+                                //     child: ClipOval(
+                                //       child: responsiveContainer(
+                                //         // padding: const EdgeInsets.only(right: 0),
+                                //         //height: 20,
+                                //         //width: 20,
+                                //         heightPortrait:
+                                //             MediaQuery.of(context).size.height * 0.12,
+                                //         widthPortrait:
+                                //             MediaQuery.of(context).size.width * 0.25,
+                                //         heightLandscape:
+                                //             MediaQuery.of(context).size.height * 0.3,
+                                //         widthLandscape:
+                                //             MediaQuery.of(context).size.width * 0.2,
+                                //         // height: MediaQuery.of(context).size.height *
+                                //         //     0.05, // 20% of screen height if not provided
+                                //         // width: MediaQuery.of(context).size.width * 0.09,
+                                //         //                                    "${_getprofileepersonal.getprofileemployeeModel?.data?.personalEmailAddress}",
+                                //         child: _getprofileepersonal.getprofileemployeeModel?.data?.empProfile != null
+                                //             ? Image.network(
+                                //                 // "${FixedText.apiurl2}"
+                                //                 "${FixedText.imageUrlll}${_getprofileepersonal.getprofileemployeeModel?.data?.empProfile}",
+                                //                 //color: appColor,
+                                //                 fit: BoxFit.cover,
+                                //                 errorBuilder: (context, error, stackTrace) {
+                                //                   return Image.asset(
+                                //                     'lib/assets/logo/logoo.png',
+                                //                     fit: BoxFit.contain,
+                                //                   );
+                                //                 },
+                                //               )
+                                //             : Image.network(
+                                //                 'https://ih1.redbubble.net/image.5098928927.2456/flat,750x,075,f-pad,750x1000,f8f8f8.u2.jpg',
+                                //                 fit: BoxFit.fill,
+                                //               ),
+                                //         context: context,
+                                //       ),
+                                //     ),
+                                //   ),
+                                // ),
+                              ],
+                            ),
+                            SizedBox(
+                              height: 20,
+                            ),
+
+                            //check in check out
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Container(
+                                  height: categoryHeight * 0.5,
+                                  width: categoryWidth * 0.85,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(8),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black12,
+                                        blurRadius: 20.0,
+                                      ),
+                                    ],
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(10.0),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            CircleAvatar(
+                                              radius: 14,
+                                              backgroundColor: Colors.green.shade50,
+                                              child: Icon(
+                                                Icons.login_rounded,
+                                                color: Colors.green,
+                                                size: 18,
+                                              ),
+                                            ),
+                                            SizedBox(
+                                              width: 5,
+                                            ),
+                                            Text(
+                                              "Check - In",
+                                              style: TextStyle(
+                                                  fontSize: 15, color: Colors.grey),
+                                            ),
+                                            // CircleAvatar(
+                                            //   radius: 16,
+                                            //   backgroundColor:Colors.green.shade50,
+                                            //   child: Icon(Icons.login_rounded,
+                                            //       color: Colors.green,
+                                            //     size: 20,
+                                            //   ),
+                                            // )
+                                          ],
+                                        ),
+                                        SizedBox(
+                                          height: sizeHeight2 * 0.1,
+                                        ),
+                                        Text(
+                                          attendanceController.attendanceDetailsModel?.data?.checkInTime=="N/A" || attendanceController.attendanceDetailsModel?.data?.checkInTime==null?
+                                          "Not Check-in yet"
+                                              :"${attendanceController.attendanceDetailsModel?.data?.checkInTime}",
+                                          style: TextStyle(
+                                              fontSize:
+                                              attendanceController.attendanceDetailsModel?.data?.checkInTime=="N/A" || attendanceController.attendanceDetailsModel?.data?.checkInTime==null?
+                                              15:20,
+                                              color: Colors.black87,
+                                              fontWeight: FontWeight.w600),
+                                        ),
+                                        SizedBox(
+                                          height: sizeHeight2 * 0.1,
+                                        ),
+                                        Row(
+                                          children: [
+                                            // Text(
+                                            //   "${attendanceController.attendanceDetailsModel?.data?.ontime}",
+                                            //   style: TextStyle(
+                                            //       fontSize: 14,
+                                            //       color: Colors.grey,
+                                            //       fontFamily: 'poppins',
+                                            //       fontWeight: FontWeight.w500),
+                                            // ),
+                                           // Spacer(),
+                                            attendanceController.selectedDate.value.year == DateTime.now().year &&
+                                                attendanceController.selectedDate.value.month == DateTime.now().month &&
+                                                attendanceController.selectedDate.value.day == DateTime.now().day ?
+                                            GestureDetector(
+                                              onTap: ()async{
+                                                print("checkk-iN");
+                                                try {
+                                                  isLoading.value = true;
+                                                  // if(isLoading.value = true){
+                                                  //   showDialog(context: context,  builder: (context) => AlertDialog(
+                                                  //    shape: ContinuousRectangleBorder(
+                                                  //        side: BorderSide.none,
+                                                  //        borderRadius: BorderRadius.circular(12)
+                                                  //    ),
+                                                  //    // title: Text('Check-Out'),
+                                                  //    // content: Text('Do you really want to check out'),
+                                                  //    actions: [ Padding(
+                                                  //      padding: const EdgeInsets.all(18.0),
+                                                  //      child: Center(child: CircularProgressIndicator()),
+                                                  //    )
+                                                  //     ]));
+                                                  // }
+                                                  if(attendanceController.attendanceDetailsModel?.data?.loginStatus == "Check-Out") {
+                                                    await locationController.checkAndRequestLocationPermission();
+                                                    await locationController.fetchCurrentLocation();
+                                                    await locationController.fetchCompanyLocationApi();
+                                                    await locationController.getCoordinatesFromAddress();
+                                                    showAttendanceBottomSheet(context);
+
+                                                    // Fetch and update distance
+                                                    await locationController.updateDistanceFromCompany();
+                                                  }
+                                                  else if (attendanceController.attendanceDetailsModel?.data?.loginStatus == "Check-In") {
+                                                    await locationController.checkAndRequestLocationPermission();
+                                                    Fluttertoast.showToast(
+                                                           msg: "You are already Check-In",
+                                                           backgroundColor: Colors.green,
+                                                           textColor: Colors.white,
+                                                           toastLength: Toast.LENGTH_LONG,
+                                                           gravity: ToastGravity.CENTER,
+                                                         );
+                                                    Get.to(() => Attendance(id: '13'));
+                                                  } else {
+                                                     Get.to(() => Attendance(id: '13'));
+                                                   }
+                                                } catch (e) {
+                                                  print("Error during attendance process: $e");
+                                                } finally {
+                                                  // Reset the loading state after operations are complete
+                                                  isLoading.value = false;
+                                                  // isActive.value = false;
+                                                }
+                                              },
+                                              child: Container(
+                                                alignment: Alignment.center,
+                                                height: imageHeight * 0.15,
+                                                width: imageWidth * 0.35,
+                                                decoration: BoxDecoration(
+                                                  borderRadius: BorderRadius.circular(16),
+                                                  color:  Colors.green.shade50,
+                                                  border: Border.all(color: Colors.green, width: 1),
+                                                ),
+                                                child:  Text(
+                                                  "Check-in",
+                                                  style: TextStyle(
+                                                    fontFamily: 'poppins',
+                                                    fontSize: 12,
+                                                  ),
+                                                ),
+                                              ),
+                                            ):Container()
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                Container(
+                                  height: categoryHeight * 0.5,
+                                  width: categoryWidth * 0.85,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(8),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black12,
+                                        blurRadius: 20.0,
+                                      ),
+                                    ],
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(10.0),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            CircleAvatar(
+                                              radius: 14,
+                                              backgroundColor: Colors.red.shade50,
+                                              child: Icon(
+                                                Icons.logout_rounded,
+                                                color: Colors.red,
+                                                size: 18,
+                                              ),
+                                            ),
+                                            SizedBox(
+                                              width: 5,
+                                            ),
+                                            Text(
+                                              "Check - Out",
+                                              style: TextStyle(
+                                                  fontSize: 15, color: Colors.grey),
+                                            ),
+                                            // CircleAvatar(
+                                            //   radius: 16,
+                                            //   backgroundColor:Colors.green.shade50,
+                                            //   child: Icon(Icons.login_rounded,
+                                            //       color: Colors.green,
+                                            //     size: 20,
+                                            //   ),
+                                            // )
+                                          ],
+                                        ),
+                                        SizedBox(
+                                          height: 12,
+                                        ),
+                                        Text(
+                                          attendanceController.attendanceDetailsModel?.data?.checkInTime=="N/A" || attendanceController.attendanceDetailsModel?.data?.checkInTime==null?
+                                          "Not Check-in yet"
+                                          :"${attendanceController.attendanceDetailsModel?.data?.checkOutTime}",
+                                          style: TextStyle(
+                                              fontSize:
+                                              attendanceController.attendanceDetailsModel?.data?.checkInTime=="N/A" || attendanceController.attendanceDetailsModel?.data?.checkInTime==null?
+                                              15:20,
+                                              color: Colors.black87,
+                                              fontWeight: FontWeight.w600),
+                                        ),
+                                        SizedBox(
+                                          height: sizeHeight2 * 0.1,
+                                        ),
+                                        Row(
+                                          children: [
+                                            // Text(
+                                            //   "On-Time",
+                                            //   style: TextStyle(
+                                            //       fontSize: 14,
+                                            //       color: Colors.grey,
+                                            //       fontFamily: 'poppins',
+                                            //       fontWeight: FontWeight.w500),
+                                            // ),
+                                            // Spacer(),
+                                            attendanceController.selectedDate.value.year == DateTime.now().year &&
+                                                attendanceController.selectedDate.value.month == DateTime.now().month &&
+                                                attendanceController.selectedDate.value.day == DateTime.now().day ?
+                                            GestureDetector(
+                                                    onTap: () {
+                                                      showDialog(
+                                                        context: context,
+                                                        builder: (context) => AlertDialog(
+                                                          shape: ContinuousRectangleBorder(
+                                                              side: BorderSide.none,
+                                                              borderRadius: BorderRadius.circular(12)
+                                                          ),
+                                                          title: Text('Check-Out'),
+                                                          content: Text('Do you really want to check out'),
+                                                          actions: [
+                                                            Container(
+                                                              height:40,
+                                                              width: 70,
+                                                              decoration: BoxDecoration(
+                                                                  color: Colors.green,
+                                                                  borderRadius: BorderRadius.circular(12)
+                                                              ),
+                                                              child: TextButton(
+                                                                onPressed: () => Navigator.pop(context),
+                                                                child: Text('No',style: TextStyle(color: Colors.white),),
+                                                              ),
+                                                            ),
+
+                                                            Container(
+                                                              height:40,
+                                                              width: 70,
+                                                              decoration: BoxDecoration(
+                                                                  color: Colors.red,
+                                                                  borderRadius: BorderRadius.circular(12)
+                                                              ),
+                                                              child: TextButton(
+                                                                onPressed: () async{
+                                                                  print("cheedck-Outt");
+                                                                  // attendanceController.attendanceDetailsModel?.data?.loginStatus=='Check-In'?
+                                                                  // await locationController.employeeCheckOut():
+                                                                  // Fluttertoast.showToast(
+                                                                  //   msg: "You can't check-out without a prior check-in.",
+                                                                  //   backgroundColor: Colors.red,
+                                                                  //   textColor: Colors.white,
+                                                                  //   toastLength: Toast.LENGTH_LONG,
+                                                                  //   gravity: ToastGravity.CENTER,
+                                                                  // );
+                                                                  await attendanceController.EmpActivityApi();
+                                                                  print("cheedck-Outt done");
+                                                                  WidgetsBinding.instance.addPostFrameCallback((_) async{
+                                                                    attendanceController.attendanceDetailsModel?.data?.loginStatus=='Check-In'?
+                                                                    await locationController.employeeCheckOut():
+                                                                    Fluttertoast.showToast(
+                                                                    msg: "You can't check-out without a prior check-in.",
+                                                                    backgroundColor: Colors.red,
+                                                                    textColor: Colors.white,
+                                                                    toastLength: Toast.LENGTH_LONG,
+                                                                    gravity: ToastGravity.CENTER,
+                                                                    );
+                                                                    Get.back();
+                                                                    // Get.offAll(() => BottomBar());
+                                                                  });
+                                                                },
+                                                                child: Text('Yes',style: TextStyle(color: Colors.white),),
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      );
+                                                    },
+                                                    child: Container(
+                                                          alignment: Alignment.center,
+                                                          height: imageHeight * 0.15,
+                                                          width: imageWidth * 0.35,
+                                                          decoration: BoxDecoration(
+                                                            borderRadius: BorderRadius.circular(16),
+                                                            color:  Colors.red.shade50,
+                                                            border: Border.all(color: Colors.red, width: 1),
+                                                          ),
+                                                          child:  Text(
+                                                            "Check-out",
+                                                            style: TextStyle(
+                                                              fontFamily: 'poppins',
+                                                              fontSize: 12,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                  ):Container(),
+
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(
+                              height: 20,
+                            ),
+
+                            //over time
+                            // Row(
+                            //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            //   children: [
+                            //     Container(
+                            //       height: categoryHeight * 0.5,
+                            //       width: categoryWidth * 0.85,
+                            //       decoration: BoxDecoration(
+                            //         color: Colors.white,
+                            //         borderRadius: BorderRadius.circular(8),
+                            //         boxShadow: [
+                            //           BoxShadow(
+                            //             color: Colors.black12,
+                            //             blurRadius: 20.0,
+                            //           ),
+                            //         ],
+                            //       ),
+                            //       child: Padding(
+                            //         padding: const EdgeInsets.all(10.0),
+                            //         child: Column(
+                            //           crossAxisAlignment: CrossAxisAlignment.start,
+                            //           children: [
+                            //             Row(
+                            //               // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            //               children: [
+                            //                 CircleAvatar(
+                            //                   radius: 14,
+                            //                   backgroundColor: Color(0xffdcf2fc),
+                            //                   child: Icon(
+                            //                     Icons.timer,
+                            //                     color: Colors.indigoAccent,
+                            //                     size: 18,
+                            //                   ),
+                            //                 ),
+                            //                 SizedBox(
+                            //                   width: 5,
+                            //                 ),
+                            //                 Text(
+                            //                   "Start-Overtime",
+                            //                   style: TextStyle(
+                            //                       fontSize: 14,
+                            //                       color: Colors.grey,
+                            //                       overflow: TextOverflow.ellipsis),
+                            //                 ),
+                            //                 // CircleAvatar(
+                            //                 //   radius: 16,
+                            //                 //   backgroundColor:Colors.green.shade50,
+                            //                 //   child: Icon(Icons.login_rounded,
+                            //                 //       color: Colors.green,
+                            //                 //     size: 20,
+                            //                 //   ),
+                            //                 // )
+                            //               ],
+                            //             ),
+                            //             SizedBox(
+                            //               height: 12,
+                            //             ),
+                            //             Text(
+                            //               attendanceController.attendanceDetailsModel?.data?.checkInTime=="N/A" || attendanceController.attendanceDetailsModel?.data?.checkInTime==null?
+                            //               "Not Check-in yet" :
+                            //               "${attendanceController.attendanceDetailsModel?.data?.startOverTime}",
+                            //               style: TextStyle(
+                            //                   fontSize:  attendanceController.attendanceDetailsModel?.data?.checkInTime=="N/A" || attendanceController.attendanceDetailsModel?.data?.checkInTime==null?
+                            //                   15 :20,
+                            //                   color: Colors.black87,
+                            //                   fontWeight: FontWeight.w600),
+                            //             ),
+                            //             SizedBox(
+                            //               height: sizeHeight2 * 0.1,
+                            //             ),
+                            //             Row(
+                            //               children: [
+                            //                 Text(
+                            //                   "On-Time",
+                            //                   style: TextStyle(
+                            //                       fontSize: 14,
+                            //                       color: Colors.grey,
+                            //                       fontFamily: 'poppins',
+                            //                       fontWeight: FontWeight.w500),
+                            //                 ),
+                            //                 Spacer(),
+                            //                 attendanceController.selectedDate.value.year == DateTime.now().year &&
+                            //                     attendanceController.selectedDate.value.month == DateTime.now().month &&
+                            //                     attendanceController.selectedDate.value.day == DateTime.now().day ?
+                            //                 GestureDetector(
+                            //                   onTap: ()async{
+                            //                     print("start-iN");
+                            //                     try {
+                            //                       isLoading.value = true;
+                            //                       // if(isLoading.value = true){
+                            //                       //   showDialog(context: context,  builder: (context) => AlertDialog(
+                            //                       //    shape: ContinuousRectangleBorder(
+                            //                       //        side: BorderSide.none,
+                            //                       //        borderRadius: BorderRadius.circular(12)
+                            //                       //    ),
+                            //                       //    // title: Text('Check-Out'),
+                            //                       //    // content: Text('Do you really want to check out'),
+                            //                       //    actions: [ Padding(
+                            //                       //      padding: const EdgeInsets.all(18.0),
+                            //                       //      child: Center(child: CircularProgressIndicator()),
+                            //                       //    )
+                            //                       //     ]));
+                            //                       // }
+                            //                       if(attendanceController.attendanceDetailsModel?.data?.loginStatus == "Check-Out") {
+                            //                         Fluttertoast.showToast(
+                            //                           msg: "You are not Checked-In",
+                            //                           backgroundColor: Colors.deepOrange,
+                            //                           textColor: Colors.white,
+                            //                           toastLength: Toast.LENGTH_LONG,
+                            //                           gravity: ToastGravity.CENTER,
+                            //                         );
+                            //                       }
+                            //                       else if (attendanceController.attendanceDetailsModel?.data?.loginStatus == "Check-In") {
+                            //                         await locationController.startOverTime();
+                            //                         Fluttertoast.showToast(
+                            //                           msg: "Your start over time request has been sent !!",
+                            //                           backgroundColor: Colors.green,
+                            //                           textColor: Colors.white,
+                            //                           toastLength: Toast.LENGTH_LONG,
+                            //                           gravity: ToastGravity.CENTER,
+                            //                         );
+                            //                         // Get.to(() => Attendance(id: '13'));
+                            //                       } else{
+                            //                         // Get.to(() => Attendance(id: '13'));
+                            //                       }
+                            //                     } catch (e) {
+                            //                       print("Error during attendance process: $e");
+                            //                     } finally {
+                            //                       // Reset the loading state after operations are complete
+                            //                       isLoading.value = false;
+                            //                       // isActive.value = false;
+                            //                     }
+                            //                   },
+                            //                   child: Container(
+                            //                     alignment: Alignment.center,
+                            //                     height: imageHeight * 0.15,
+                            //                     width: imageWidth * 0.35,
+                            //                     decoration: BoxDecoration(
+                            //                       borderRadius: BorderRadius.circular(16),
+                            //                       color:  Color(0xffdcf2fc),
+                            //                       border: Border.all(color: Colors.indigoAccent, width: 1),
+                            //                     ),
+                            //                     child:  Text(
+                            //                       "Start",
+                            //                       style: TextStyle(
+                            //                         fontFamily: 'poppins',
+                            //                         fontSize: 12,
+                            //                       ),
+                            //                     ),
+                            //                   ),
+                            //                 ):Container()
+                            //               ],
+                            //             ),
+                            //           ],
+                            //         ),
+                            //       ),
+                            //     ),
+                            //     Container(
+                            //       height: categoryHeight * 0.5,
+                            //       width: categoryWidth * 0.85,
+                            //       decoration: BoxDecoration(
+                            //         color: Colors.white,
+                            //         borderRadius: BorderRadius.circular(8),
+                            //         boxShadow: [
+                            //           BoxShadow(
+                            //             color: Colors.black12,
+                            //             blurRadius: 20.0,
+                            //           ),
+                            //         ],
+                            //       ),
+                            //       child: Padding(
+                            //         padding: const EdgeInsets.all(10.0),
+                            //         child: Column(
+                            //           crossAxisAlignment: CrossAxisAlignment.start,
+                            //           children: [
+                            //             Row(
+                            //               // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            //               children: [
+                            //                 CircleAvatar(
+                            //                   radius: 14,
+                            //                   backgroundColor: Colors.brown.shade50,
+                            //                   child: Icon(
+                            //                     Icons.timer_off,
+                            //                     color: Colors.brown,
+                            //                     size: 18,
+                            //                   ),
+                            //                 ),
+                            //                 SizedBox(
+                            //                   width: 5,
+                            //                 ),
+                            //                 Text(
+                            //                   "Finish-Overtime",
+                            //                   style: TextStyle(
+                            //                       fontSize: 13, color: Colors.grey),
+                            //                 ),
+                            //                 // CircleAvatar(
+                            //                 //   radius: 16,
+                            //                 //   backgroundColor:Colors.green.shade50,
+                            //                 //   child: Icon(Icons.login_rounded,
+                            //                 //       color: Colors.green,
+                            //                 //     size: 20,
+                            //                 //   ),
+                            //                 // )
+                            //               ],
+                            //             ),
+                            //             SizedBox(
+                            //               height: 12,
+                            //             ),
+                            //             Text(
+                            //               attendanceController.attendanceDetailsModel?.data?.checkInTime=="N/A" || attendanceController.attendanceDetailsModel?.data?.checkInTime==null?
+                            //               "Not Check-in yet" :
+                            //               "${attendanceController.attendanceDetailsModel?.data?.finishOverTime}",
+                            //               style: TextStyle(
+                            //                   fontSize: attendanceController.attendanceDetailsModel?.data?.checkInTime=="N/A" || attendanceController.attendanceDetailsModel?.data?.checkInTime==null?
+                            //                   15 :20,
+                            //                   color: Colors.black87,
+                            //                   fontWeight: FontWeight.w600),
+                            //             ),
+                            //             SizedBox(
+                            //               height: 10,
+                            //             ),
+                            //             Text(
+                            //               "On-Time",
+                            //               style: TextStyle(
+                            //                   fontSize: 16,
+                            //                   color: Colors.grey,
+                            //                   fontFamily: 'poppins',
+                            //                   fontWeight: FontWeight.w500),
+                            //             ),
+                            //           ],
+                            //         ),
+                            //       ),
+                            //     ),
+                            //   ],
+                            // ),
+                            // SizedBox(
+                            //   height: 20,
+                            // ),
+                            // SizedBox(
+                            //   height: 10,
+                            // ),
+                            Container(
+                              height: categoryHeight * 0.2,
+                              width: taskListWidth,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(8),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black12,
+                                    blurRadius: 20.0,
+                                  ),
+                                ],
+                              ),
+                              padding: const EdgeInsets.fromLTRB(18.0, 0, 18, 0),
+                              child: Row(
+                                children: [
+                                  Icon(Icons.timer,color: Colors.blue,),
+                                  SizedBox(width: 10,),
+                                  attendanceController.selectedDate.value.year == DateTime.now().year &&
+                                      attendanceController.selectedDate.value.month == DateTime.now().month &&
+                                      attendanceController.selectedDate.value.day == DateTime.now().day ?
+                                  RichText(
+                                    text: TextSpan(
+                                      text:"You're ",
+                                      style: TextStyle(
+                                          fontSize: 16,
+                                          color: Colors.black87,
+                                          fontFamily: 'poppins',
+                                          fontWeight: FontWeight.w500),
+                                      children: [
+                                        TextSpan(
+                                          text:"${attendanceController.attendanceDetailsModel?.data?.ontime}",
+                                          style: TextStyle(
+                                              fontSize: 16,
+                                              color: Colors.red,
+                                              fontFamily: 'poppins',
+                                              fontWeight: FontWeight.w600),
+                                        ),
+                                      ]
+                                    ),
+                                  ):
+                                  attendanceController.selectedDate.value.year == DateTime.now().year &&
+                                      attendanceController.selectedDate.value.month == DateTime.now().month &&
+                                      attendanceController.selectedDate.value.weekday == DateTime.sunday ? Text("Sundayyy"):
+                                  RichText(
+                                    text: TextSpan(
+                                        text:"You were ",
+                                        style: TextStyle(
+                                            fontSize: 16,
+                                            color: Colors.black87,
+                                            fontFamily: 'poppins',
+                                            fontWeight: FontWeight.w500),
+                                        children: [
+                                          TextSpan(
+                                            text:"${attendanceController.attendanceDetailsModel?.data?.ontime}",
+                                            style: TextStyle(
+                                                fontSize: 16,
+                                                color: Colors.red,
+                                                fontFamily: 'poppins',
+                                                fontWeight: FontWeight.w600),
+                                          ),
+                                        ]
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            SizedBox(
+                              height: 20,
+                            ),
+
+                            ///total working hours
+                            Container(
+
+                              height: categoryHeight * 0.5,
+                              width: taskListWidth,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(8),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black12,
+                                    blurRadius: 20.0,
+                                  ),
+                                ],
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.fromLTRB(18.0, 18, 18, 18),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    RichText(
-                                      text: TextSpan(
-                                          text: _getGreeting(),
-                                          style: TextStyle(
-                                              fontSize: 20,
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.black87
-                                              // fontFamily: 'poppins'
-                                              ),
-                                          children: [
-                                            TextSpan(
-                                              text: "${_getprofileepersonal.getprofileemployeeModel?.data?.fullName}",
-                                              style: TextStyle(
-                                                  fontWeight: FontWeight.bold,
-                                                  fontSize: 20,
-                                                  color: Colors.blue),
-                                            )
-                                          ]),
-                                    ),
-                                    // Text("Morning, ${_getprofileepersonal.getprofileemployeeModel?.data?.fullName}",
-                                    //   style: TextStyle(
-                                    //   fontSize: 20,
-                                    //   fontWeight: FontWeight.w600,
-                                    //  // fontFamily: 'poppins'
-                                    // ),),
-                                    // SizedBox(
-                                    //   height: 5,
-                                    // ),
-                                    // Text(
-                                    //   DateFormat('d MMM y').format(attendanceController.selectedDate.value),
-                                    //   style: TextStyle(
-                                    //       fontWeight: FontWeight.w500,
-                                    //       fontSize: 15,
-                                    //       color: Colors.black),
-                                    // ),
-                                    SizedBox(
-                                      height: 10,
-                                    ),
-                                    RichText(
-                                      text: TextSpan(
-                                          text: "Office Hour-> ",
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.w700,
-                                            color: Colors.black87,
-                                            fontSize: fontsize*0.2,
-                                          ),
-                                          children: [
-                                            TextSpan(
-                                              text: "${attendanceController.attendanceDetailsModel?.data?.officeHour.toString()}",
-                                              style: TextStyle(
-                                                  fontWeight: FontWeight.w600,
-                                                  fontSize: 12,
-                                                  color: Colors.orange[700]),
-                                            )
-                                          ]),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              GestureDetector(
-                                onTap: ()async{
-                                  DateTime? pickedDate = await showDatePicker(
-                                    context: context,
-                                    initialDate: DateTime.now(),
-                                    firstDate: DateTime(1950),
-                                    lastDate: DateTime.now(),
-                                  );
-
-                                  if (pickedDate != null) {
-                                    String formattedDate = DateFormat('yyyy-MM-dd').format(pickedDate);
-                                    attendanceController.updateSelectedDate(pickedDate);
-                                  }
-                                },
-                                child: SizedBox(
-                                  width: MediaQuery.of(context).size.width/2.95,
-                                  height: MediaQuery.of(context).size.height/30,
-                                  child: Row(
-                                    crossAxisAlignment: CrossAxisAlignment.center,
-                                    mainAxisAlignment: MainAxisAlignment.end,
-                                  children: [
-                                    // Text("Search",style: TextStyle(),),
-                                    Text(
-                                      DateFormat('d MMM y').format(attendanceController.selectedDate.value),
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.w500,
-                                          fontSize: 14,
-                                          color: appColor2),
-                                    ),
-                                    SizedBox(width: 6,),
-                                    Align(
-                                      //alignment: Alignment.topRight,
-                                      child: InkWell(
-                                          onTap: ()async{
-                                            DateTime? pickedDate = await showDatePicker(
-                                              context: context,
-                                              initialDate: DateTime.now(),
-                                              firstDate: DateTime(1950),
-                                              lastDate: DateTime.now(),
-                                            );
-
-                                            if (pickedDate != null) {
-                                              String formattedDate = DateFormat('yyyy-MM-dd').format(pickedDate);
-                                              attendanceController.updateSelectedDate(pickedDate);
-                                            }
-                                          },
-                                          child: Icon(Icons.search,color: Colors.red,)),
-                                    )
-                                  ],
-                                ),
-                                ),
-                              )
-                              // Container(
-                              //   child: CircleAvatar(
-                              //     radius: 26,
-                              //     child: ClipOval(
-                              //       child: responsiveContainer(
-                              //         // padding: const EdgeInsets.only(right: 0),
-                              //         //height: 20,
-                              //         //width: 20,
-                              //         heightPortrait:
-                              //             MediaQuery.of(context).size.height * 0.12,
-                              //         widthPortrait:
-                              //             MediaQuery.of(context).size.width * 0.25,
-                              //         heightLandscape:
-                              //             MediaQuery.of(context).size.height * 0.3,
-                              //         widthLandscape:
-                              //             MediaQuery.of(context).size.width * 0.2,
-                              //         // height: MediaQuery.of(context).size.height *
-                              //         //     0.05, // 20% of screen height if not provided
-                              //         // width: MediaQuery.of(context).size.width * 0.09,
-                              //         //                                    "${_getprofileepersonal.getprofileemployeeModel?.data?.personalEmailAddress}",
-                              //         child: _getprofileepersonal.getprofileemployeeModel?.data?.empProfile != null
-                              //             ? Image.network(
-                              //                 // "${FixedText.apiurl2}"
-                              //                 "${FixedText.imageUrlll}${_getprofileepersonal.getprofileemployeeModel?.data?.empProfile}",
-                              //                 //color: appColor,
-                              //                 fit: BoxFit.cover,
-                              //                 errorBuilder: (context, error, stackTrace) {
-                              //                   return Image.asset(
-                              //                     'lib/assets/logo/logoo.png',
-                              //                     fit: BoxFit.contain,
-                              //                   );
-                              //                 },
-                              //               )
-                              //             : Image.network(
-                              //                 'https://ih1.redbubble.net/image.5098928927.2456/flat,750x,075,f-pad,750x1000,f8f8f8.u2.jpg',
-                              //                 fit: BoxFit.fill,
-                              //               ),
-                              //         context: context,
-                              //       ),
-                              //     ),
-                              //   ),
-                              // ),
-                            ],
-                          ),
-                          SizedBox(
-                            height: 20,
-                          ),
-
-                          //check in check out
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Container(
-                                height: categoryHeight * 0.5,
-                                width: categoryWidth * 0.85,
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(8),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black12,
-                                      blurRadius: 20.0,
-                                    ),
-                                  ],
-                                ),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(10.0),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          CircleAvatar(
-                                            radius: 14,
-                                            backgroundColor: Colors.green.shade50,
-                                            child: Icon(
-                                              Icons.login_rounded,
-                                              color: Colors.green,
-                                              size: 18,
-                                            ),
-                                          ),
-                                          SizedBox(
-                                            width: 5,
-                                          ),
-                                          Text(
-                                            "Check - In",
-                                            style: TextStyle(
-                                                fontSize: 15, color: Colors.grey),
-                                          ),
-                                          // CircleAvatar(
-                                          //   radius: 16,
-                                          //   backgroundColor:Colors.green.shade50,
-                                          //   child: Icon(Icons.login_rounded,
-                                          //       color: Colors.green,
-                                          //     size: 20,
-                                          //   ),
-                                          // )
-                                        ],
-                                      ),
-                                      SizedBox(
-                                        height: sizeHeight2 * 0.1,
-                                      ),
-                                      Text(
-                                        attendanceController.attendanceDetailsModel?.data?.checkInTime=="N/A" || attendanceController.attendanceDetailsModel?.data?.checkInTime==null?
-                                        "Not Check-in yet"
-                                            :"${attendanceController.attendanceDetailsModel?.data?.checkInTime}",
-                                        style: TextStyle(
-                                            fontSize:
-                                            attendanceController.attendanceDetailsModel?.data?.checkInTime=="N/A" || attendanceController.attendanceDetailsModel?.data?.checkInTime==null?
-                                            15:20,
-                                            color: Colors.black87,
-                                            fontWeight: FontWeight.w600),
-                                      ),
-                                      SizedBox(
-                                        height: sizeHeight2 * 0.1,
-                                      ),
-                                      Row(
-                                        children: [
-                                          // Text(
-                                          //   "${attendanceController.attendanceDetailsModel?.data?.ontime}",
-                                          //   style: TextStyle(
-                                          //       fontSize: 14,
-                                          //       color: Colors.grey,
-                                          //       fontFamily: 'poppins',
-                                          //       fontWeight: FontWeight.w500),
-                                          // ),
-                                         // Spacer(),
-                                          attendanceController.selectedDate.value.year == DateTime.now().year &&
-                                              attendanceController.selectedDate.value.month == DateTime.now().month &&
-                                              attendanceController.selectedDate.value.day == DateTime.now().day ?
-                                          GestureDetector(
-                                            onTap: ()async{
-                                              print("checkk-iN");
-                                              try {
-                                                isLoading.value = true;
-                                                // if(isLoading.value = true){
-                                                //   showDialog(context: context,  builder: (context) => AlertDialog(
-                                                //    shape: ContinuousRectangleBorder(
-                                                //        side: BorderSide.none,
-                                                //        borderRadius: BorderRadius.circular(12)
-                                                //    ),
-                                                //    // title: Text('Check-Out'),
-                                                //    // content: Text('Do you really want to check out'),
-                                                //    actions: [ Padding(
-                                                //      padding: const EdgeInsets.all(18.0),
-                                                //      child: Center(child: CircularProgressIndicator()),
-                                                //    )
-                                                //     ]));
-                                                // }
-                                                if(attendanceController.attendanceDetailsModel?.data?.loginStatus == "Check-Out") {
-                                                  await locationController.checkAndRequestLocationPermission();
-                                                  await locationController.fetchCurrentLocation();
-                                                  await locationController.fetchCompanyLocationApi();
-                                                  await locationController.getCoordinatesFromAddress();
-                                                  showAttendanceBottomSheet(context);
-
-                                                  // Fetch and update distance
-                                                  await locationController.updateDistanceFromCompany();
-                                                }
-                                                else if (attendanceController.attendanceDetailsModel?.data?.loginStatus == "Check-In") {
-                                                  await locationController.checkAndRequestLocationPermission();
-                                                  Fluttertoast.showToast(
-                                                         msg: "You are already Check-In",
-                                                         backgroundColor: Colors.green,
-                                                         textColor: Colors.white,
-                                                         toastLength: Toast.LENGTH_LONG,
-                                                         gravity: ToastGravity.CENTER,
-                                                       );
-                                                  Get.to(() => Attendance(id: '13'));
-                                                } else{
-                                                   Get.to(() => Attendance(id: '13'));
-                                                 }
-                                              } catch (e) {
-                                                print("Error during attendance process: $e");
-                                              } finally {
-                                                // Reset the loading state after operations are complete
-                                                isLoading.value = false;
-                                                // isActive.value = false;
-                                              }
-                                            },
-                                            child: Container(
-                                              alignment: Alignment.center,
-                                              height: imageHeight * 0.15,
-                                              width: imageWidth * 0.35,
-                                              decoration: BoxDecoration(
-                                                borderRadius: BorderRadius.circular(16),
-                                                color:  Colors.green.shade50,
-                                                border: Border.all(color: Colors.green, width: 1),
-                                              ),
-                                              child:  Text(
-                                                "Check-in",
-                                                style: TextStyle(
-                                                  fontFamily: 'poppins',
-                                                  fontSize: 12,
-                                                ),
-                                              ),
-                                            ),
-                                          ):Container()
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              Container(
-                                height: categoryHeight * 0.5,
-                                width: categoryWidth * 0.85,
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(8),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black12,
-                                      blurRadius: 20.0,
-                                    ),
-                                  ],
-                                ),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(10.0),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          CircleAvatar(
-                                            radius: 14,
-                                            backgroundColor: Colors.red.shade50,
-                                            child: Icon(
-                                              Icons.logout_rounded,
-                                              color: Colors.red,
-                                              size: 18,
-                                            ),
-                                          ),
-                                          SizedBox(
-                                            width: 5,
-                                          ),
-                                          Text(
-                                            "Check - Out",
-                                            style: TextStyle(
-                                                fontSize: 15, color: Colors.grey),
-                                          ),
-                                          // CircleAvatar(
-                                          //   radius: 16,
-                                          //   backgroundColor:Colors.green.shade50,
-                                          //   child: Icon(Icons.login_rounded,
-                                          //       color: Colors.green,
-                                          //     size: 20,
-                                          //   ),
-                                          // )
-                                        ],
-                                      ),
-                                      SizedBox(
-                                        height: 12,
-                                      ),
-                                      Text(
-                                        attendanceController.attendanceDetailsModel?.data?.checkInTime=="N/A" || attendanceController.attendanceDetailsModel?.data?.checkInTime==null?
-                                        "Not Check-in yet"
-                                        :"${attendanceController.attendanceDetailsModel?.data?.checkOutTime}",
-                                        style: TextStyle(
-                                            fontSize:
-                                            attendanceController.attendanceDetailsModel?.data?.checkInTime=="N/A" || attendanceController.attendanceDetailsModel?.data?.checkInTime==null?
-                                            15:20,
-                                            color: Colors.black87,
-                                            fontWeight: FontWeight.w600),
-                                      ),
-                                      SizedBox(
-                                        height: sizeHeight2 * 0.1,
-                                      ),
-                                      Row(
-                                        children: [
-                                          // Text(
-                                          //   "On-Time",
-                                          //   style: TextStyle(
-                                          //       fontSize: 14,
-                                          //       color: Colors.grey,
-                                          //       fontFamily: 'poppins',
-                                          //       fontWeight: FontWeight.w500),
-                                          // ),
-                                          // Spacer(),
-                                          attendanceController.selectedDate.value.year == DateTime.now().year &&
-                                              attendanceController.selectedDate.value.month == DateTime.now().month &&
-                                              attendanceController.selectedDate.value.day == DateTime.now().day ?
-                                          GestureDetector(
-                                                  onTap: () {
-                                                    showDialog(
-                                                      context: context,
-                                                      builder: (context) => AlertDialog(
-                                                        shape: ContinuousRectangleBorder(
-                                                            side: BorderSide.none,
-                                                            borderRadius: BorderRadius.circular(12)
-                                                        ),
-                                                        title: Text('Check-Out'),
-                                                        content: Text('Do you really want to check out'),
-                                                        actions: [
-                                                          Container(
-                                                            height:40,
-                                                            width: 70,
-                                                            decoration: BoxDecoration(
-                                                                color: Colors.green,
-                                                                borderRadius: BorderRadius.circular(12)
-                                                            ),
-                                                            child: TextButton(
-                                                              onPressed: () => Navigator.pop(context),
-                                                              child: Text('No',style: TextStyle(color: Colors.white),),
-                                                            ),
-                                                          ),
-
-                                                          Container(
-                                                            height:40,
-                                                            width: 70,
-                                                            decoration: BoxDecoration(
-                                                                color: Colors.red,
-                                                                borderRadius: BorderRadius.circular(12)
-                                                            ),
-                                                            child: TextButton(
-                                                              onPressed: () async{
-                                                                print("cheedck-Outt");
-                                                                // attendanceController.attendanceDetailsModel?.data?.loginStatus=='Check-In'?
-                                                                // await locationController.employeeCheckOut():
-                                                                // Fluttertoast.showToast(
-                                                                //   msg: "You can't check-out without a prior check-in.",
-                                                                //   backgroundColor: Colors.red,
-                                                                //   textColor: Colors.white,
-                                                                //   toastLength: Toast.LENGTH_LONG,
-                                                                //   gravity: ToastGravity.CENTER,
-                                                                // );
-                                                                await attendanceController.EmpActivityApi();
-                                                                print("cheedck-Outt done");
-                                                                WidgetsBinding.instance.addPostFrameCallback((_) async{
-                                                                  attendanceController.attendanceDetailsModel?.data?.loginStatus=='Check-In'?
-                                                                  await locationController.employeeCheckOut():
-                                                                  Fluttertoast.showToast(
-                                                                  msg: "You can't check-out without a prior check-in.",
-                                                                  backgroundColor: Colors.red,
-                                                                  textColor: Colors.white,
-                                                                  toastLength: Toast.LENGTH_LONG,
-                                                                  gravity: ToastGravity.CENTER,
-                                                                  );
-                                                                  Get.back();
-                                                                  // Get.offAll(() => BottomBar());
-                                                                });
-                                                              },
-                                                              child: Text('Yes',style: TextStyle(color: Colors.white),),
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    );
-                                                  },
-                                                  child: Container(
-                                                        alignment: Alignment.center,
-                                                        height: imageHeight * 0.15,
-                                                        width: imageWidth * 0.35,
-                                                        decoration: BoxDecoration(
-                                                          borderRadius: BorderRadius.circular(16),
-                                                          color:  Colors.red.shade50,
-                                                          border: Border.all(color: Colors.red, width: 1),
-                                                        ),
-                                                        child:  Text(
-                                                          "Check-out",
-                                                          style: TextStyle(
-                                                            fontFamily: 'poppins',
-                                                            fontSize: 12,
-                                                          ),
-                                                        ),
-                                                      ),
-                                                ):Container(),
-
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          SizedBox(
-                            height: 20,
-                          ),
-
-                          //over time
-                          // Row(
-                          //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          //   children: [
-                          //     Container(
-                          //       height: categoryHeight * 0.5,
-                          //       width: categoryWidth * 0.85,
-                          //       decoration: BoxDecoration(
-                          //         color: Colors.white,
-                          //         borderRadius: BorderRadius.circular(8),
-                          //         boxShadow: [
-                          //           BoxShadow(
-                          //             color: Colors.black12,
-                          //             blurRadius: 20.0,
-                          //           ),
-                          //         ],
-                          //       ),
-                          //       child: Padding(
-                          //         padding: const EdgeInsets.all(10.0),
-                          //         child: Column(
-                          //           crossAxisAlignment: CrossAxisAlignment.start,
-                          //           children: [
-                          //             Row(
-                          //               // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          //               children: [
-                          //                 CircleAvatar(
-                          //                   radius: 14,
-                          //                   backgroundColor: Color(0xffdcf2fc),
-                          //                   child: Icon(
-                          //                     Icons.timer,
-                          //                     color: Colors.indigoAccent,
-                          //                     size: 18,
-                          //                   ),
-                          //                 ),
-                          //                 SizedBox(
-                          //                   width: 5,
-                          //                 ),
-                          //                 Text(
-                          //                   "Start-Overtime",
-                          //                   style: TextStyle(
-                          //                       fontSize: 14,
-                          //                       color: Colors.grey,
-                          //                       overflow: TextOverflow.ellipsis),
-                          //                 ),
-                          //                 // CircleAvatar(
-                          //                 //   radius: 16,
-                          //                 //   backgroundColor:Colors.green.shade50,
-                          //                 //   child: Icon(Icons.login_rounded,
-                          //                 //       color: Colors.green,
-                          //                 //     size: 20,
-                          //                 //   ),
-                          //                 // )
-                          //               ],
-                          //             ),
-                          //             SizedBox(
-                          //               height: 12,
-                          //             ),
-                          //             Text(
-                          //               attendanceController.attendanceDetailsModel?.data?.checkInTime=="N/A" || attendanceController.attendanceDetailsModel?.data?.checkInTime==null?
-                          //               "Not Check-in yet" :
-                          //               "${attendanceController.attendanceDetailsModel?.data?.startOverTime}",
-                          //               style: TextStyle(
-                          //                   fontSize:  attendanceController.attendanceDetailsModel?.data?.checkInTime=="N/A" || attendanceController.attendanceDetailsModel?.data?.checkInTime==null?
-                          //                   15 :20,
-                          //                   color: Colors.black87,
-                          //                   fontWeight: FontWeight.w600),
-                          //             ),
-                          //             SizedBox(
-                          //               height: sizeHeight2 * 0.1,
-                          //             ),
-                          //             Row(
-                          //               children: [
-                          //                 Text(
-                          //                   "On-Time",
-                          //                   style: TextStyle(
-                          //                       fontSize: 14,
-                          //                       color: Colors.grey,
-                          //                       fontFamily: 'poppins',
-                          //                       fontWeight: FontWeight.w500),
-                          //                 ),
-                          //                 Spacer(),
-                          //                 attendanceController.selectedDate.value.year == DateTime.now().year &&
-                          //                     attendanceController.selectedDate.value.month == DateTime.now().month &&
-                          //                     attendanceController.selectedDate.value.day == DateTime.now().day ?
-                          //                 GestureDetector(
-                          //                   onTap: ()async{
-                          //                     print("start-iN");
-                          //                     try {
-                          //                       isLoading.value = true;
-                          //                       // if(isLoading.value = true){
-                          //                       //   showDialog(context: context,  builder: (context) => AlertDialog(
-                          //                       //    shape: ContinuousRectangleBorder(
-                          //                       //        side: BorderSide.none,
-                          //                       //        borderRadius: BorderRadius.circular(12)
-                          //                       //    ),
-                          //                       //    // title: Text('Check-Out'),
-                          //                       //    // content: Text('Do you really want to check out'),
-                          //                       //    actions: [ Padding(
-                          //                       //      padding: const EdgeInsets.all(18.0),
-                          //                       //      child: Center(child: CircularProgressIndicator()),
-                          //                       //    )
-                          //                       //     ]));
-                          //                       // }
-                          //                       if(attendanceController.attendanceDetailsModel?.data?.loginStatus == "Check-Out") {
-                          //                         Fluttertoast.showToast(
-                          //                           msg: "You are not Checked-In",
-                          //                           backgroundColor: Colors.deepOrange,
-                          //                           textColor: Colors.white,
-                          //                           toastLength: Toast.LENGTH_LONG,
-                          //                           gravity: ToastGravity.CENTER,
-                          //                         );
-                          //                       }
-                          //                       else if (attendanceController.attendanceDetailsModel?.data?.loginStatus == "Check-In") {
-                          //                         await locationController.startOverTime();
-                          //                         Fluttertoast.showToast(
-                          //                           msg: "Your start over time request has been sent !!",
-                          //                           backgroundColor: Colors.green,
-                          //                           textColor: Colors.white,
-                          //                           toastLength: Toast.LENGTH_LONG,
-                          //                           gravity: ToastGravity.CENTER,
-                          //                         );
-                          //                         // Get.to(() => Attendance(id: '13'));
-                          //                       } else{
-                          //                         // Get.to(() => Attendance(id: '13'));
-                          //                       }
-                          //                     } catch (e) {
-                          //                       print("Error during attendance process: $e");
-                          //                     } finally {
-                          //                       // Reset the loading state after operations are complete
-                          //                       isLoading.value = false;
-                          //                       // isActive.value = false;
-                          //                     }
-                          //                   },
-                          //                   child: Container(
-                          //                     alignment: Alignment.center,
-                          //                     height: imageHeight * 0.15,
-                          //                     width: imageWidth * 0.35,
-                          //                     decoration: BoxDecoration(
-                          //                       borderRadius: BorderRadius.circular(16),
-                          //                       color:  Color(0xffdcf2fc),
-                          //                       border: Border.all(color: Colors.indigoAccent, width: 1),
-                          //                     ),
-                          //                     child:  Text(
-                          //                       "Start",
-                          //                       style: TextStyle(
-                          //                         fontFamily: 'poppins',
-                          //                         fontSize: 12,
-                          //                       ),
-                          //                     ),
-                          //                   ),
-                          //                 ):Container()
-                          //               ],
-                          //             ),
-                          //           ],
-                          //         ),
-                          //       ),
-                          //     ),
-                          //     Container(
-                          //       height: categoryHeight * 0.5,
-                          //       width: categoryWidth * 0.85,
-                          //       decoration: BoxDecoration(
-                          //         color: Colors.white,
-                          //         borderRadius: BorderRadius.circular(8),
-                          //         boxShadow: [
-                          //           BoxShadow(
-                          //             color: Colors.black12,
-                          //             blurRadius: 20.0,
-                          //           ),
-                          //         ],
-                          //       ),
-                          //       child: Padding(
-                          //         padding: const EdgeInsets.all(10.0),
-                          //         child: Column(
-                          //           crossAxisAlignment: CrossAxisAlignment.start,
-                          //           children: [
-                          //             Row(
-                          //               // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          //               children: [
-                          //                 CircleAvatar(
-                          //                   radius: 14,
-                          //                   backgroundColor: Colors.brown.shade50,
-                          //                   child: Icon(
-                          //                     Icons.timer_off,
-                          //                     color: Colors.brown,
-                          //                     size: 18,
-                          //                   ),
-                          //                 ),
-                          //                 SizedBox(
-                          //                   width: 5,
-                          //                 ),
-                          //                 Text(
-                          //                   "Finish-Overtime",
-                          //                   style: TextStyle(
-                          //                       fontSize: 13, color: Colors.grey),
-                          //                 ),
-                          //                 // CircleAvatar(
-                          //                 //   radius: 16,
-                          //                 //   backgroundColor:Colors.green.shade50,
-                          //                 //   child: Icon(Icons.login_rounded,
-                          //                 //       color: Colors.green,
-                          //                 //     size: 20,
-                          //                 //   ),
-                          //                 // )
-                          //               ],
-                          //             ),
-                          //             SizedBox(
-                          //               height: 12,
-                          //             ),
-                          //             Text(
-                          //               attendanceController.attendanceDetailsModel?.data?.checkInTime=="N/A" || attendanceController.attendanceDetailsModel?.data?.checkInTime==null?
-                          //               "Not Check-in yet" :
-                          //               "${attendanceController.attendanceDetailsModel?.data?.finishOverTime}",
-                          //               style: TextStyle(
-                          //                   fontSize: attendanceController.attendanceDetailsModel?.data?.checkInTime=="N/A" || attendanceController.attendanceDetailsModel?.data?.checkInTime==null?
-                          //                   15 :20,
-                          //                   color: Colors.black87,
-                          //                   fontWeight: FontWeight.w600),
-                          //             ),
-                          //             SizedBox(
-                          //               height: 10,
-                          //             ),
-                          //             Text(
-                          //               "On-Time",
-                          //               style: TextStyle(
-                          //                   fontSize: 16,
-                          //                   color: Colors.grey,
-                          //                   fontFamily: 'poppins',
-                          //                   fontWeight: FontWeight.w500),
-                          //             ),
-                          //           ],
-                          //         ),
-                          //       ),
-                          //     ),
-                          //   ],
-                          // ),
-                          // SizedBox(
-                          //   height: 20,
-                          // ),
-                          // SizedBox(
-                          //   height: 10,
-                          // ),
-                          Container(
-                            height: categoryHeight * 0.2,
-                            width: taskListWidth,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(8),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black12,
-                                  blurRadius: 20.0,
-                                ),
-                              ],
-                            ),
-                            padding: const EdgeInsets.fromLTRB(18.0, 0, 18, 0),
-                            child: Row(
-                              children: [
-                                Icon(Icons.timer,color: Colors.blue,),
-                                SizedBox(width: 10,),
-                                RichText(
-                                  text: TextSpan(
-                                    text:"You're ",
-                                    style: TextStyle(
-                                        fontSize: 16,
-                                        color: Colors.black87,
-                                        fontFamily: 'poppins',
-                                        fontWeight: FontWeight.w500),
-                                    children: [
-                                      TextSpan(
-                                        text:"${attendanceController.attendanceDetailsModel?.data?.ontime}",
-                                        style: TextStyle(
-                                            fontSize: 16,
-                                            color: Colors.red,
-                                            fontFamily: 'poppins',
-                                            fontWeight: FontWeight.w600),
-                                      ),
-                                    ]
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          SizedBox(
-                            height: 20,
-                          ),
-                          ///total working hours
-                          Container(
-
-                            height: categoryHeight * 0.5,
-                            width: taskListWidth,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(8),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black12,
-                                  blurRadius: 20.0,
-                                ),
-                              ],
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.fromLTRB(18.0, 18, 18, 18),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    children: [
-                                      Icon(
-                                        Icons.work_history_outlined,
-                                        color: Colors.deepOrangeAccent,
-                                      ),
-                                      SizedBox(
-                                        width: 7,
-                                      ),
-                                      Text(
-                                        "Total Working Hour",
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w600,
+                                    Row(
+                                      children: [
+                                        Icon(
+                                          Icons.work_history_outlined,
+                                          color: Colors.deepOrangeAccent,
                                         ),
-                                      ),
-                                      Spacer(),
-                                  GestureDetector(
-                                  onTap: () async{
-                                  await attendanceController.EmpActivityApi();
-                                  // Navigate to TaskDetailPage and pass the task ID (for example: 'taskId-$index')
-                                  showDialog(
-                                    context: context,
-                                    builder: (context) {
-                                      return Dialog(
-                                        shape: ContinuousRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                        elevation: 16,
-                                        child: Container(
-                                          child: ListView(
-                                            shrinkWrap: true,
-                                            children: <Widget>[
-                                              Padding(
-                                                padding: const EdgeInsets.fromLTRB(18.0,0,0,0),
-                                                child: Row(
-                                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                  children: [
-                                                    Text('Recent Activity', style: TextStyle(
-                                                        fontSize: 17,
-                                                        fontWeight: FontWeight.bold,
-                                                        color: Colors.black87
-                                                      // fontFamily: 'poppins'
-                                                    ),),
-                                                    IconButton(onPressed: (){Navigator.pop(context);}, icon: Icon(Icons.cancel_outlined,color: Colors.red,))
-                                                  ],
+                                        SizedBox(
+                                          width: 7,
+                                        ),
+                                        Text(
+                                          "Total Working Hour",
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                        Spacer(),
+                                    GestureDetector(
+                                    onTap: () async{
+                                    await attendanceController.EmpActivityApi();
+                                    // Navigate to TaskDetailPage and pass the task ID (for example: 'taskId-$index')
+                                    showDialog(
+                                      context: context,
+                                      builder: (context) {
+                                        return Dialog(
+                                          shape: ContinuousRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                          elevation: 16,
+                                          child: Container(
+                                            child: ListView(
+                                              shrinkWrap: true,
+                                              children: <Widget>[
+                                                Padding(
+                                                  padding: const EdgeInsets.fromLTRB(18.0,0,0,0),
+                                                  child: Row(
+                                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                    children: [
+                                                      Text('Recent Activity', style: TextStyle(
+                                                          fontSize: 17,
+                                                          fontWeight: FontWeight.bold,
+                                                          color: Colors.black87
+                                                        // fontFamily: 'poppins'
+                                                      ),),
+                                                      IconButton(onPressed: (){Navigator.pop(context);}, icon: Icon(Icons.cancel_outlined,color: Colors.red,))
+                                                    ],
+                                                  ),
                                                 ),
-                                              ),
-                                              //SizedBox(height: 8),
-                                              // _buildRow(Icons.login,Icons.logout_rounded, Colors.green,Colors.red,'Check-In','Check-Out', "${attendanceController.attendanceDetailsModel?.data?.checkInTime.toString()}","${attendanceController.attendanceDetailsModel?.data?.checkOutTime}",Colors.green.shade50,Colors.red.shade50,),
-                                              Padding(
-                                                padding: const EdgeInsets.fromLTRB(18.0,10,0,0),
-                                                child:  Row(
-                                                  children: <Widget>[
-                                                    CircleAvatar(child: Icon(Icons.timer,size: 20,color: Colors.indigoAccent,),backgroundColor:  Color(0xffdcf2fc),radius: 18,),
-                                                    SizedBox(width: 8),
-                                                    Text("Break-In",style: TextStyle(
-                                                        fontWeight: FontWeight.w600
-                                                    ),),
-                                                    Spacer(),
-                                                    attendanceController.selectedDate.value.year == DateTime.now().year &&
-                                                        attendanceController.selectedDate.value.month == DateTime.now().month &&
-                                                        attendanceController.selectedDate.value.day == DateTime.now().day ?
-                                                    IconButton(onPressed: ()async{
-                                                      attendanceController.attendanceDetailsModel?.data?.loginStatus=='Check-In'?
-                                                      await locationController.breakInApi():
-                                                      Fluttertoast.showToast(
-                                                      msg: 'You can\'t take break first check in',
-                                                      backgroundColor: Colors.red,
-                                                      textColor: Colors.white,
-                                                      toastLength: Toast.LENGTH_LONG,
-                                                      gravity: ToastGravity.CENTER,);
-                                                    }, icon: Icon(Icons.logout_sharp,size: 22))
-                                                        :Container(),
-                                                  ],
-                                                ),
-                                              ),
-                                              SizedBox(height: 8,),
-                                              Padding(
-                                                padding: const EdgeInsets.only(left: 18.0,right: 10),
-                                                child: Container(
-                                                  height: 50,
-                                                  child: ListView.builder(
-                                                    scrollDirection: Axis.horizontal,
-                                                    itemCount:
-                                                    attendanceController.attendanceDetailsModel?.data?.loginactivities?.length==null?0:
-                                                    attendanceController.attendanceDetailsModel?.data?.loginactivities?.length,
-                                                      itemBuilder: (context,index){
-                                                        return Card(  clipBehavior: Clip.antiAlias,
-                                                          shape: RoundedRectangleBorder(
-                                                            borderRadius: BorderRadius.circular(10),
-                                                          ),
-                                                         // elevation: 2,
-                                                          child: Padding(
-                                                            padding: const EdgeInsets.fromLTRB(6,8,12,8),
-
-                                                            child: Row(
-                                                              children: [
-                                                                CircleAvatar(
-                                                                  backgroundColor: Colors.orange.shade100,
-                                                                  child: Text('${index+1}', style: TextStyle(
-                                                                      fontSize: 15,
-                                                                      fontWeight: FontWeight.bold,
-                                                                      color: Colors.black87
-                                                                    // fontFamily: 'poppins'
-                                                                  ),),
-                                                                ),
-                                                                Text(
-                                                                  attendanceController.attendanceDetailsModel?.data?.loginactivities?[index].breakIn==null?"":
-                                                                  '${attendanceController.attendanceDetailsModel?.data?.loginactivities?[index].breakIn}', style: TextStyle(
-                                                                    fontSize: 15,
-                                                                    fontWeight: FontWeight.bold,
-                                                                    color: Colors.black87
-                                                                  // fontFamily: 'poppins'
-                                                                ),),
-                                                              ],
-                                                            ),
-                                                          ),);
-                                                      }),
-                                                ),
-                                              ),
-                                              Padding(
-                                                padding: const EdgeInsets.fromLTRB(18.0,12,0,0),
-                                                child: Row(
-                                                  children: [
-                                                    CircleAvatar(child: Icon(Icons.timer_off,size: 20,color: Colors.brown,),backgroundColor: Colors.brown.shade50,radius: 18,),
-                                                    SizedBox(width: 8),
-                                                    Text("Break-Out",style: TextStyle(
-                                                        fontWeight: FontWeight.w600
-                                                    ),),
-                                                    Spacer(),
-                                                    attendanceController.selectedDate.value.year == DateTime.now().year &&
-                                                        attendanceController.selectedDate.value.month == DateTime.now().month &&
-                                                        attendanceController.selectedDate.value.day == DateTime.now().day ?
-                                                    IconButton(
-                                                      onPressed: () async {
+                                                //SizedBox(height: 8),
+                                                // _buildRow(Icons.login,Icons.logout_rounded, Colors.green,Colors.red,'Check-In','Check-Out', "${attendanceController.attendanceDetailsModel?.data?.checkInTime.toString()}","${attendanceController.attendanceDetailsModel?.data?.checkOutTime}",Colors.green.shade50,Colors.red.shade50,),
+                                                Padding(
+                                                  padding: const EdgeInsets.fromLTRB(18.0,10,0,0),
+                                                  child:  Row(
+                                                    children: <Widget>[
+                                                      CircleAvatar(child: Icon(Icons.timer,size: 20,color: Colors.indigoAccent,),backgroundColor:  Color(0xffdcf2fc),radius: 18,),
+                                                      SizedBox(width: 8),
+                                                      Text("Break-In",style: TextStyle(
+                                                          fontWeight: FontWeight.w600
+                                                      ),),
+                                                      Spacer(),
+                                                      attendanceController.selectedDate.value.year == DateTime.now().year &&
+                                                          attendanceController.selectedDate.value.month == DateTime.now().month &&
+                                                          attendanceController.selectedDate.value.day == DateTime.now().day ?
+                                                      IconButton(onPressed: ()async{
+                                                        Get.dialog(CustomThreeInOutLoader(),
+                                                            barrierDismissible: false);
                                                         attendanceController.attendanceDetailsModel?.data?.loginStatus=='Check-In'?
-                                                        await locationController.breakOutApi():
+                                                        await locationController.breakInApi():
                                                         Fluttertoast.showToast(
                                                         msg: 'You can\'t take break first check in',
                                                         backgroundColor: Colors.red,
                                                         textColor: Colors.white,
                                                         toastLength: Toast.LENGTH_LONG,
                                                         gravity: ToastGravity.CENTER,);
-                                                      },
-                                                      icon: Icon(Icons.logout_sharp, size: 22),
-                                                    )
-                                                        : Container(),
+                                                       // Get.back();
+                                                       // Get.back();
 
-                                                  ],
+                                                      }, icon: Icon(Icons.logout_sharp,size: 22))
+                                                          :Container(),
+                                                    ],
+                                                  ),
                                                 ),
-                                              ),
-                                              SizedBox(height: 8),
-                                              Padding(
-                                                padding: const EdgeInsets.only(left: 18.0,right: 10),
-                                                child: Container(
-                                                  height: 50,
-                                                  child: ListView.builder(
+                                                SizedBox(height: 8,),
+                                                Padding(
+                                                  padding: const EdgeInsets.only(left: 18.0,right: 10),
+                                                  child: Container(
+                                                    height: 50,
+                                                    child: ListView.builder(
                                                       scrollDirection: Axis.horizontal,
                                                       itemCount:
                                                       attendanceController.attendanceDetailsModel?.data?.loginactivities?.length==null?0:
                                                       attendanceController.attendanceDetailsModel?.data?.loginactivities?.length,
-                                                      itemBuilder: (context,index){
-                                                        return Card(  clipBehavior: Clip.antiAlias,
-                                                          shape: RoundedRectangleBorder(
-                                                            borderRadius: BorderRadius.circular(10),
-                                                          ),
-                                                          // elevation: 2,
-                                                          child: Padding(
-                                                            padding: const EdgeInsets.fromLTRB(6,8,12,8),
+                                                        itemBuilder: (context,index){
+                                                          return Card(  clipBehavior: Clip.antiAlias,
+                                                            shape: RoundedRectangleBorder(
+                                                              borderRadius: BorderRadius.circular(10),
+                                                            ),
+                                                           // elevation: 2,
+                                                            child: Padding(
+                                                              padding: const EdgeInsets.fromLTRB(6,8,12,8),
 
-                                                            child: Row(
-                                                              children: [
-                                                                CircleAvatar(
-                                                                  backgroundColor: Colors.teal.shade100,
-                                                                  child: Text('${index+1}', style: TextStyle(
+                                                              child: Row(
+                                                                children: [
+                                                                  CircleAvatar(
+                                                                    backgroundColor: Colors.orange.shade100,
+                                                                    child: Text('${index+1}', style: TextStyle(
+                                                                        fontSize: 15,
+                                                                        fontWeight: FontWeight.bold,
+                                                                        color: Colors.black87
+                                                                      // fontFamily: 'poppins'
+                                                                    ),),
+                                                                  ),
+                                                                  Text(
+                                                                    attendanceController.attendanceDetailsModel?.data?.loginactivities?[index].breakIn==null?"":
+                                                                    '${attendanceController.attendanceDetailsModel?.data?.loginactivities?[index].breakIn}', style: TextStyle(
                                                                       fontSize: 15,
                                                                       fontWeight: FontWeight.bold,
                                                                       color: Colors.black87
                                                                     // fontFamily: 'poppins'
                                                                   ),),
-                                                                ),
-                                                                Text(
-                                                                  attendanceController.attendanceDetailsModel?.data?.loginactivities?[index].breakOut==null?"":
-                                                                  '${attendanceController.attendanceDetailsModel?.data?.loginactivities?[index].breakOut}', style: TextStyle(
-                                                                    fontSize: 15,
-                                                                    fontWeight: FontWeight.bold,
-                                                                    color: Colors.black87
-                                                                  // fontFamily: 'poppins'
-                                                                ),),
-                                                              ],
-                                                            ),
-                                                          ),);
-                                                      }),
+                                                                ],
+                                                              ),
+                                                            ),);
+                                                        }),
+                                                  ),
                                                 ),
-                                              ),
-                                              SizedBox(height: 30),
+                                                Padding(
+                                                  padding: const EdgeInsets.fromLTRB(18.0,12,0,0),
+                                                  child: Row(
+                                                    children: [
+                                                      CircleAvatar(child: Icon(Icons.timer_off,size: 20,color: Colors.brown,),backgroundColor: Colors.brown.shade50,radius: 18,),
+                                                      SizedBox(width: 8),
+                                                      Text("Break-Out",style: TextStyle(
+                                                          fontWeight: FontWeight.w600
+                                                      ),),
+                                                      Spacer(),
+                                                      attendanceController.selectedDate.value.year == DateTime.now().year &&
+                                                          attendanceController.selectedDate.value.month == DateTime.now().month &&
+                                                          attendanceController.selectedDate.value.day == DateTime.now().day ?
+                                                      IconButton(
+                                                        onPressed: () async {
+                                                          Get.dialog(CustomThreeInOutLoader(),
+                                                              barrierDismissible: false);
+                                                          attendanceController.attendanceDetailsModel?.data?.loginStatus=='Check-In'?
+                                                          await locationController.breakOutApi():
+                                                          Fluttertoast.showToast(
+                                                          msg: 'You can\'t take break first check in',
+                                                          backgroundColor: Colors.red,
+                                                          textColor: Colors.white,
+                                                          toastLength: Toast.LENGTH_LONG,
+                                                          gravity: ToastGravity.CENTER,);
+                                                          Get.back();
 
-                                            ],
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                  );
-                                },
-                                  child: Container(
-                                  alignment: Alignment.center,
-                                  height: imageHeight * 0.15,
-                                  width: imageWidth * 0.4,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(16),
-                                    color: Colors.yellow.shade100,
-                                    border: Border.all(color: Colors.yellow, width: 1),
-                                  ),
-                                  child: Text(
-                                    "See Activity",
-                                    style: TextStyle(
-                                      fontFamily: 'poppins',
-                                      fontSize: 12,
-                                    ),
-                                  ),
-                                ))
-                                    ],
-                                  ),
-                                  Spacer(),
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      // Column(
-                                      //   crossAxisAlignment:
-                                      //       CrossAxisAlignment.start,
-                                      //   children: [
-                                      //     Text(
-                                      //       attendanceController.selectedDate.value.year == DateTime.now().year &&
-                                      //           attendanceController.selectedDate.value.month == DateTime.now().month &&
-                                      //           attendanceController.selectedDate.value.day == DateTime.now().day?
-                                      //       "Today":"${ DateFormat('d MMMM y').format(attendanceController.selectedDate.value).toString().substring(0,6)}",
-                                      //       style: TextStyle(
-                                      //           fontSize: 14,
-                                      //           color: Colors.grey,
-                                      //           fontFamily: 'poppins',
-                                      //           fontWeight: FontWeight.w500),
-                                      //     ),
-                                      //     Text(
-                                      //       "${attendanceController.attendanceDetailsModel?.data?.totalWorkingHours}",
-                                      //       style: TextStyle(
-                                      //           fontSize: 16,
-                                      //           color: Colors.black87,
-                                      //           fontWeight: FontWeight.w600),
-                                      //     ),
-                                      //   ],
-                                      // ),
-                                      Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            attendanceController.selectedDate.value.year == DateTime.now().year &&
-                                                attendanceController.selectedDate.value.month == DateTime.now().month &&
-                                                attendanceController.selectedDate.value.day == DateTime.now().day
-                                                ? "Today"
-                                                : "${DateFormat('d MMMM y').format(attendanceController.selectedDate.value).toString().substring(0,6)}",
-                                            style: TextStyle(
-                                              fontSize: 14,
-                                              color: Colors.grey,
-                                              fontFamily: 'poppins',
-                                              fontWeight: FontWeight.w500,
+                                                        },
+                                                        icon: Icon(Icons.logout_sharp, size: 22),
+                                                      )
+                                                          : Container(),
+
+                                                    ],
+                                                  ),
+                                                ),
+                                                SizedBox(height: 8),
+                                                Padding(
+                                                  padding: const EdgeInsets.only(left: 18.0,right: 10),
+                                                  child: Container(
+                                                    height: 50,
+                                                    child: ListView.builder(
+                                                        scrollDirection: Axis.horizontal,
+                                                        itemCount:
+                                                        attendanceController.attendanceDetailsModel?.data?.loginactivities?.length==null?0:
+                                                        attendanceController.attendanceDetailsModel?.data?.loginactivities?.length,
+                                                        itemBuilder: (context,index){
+                                                          return Card(  clipBehavior: Clip.antiAlias,
+                                                            shape: RoundedRectangleBorder(
+                                                              borderRadius: BorderRadius.circular(10),
+                                                            ),
+                                                            // elevation: 2,
+                                                            child: Padding(
+                                                              padding: const EdgeInsets.fromLTRB(6,8,12,8),
+
+                                                              child: Row(
+                                                                children: [
+                                                                  CircleAvatar(
+                                                                    backgroundColor: Colors.teal.shade100,
+                                                                    child: Text('${index+1}', style: TextStyle(
+                                                                        fontSize: 15,
+                                                                        fontWeight: FontWeight.bold,
+                                                                        color: Colors.black87
+                                                                      // fontFamily: 'poppins'
+                                                                    ),),
+                                                                  ),
+                                                                  Text(
+                                                                    attendanceController.attendanceDetailsModel?.data?.loginactivities?[index].breakOut==null?"":
+                                                                    '${attendanceController.attendanceDetailsModel?.data?.loginactivities?[index].breakOut}', style: TextStyle(
+                                                                      fontSize: 15,
+                                                                      fontWeight: FontWeight.bold,
+                                                                      color: Colors.black87
+                                                                    // fontFamily: 'poppins'
+                                                                  ),),
+                                                                ],
+                                                              ),
+                                                            ),);
+                                                        }),
+                                                  ),
+                                                ),
+                                                SizedBox(height: 30),
+
+                                              ],
                                             ),
                                           ),
-                                          Obx(() => Row(
-                                            children: [
-                                              Text(
-                                                attendanceController.attendanceDetailsModel?.data?.totalWorkingHours==null?"0h0m":
-                                                "${attendanceController.attendanceDetailsModel?.data?.totalWorkingHours}",
-                                                style: TextStyle(
-                                                  fontSize: 16,
-                                                  color: Colors.black87,
-                                                  fontWeight: FontWeight.w600,
-                                                ),
-                                              ),
-                                              SizedBox(width: 10,),
+                                        );
+                                      },
+                                    );
+                                  },
+                                    child: Container(
+                                    alignment: Alignment.center,
+                                    height: imageHeight * 0.15,
+                                    width: imageWidth * 0.4,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(16),
+                                      color: Colors.yellow.shade100,
+                                      border: Border.all(color: Colors.yellow, width: 1),
+                                    ),
+                                    child: Text(
+                                      "See Activity",
+                                      style: TextStyle(
+                                        fontFamily: 'poppins',
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ))
+                                      ],
+                                    ),
+                                    Spacer(),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        // Column(
+                                        //   crossAxisAlignment:
+                                        //       CrossAxisAlignment.start,
+                                        //   children: [
+                                        //     Text(
+                                        //       attendanceController.selectedDate.value.year == DateTime.now().year &&
+                                        //           attendanceController.selectedDate.value.month == DateTime.now().month &&
+                                        //           attendanceController.selectedDate.value.day == DateTime.now().day?
+                                        //       "Today":"${ DateFormat('d MMMM y').format(attendanceController.selectedDate.value).toString().substring(0,6)}",
+                                        //       style: TextStyle(
+                                        //           fontSize: 14,
+                                        //           color: Colors.grey,
+                                        //           fontFamily: 'poppins',
+                                        //           fontWeight: FontWeight.w500),
+                                        //     ),
+                                        //     Text(
+                                        //       "${attendanceController.attendanceDetailsModel?.data?.totalWorkingHours}",
+                                        //       style: TextStyle(
+                                        //           fontSize: 16,
+                                        //           color: Colors.black87,
+                                        //           fontWeight: FontWeight.w600),
+                                        //     ),
+                                        //   ],
+                                        // ),
+                                        Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
                                               attendanceController.selectedDate.value.year == DateTime.now().year &&
                                                   attendanceController.selectedDate.value.month == DateTime.now().month &&
-                                                  attendanceController.selectedDate.value.day == DateTime.now().day ?
-                                              GestureDetector(
-                                                onTap: ()async{
-                                                  await attendanceController.AttendanceDetailApi(DateTime.now());
-                                                  },
-                                                child: Lottie.asset(
-                                                  'lib/assets/refresh.json',
-                                                  width: 20,
-                                                  height: 20,
-                                                  fit: BoxFit.fill,
-                                                ),
-                                              )
-                                                  : Container()
-                                            ],
-                                          )),
-                                        ],
-                                      ),
-
-                                      Container(
-                                        height: sizeHeight2 * 0.35,
-                                        width: 50,
-                                        //color: Colors.pink,
-                                        child: VerticalDivider(
-                                          width: 20,
-                                          thickness: 1,
-                                          indent: 20,
-                                          endIndent: 0,
-                                          color: Colors.grey,
-                                        ),
-                                      ),
-                                      Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            "This Pay Period",
-                                            style: TextStyle(
+                                                  attendanceController.selectedDate.value.day == DateTime.now().day
+                                                  ? "Today"
+                                                  : "${DateFormat('d MMMM y').format(attendanceController.selectedDate.value).toString().substring(0,6)}",
+                                              style: TextStyle(
                                                 fontSize: 14,
                                                 color: Colors.grey,
                                                 fontFamily: 'poppins',
-                                                fontWeight: FontWeight.w500),
-                                          ),
-                                          Text(
-                                            attendanceController.attendanceDetailsModel?.data?.monthlyWorkingHours==null?"0h0m":
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                            ),
+                                            Obx(() => Row(
+                                              children: [
+                                                Text(
+                                                  attendanceController.attendanceDetailsModel?.data?.totalWorkingHours==null?"0h0m":
+                                                  "${attendanceController.attendanceDetailsModel?.data?.totalWorkingHours}",
+                                                  style: TextStyle(
+                                                    fontSize: 16,
+                                                    color: Colors.black87,
+                                                    fontWeight: FontWeight.w600,
+                                                  ),
+                                                ),
+                                                SizedBox(width: 10,),
+                                                attendanceController.selectedDate.value.year == DateTime.now().year &&
+                                                    attendanceController.selectedDate.value.month == DateTime.now().month &&
+                                                    attendanceController.selectedDate.value.day == DateTime.now().day ?
+                                                GestureDetector(
+                                                  onTap: ()async{
+                                                    await attendanceController.AttendanceDetailApi(DateTime.now());
+                                                    },
+                                                  child: Lottie.asset(
+                                                    'lib/assets/refresh.json',
+                                                    width: 20,
+                                                    height: 20,
+                                                    fit: BoxFit.fill,
+                                                  ),
+                                                )
+                                                    : Container()
+                                              ],
+                                            )),
+                                          ],
+                                        ),
 
-                                            "${attendanceController.attendanceDetailsModel?.data?.monthlyWorkingHours}",
-                                            style: TextStyle(
-                                                fontSize: 16,
-                                                color: Colors.black87,
-                                                fontWeight: FontWeight.w600),
+                                        Container(
+                                          height: sizeHeight2 * 0.35,
+                                          width: 50,
+                                          //color: Colors.pink,
+                                          child: VerticalDivider(
+                                            width: 20,
+                                            thickness: 1,
+                                            indent: 20,
+                                            endIndent: 0,
+                                            color: Colors.grey,
                                           ),
-                                        ],
+                                        ),
+                                        Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              "This Pay Period",
+                                              style: TextStyle(
+                                                  fontSize: 14,
+                                                  color: Colors.grey,
+                                                  fontFamily: 'poppins',
+                                                  fontWeight: FontWeight.w500),
+                                            ),
+                                            Text(
+                                              attendanceController.attendanceDetailsModel?.data?.monthlyWorkingHours==null?"0h0m":
+
+                                              "${attendanceController.attendanceDetailsModel?.data?.monthlyWorkingHours}",
+                                              style: TextStyle(
+                                                  fontSize: 16,
+                                                  color: Colors.black87,
+                                                  fontWeight: FontWeight.w600),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              height: 20,
+                            ),
+
+                            //wfh
+                            Container(
+                              height: categoryHeight * 0.2,
+                              width: taskListWidth,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(8),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black12,
+                                    blurRadius: 20.0,
+                                  ),
+                                ],
+                              ),
+                              padding: const EdgeInsets.fromLTRB(18.0, 0, 18, 0),
+                              child: Row(
+                                children: [
+                                  Icon(Icons.computer,color: Colors.purple,),
+                                  SizedBox(width: 10,),
+                                  RichText(
+                                    text: TextSpan(
+                                        text:"Work From Home",
+                                        style: TextStyle(
+                                            fontSize: 16,
+                                            color: Colors.black87,
+                                            fontFamily: 'poppins',
+                                            fontWeight: FontWeight.w500),
+                                        children: [
+                                          // TextSpan(
+                                          //   text:"${attendanceController.attendanceDetailsModel?.data?.ontime}",
+                                          //   style: TextStyle(
+                                          //       fontSize: 16,
+                                          //       color: Colors.red,
+                                          //       fontFamily: 'poppins',
+                                          //       fontWeight: FontWeight.w600),
+                                          // ),
+                                        ]
+                                    ),
+                                  ),
+                                  Spacer(),
+                                  GestureDetector(
+                                    onTap: (){
+                                      Get.to(()=>WorkFromHome());
+                                    },
+                                    child: Container(
+                                      alignment: Alignment.center,
+                                      height: imageHeight * 0.15,
+                                      width: imageWidth * 0.35,
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(16),
+                                        color:  Colors.purple.shade50,
+                                        border: Border.all(color: Colors.purple, width: 1),
                                       ),
-                                    ],
+                                      child:  Text(
+                                        "Apply",
+                                        style: TextStyle(
+                                          fontFamily: 'poppins',
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ),
                                   ),
                                 ],
                               ),
                             ),
-                          ),
-
-                          SizedBox(
-                            height: 10,
-                          ),
-                          SizedBox(
-                            height: 10,
-                          ),  SizedBox(
-                            height: 10,
-                          ),
-
-                          //overview
-                          Text(
-                            "Overview",
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.w600,
+                            SizedBox(
+                              height: 20,
                             ),
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Container(
-                                // color: Colors.pink,
-                                child: Column(
-                                  //crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      "Presence",
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.w500,
-                                          fontSize: 15,
-                                          color: Colors.black),
-                                    ),
-                                    SizedBox(
-                                      height: 5,
-                                    ),
-                                    Text(
-                                      attendanceController.attendanceDetailsModel?.data?.presencepercentage==null?"0":
-                                      "${attendanceController.attendanceDetailsModel?.data?.presencepercentage}",
-                                      style: TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.w600,
-                                        // fontFamily: 'poppins'
+
+
+                            //overview
+                            Text(
+                              "Overview",
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Container(
+                                  // color: Colors.pink,
+                                  child: Column(
+                                    //crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        "Presence",
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 15,
+                                            color: Colors.black),
                                       ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Container(
-                                height: sizeHeight2 * 0.6,
-                                width: 50,
-                                //color: Colors.pink,
-                                child: VerticalDivider(
-                                  width: 20,
-                                  thickness: 1,
-                                  indent: 20,
-                                  endIndent: 0,
-                                  color: Colors.grey,
-                                ),
-                              ),
-                              Container(
-                                // color: Colors.pink,
-                                child: Column(
-                                  //crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      "Absence",
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.w500,
-                                          fontSize: 15,
-                                          color: Colors.black),
-                                    ),
-                                    SizedBox(
-                                      height: 5,
-                                    ),
-                                    Text(
-                                      attendanceController.attendanceDetailsModel?.data?.absencepercentage==null?"0":
-                                      "${attendanceController.attendanceDetailsModel?.data?.absencepercentage}",
-                                      style: TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.w600,
-                                        // fontFamily: 'poppins'
+                                      SizedBox(
+                                        height: 5,
                                       ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Container(
-                                height: sizeHeight2 * 0.6,
-                                width: 50,
-                                // color: Colors.pink,
-                                child: VerticalDivider(
-                                  width: 20,
-                                  thickness: 1,
-                                  indent: 20,
-                                  endIndent: 0,
-                                  color: Colors.grey,
-                                ),
-                              ),
-                              Container(
-                                // color: Colors.pink,
-                                child: Column(
-                                  //crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      "Overtime",
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.w500,
-                                          fontSize: 15,
-                                          color: Colors.black),
-                                    ),
-                                    SizedBox(
-                                      height: 5,
-                                    ),
-                                    Text(
-                                      attendanceController.attendanceDetailsModel?.data?.overtimeWorkingHours==null?"0":
-                                      "${attendanceController.attendanceDetailsModel?.data?.overtimeWorkingHours}",
-                                      style: TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.w600,
-                                        // fontFamily: 'poppins'
+                                      Text(
+                                        attendanceController.attendanceDetailsModel?.data?.presencepercentage==null?"0":
+                                        "${attendanceController.attendanceDetailsModel?.data?.presencepercentage}",
+                                        style: TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.w600,
+                                          // fontFamily: 'poppins'
+                                        ),
                                       ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
-                              ),
-                            ],
-                          ),
-                        ],
+                                Container(
+                                  height: sizeHeight2 * 0.6,
+                                  width: 50,
+                                  //color: Colors.pink,
+                                  child: VerticalDivider(
+                                    width: 20,
+                                    thickness: 1,
+                                    indent: 20,
+                                    endIndent: 0,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                                Container(
+                                  // color: Colors.pink,
+                                  child: Column(
+                                    //crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        "Absence",
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 15,
+                                            color: Colors.black),
+                                      ),
+                                      SizedBox(
+                                        height: 5,
+                                      ),
+                                      Text(
+                                        attendanceController.attendanceDetailsModel?.data?.absencepercentage==null?"0":
+                                        "${attendanceController.attendanceDetailsModel?.data?.absencepercentage}",
+                                        style: TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.w600,
+                                          // fontFamily: 'poppins'
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Container(
+                                  height: sizeHeight2 * 0.6,
+                                  width: 50,
+                                  // color: Colors.pink,
+                                  child: VerticalDivider(
+                                    width: 20,
+                                    thickness: 1,
+                                    indent: 20,
+                                    endIndent: 0,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                                Container(
+                                  alignment: Alignment.center,
+                                  padding: EdgeInsets.only(right: 10),
+                                  // color: Colors.pink,
+                                  child: Column(
+                                    // crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Padding(
+                                            padding: const EdgeInsets.only(right: 4.0),
+                                            child: CircleAvatar(
+                                              radius: 5,
+                                              child: Container(
+                                                decoration: BoxDecoration(
+                                                  color: attendanceController.attendanceDetailsModel?.data?.wfhStatus=="WFH-In"?Colors.green:Colors.white,
+                                                  shape: BoxShape.circle,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                          Text(
+                                            "WFH",
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.w500,
+                                                fontSize: 15,
+                                                color: Colors.black),
+                                          ),
+                                        ],
+                                      ),
+                                      SizedBox(
+                                        height: 5,
+                                      ),
+                                      Text(
+                                        attendanceController.attendanceDetailsModel?.data?.numberofWFH==null?"0":
+                                        "${attendanceController.attendanceDetailsModel?.data?.numberofWFH}",
+                                        style: TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.w600,
+                                          // fontFamily: 'poppins'
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),

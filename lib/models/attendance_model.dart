@@ -55,6 +55,8 @@ class AttendanceData {
   String? loginStatus;
   String? ontime;
   String? dayPart;
+  String? wfhStatus;
+  num? numberofWFH;
   List<Loginactivity>? loginactivities;
 
   AttendanceData({
@@ -72,6 +74,8 @@ class AttendanceData {
     this.loginStatus,
     this.ontime,
     this.dayPart,
+    this.wfhStatus,
+    this.numberofWFH,
     this.loginactivities,
   });
 
@@ -90,6 +94,8 @@ class AttendanceData {
     loginStatus: json["loginStatus"],
     ontime: json["ontime"],
     dayPart: json["dayPart"],
+    wfhStatus: json["wfhStatus"],
+    numberofWFH: json["numberofWFH"],
     loginactivities: json["loginactivities"] == null ? [] : List<Loginactivity>.from(json["loginactivities"]!.map((x) => Loginactivity.fromJson(x))),
   );
 
@@ -108,6 +114,8 @@ class AttendanceData {
     "loginStatus": loginStatus,
     "ontime": ontime,
     "dayPart": dayPart,
+    "wfhStatus": wfhStatus,
+    "numberofWFH": numberofWFH,
     "loginactivities": loginactivities == null ? [] : List<dynamic>.from(loginactivities!.map((x) => x.toJson())),
   };
 }

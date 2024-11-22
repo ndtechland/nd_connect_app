@@ -109,37 +109,37 @@ class Settings extends StatelessWidget {
               ),
             ),
           ),
-                Padding(
-            padding: const EdgeInsets.fromLTRB(12.0,8.0,12.0,0),
-            child: GestureDetector(
-              onTap: (){
-                Get.to(()=>Testtt());
-              },
-              child: Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                elevation: 2,
-                child: Container(
-                    alignment: Alignment.centerLeft,
-                    width: double.infinity,
-                    height: 80,
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 18.0,right: 18.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text("Testt Settings",
-                            style: TextStyle(
-                                fontSize: 16,fontWeight: FontWeight.w600,color: appColor2
-                            ),),
-                          Icon(Icons.arrow_circle_right_rounded,color: appColor2,)
-                        ],
-                      ),
-                    )),
-              ),
-            ),
-          ),
+          //       Padding(
+          //   padding: const EdgeInsets.fromLTRB(12.0,8.0,12.0,0),
+          //   child: GestureDetector(
+          //     onTap: (){
+          //       Get.to(()=>Testtt());
+          //     },
+          //     child: Card(
+          //       shape: RoundedRectangleBorder(
+          //         borderRadius: BorderRadius.circular(10),
+          //       ),
+          //       elevation: 2,
+          //       child: Container(
+          //           alignment: Alignment.centerLeft,
+          //           width: double.infinity,
+          //           height: 80,
+          //           child: Padding(
+          //             padding: const EdgeInsets.only(left: 18.0,right: 18.0),
+          //             child: Row(
+          //               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          //               children: [
+          //                 Text("Testt Settings",
+          //                   style: TextStyle(
+          //                       fontSize: 16,fontWeight: FontWeight.w600,color: appColor2
+          //                   ),),
+          //                 Icon(Icons.arrow_circle_right_rounded,color: appColor2,)
+          //               ],
+          //             ),
+          //           )),
+          //     ),
+          //   ),
+          // ),
                 Padding(
             padding: const EdgeInsets.fromLTRB(12.0,8.0,12.0,0),
             child: GestureDetector(

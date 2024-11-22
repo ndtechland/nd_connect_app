@@ -83,11 +83,13 @@ class LocationController extends GetxController {
         debugPrint("Sending locationnn debug");
         sendLocation();  // Ensure this is a valid function
       });
-    } else if(latitude.value==0.0&& longitude.value==0.0) {
-      print("Sending lat:${latitude.value}${longitude.value}");
-
-      _timer?.cancel();  // Stop the timer if the status is not "Check-In"
-    } else if(attendanceController.attendanceDetailsModel?.data?.loginStatus == "Check-Out") {
+    }
+    // else if(latitude.value==0.0&& longitude.value==0.0) {
+    //   print("Sending lat:${latitude.value}${longitude.value}");
+    //
+    //   _timer?.cancel();  // Stop the timer if the status is not "Check-In"
+    // }
+    else if(attendanceController.attendanceDetailsModel?.data?.loginStatus == "Check-Out") {
       print("Sending lat:${latitude.value}${longitude.value}");
 
       _timer?.cancel();  // Stop the timer if the status is not "Check-In"
@@ -315,76 +317,76 @@ class LocationController extends GetxController {
       LocationModel locationModel= locationModelFromJson(response!.body);
 
      // Check response status code
-      if (response?.statusCode == 200) {
-        print("breakOut successful: ${response?.body}");
-        await Future.delayed(Duration(seconds: 3));
-        print("breakOut time: ${attendanceController.attendanceDetailsModel?.data?.checkInTime}");
-        await attendanceController.AttendanceDetailApi(DateTime.now());
-        // Navigate to the Attendance screen or perform other actions
-        Get.to(() => BottomBar());
-
-        // Show success toast
-        Fluttertoast.showToast(
-          msg: "Break-Out Successfully!",
-          backgroundColor: Colors.green,
-          textColor: Colors.white,
-          toastLength: Toast.LENGTH_LONG,
-          gravity: ToastGravity.CENTER,
-        );
-      } else if (response?.statusCode == 401) {
-        print("Unauthorized access");
-        // statusColor.value = Color(0xfff44336);
-        // await saveCheckInStatus(false); // Save the check-out status or error state
-        // await saveStatusColor(Color(0xfff44336));
-        // Show unauthorized error
-        Fluttertoast.showToast(
-          msg: "Unauthorized access. Please check your login status.",
-          backgroundColor: Colors.red,
-          textColor: Colors.white,
-          toastLength: Toast.LENGTH_LONG,
-          gravity: ToastGravity.BOTTOM,
-        );
-      } else if(response?.statusCode ==409){
-        // statusColor.value = Colors.green;
-        await attendanceController.AttendanceDetailApi(DateTime.now());
-
-        Get.to(() => BottomBar());
-
-        // Show success toast
-        Fluttertoast.showToast(
-          msg: "You are already Break-Out",
-          backgroundColor: Colors.green,
-          textColor: Colors.white,
-          toastLength: Toast.LENGTH_LONG,
-          gravity: ToastGravity.CENTER,
-        );
-      }else if(response?.statusCode ==400){
-        // statusColor.value = Colors.green;
-        await attendanceController.AttendanceDetailApi(DateTime.now());
-
-        // Get.to(() => BottomBar());
-
-        // Show success toast
-        Fluttertoast.showToast(
-          msg: "${locationModel.message}",
-          backgroundColor: Colors.red,
-          textColor: Colors.white,
-          toastLength: Toast.LENGTH_LONG,
-          gravity: ToastGravity.CENTER,
-        );
-      }else {
-        // Handle other response status codes
-        print("Failed to check in: ${response?.statusCode}");
-        // statusColor.value = Color(0xfff44336);
-        // Get.snackbar('Error', 'Failed to check in. Please try again.');
-        Fluttertoast.showToast(
-          msg: "Break-Out failed.Please try again ",
-          backgroundColor: Colors.red,
-          textColor: Colors.white,
-          toastLength: Toast.LENGTH_LONG,
-          gravity: ToastGravity.BOTTOM,
-        );
-      }
+     //  if (response?.statusCode == 200) {
+     //    print("breakOut successful: ${response?.body}");
+     //    await Future.delayed(Duration(seconds: 3));
+     //    print("breakOut time: ${attendanceController.attendanceDetailsModel?.data?.checkInTime}");
+     //    await attendanceController.AttendanceDetailApi(DateTime.now());
+     //    // Navigate to the Attendance screen or perform other actions
+     //    // Get.to(() => BottomBar());
+     //
+     //    // Show success toast
+     //    Fluttertoast.showToast(
+     //      msg: "Break-Out Successfully!",
+     //      backgroundColor: Colors.green,
+     //      textColor: Colors.white,
+     //      toastLength: Toast.LENGTH_LONG,
+     //      gravity: ToastGravity.CENTER,
+     //    );
+     //  } else if (response?.statusCode == 401) {
+     //    print("Unauthorized access");
+     //    // statusColor.value = Color(0xfff44336);
+     //    // await saveCheckInStatus(false); // Save the check-out status or error state
+     //    // await saveStatusColor(Color(0xfff44336));
+     //    // Show unauthorized error
+     //    Fluttertoast.showToast(
+     //      msg: "Unauthorized access. Please check your login status.",
+     //      backgroundColor: Colors.red,
+     //      textColor: Colors.white,
+     //      toastLength: Toast.LENGTH_LONG,
+     //      gravity: ToastGravity.BOTTOM,
+     //    );
+     //  } else if(response?.statusCode ==409){
+     //    // statusColor.value = Colors.green;
+     //    await attendanceController.AttendanceDetailApi(DateTime.now());
+     //
+     //    Get.to(() => BottomBar());
+     //
+     //    // Show success toast
+     //    Fluttertoast.showToast(
+     //      msg: "You are already Break-Out",
+     //      backgroundColor: Colors.green,
+     //      textColor: Colors.white,
+     //      toastLength: Toast.LENGTH_LONG,
+     //      gravity: ToastGravity.CENTER,
+     //    );
+     //  }else if(response?.statusCode ==400){
+     //    // statusColor.value = Colors.green;
+     //    await attendanceController.AttendanceDetailApi(DateTime.now());
+     //
+     //    // Get.to(() => BottomBar());
+     //
+     //    // Show success toast
+     //    Fluttertoast.showToast(
+     //      msg: "${locationModel.message}",
+     //      backgroundColor: Colors.red,
+     //      textColor: Colors.white,
+     //      toastLength: Toast.LENGTH_LONG,
+     //      gravity: ToastGravity.CENTER,
+     //    );
+     //  }else {
+     //    // Handle other response status codes
+     //    print("Failed to check in: ${response?.statusCode}");
+     //    // statusColor.value = Color(0xfff44336);
+     //    // Get.snackbar('Error', 'Failed to check in. Please try again.');
+     //    Fluttertoast.showToast(
+     //      msg: "Break-Out failed.Please try again ",
+     //      backgroundColor: Colors.red,
+     //      textColor: Colors.white,
+     //      toastLength: Toast.LENGTH_LONG,
+     //      gravity: ToastGravity.BOTTOM,
+     //    );
+     //  }
     } catch (e) {
       // Catch and handle any exceptions or network errors
       print('Error during Break-Out: $e');
@@ -583,17 +585,17 @@ class LocationController extends GetxController {
   Future<void> fetchCurrentLocation() async {
     await Future.delayed(Duration(seconds: 1));
     try {
-      isLoading(true); // Start loading
+      isLoading(true);
       Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high,forceAndroidLocationManager: true,);
       latitude.value = position.latitude;
       longitude.value = position.longitude;
 
-      // Debugging logs to verify the user location
+
       print("Initial User Latitude: ${latitude.value}");
       print("Initial User Longitude: ${longitude.value}");
 
-      errorMessage.value = ''; // Clear error message
-      updateDistanceFromCompany(); // Initial distance calculation
+      errorMessage.value = '';
+      updateDistanceFromCompany();
     } catch (e) {
       errorMessage.value = 'Failed to fetch location: $e';
     } finally {

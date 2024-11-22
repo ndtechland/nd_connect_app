@@ -52,7 +52,6 @@ class MultipleDayLeavePage extends StatelessWidget {
         );
     }
   }
-
   chooseDate2() async {
     DateTime today = selectedDate.value;
     DateTime lastDate = DateTime(2050);

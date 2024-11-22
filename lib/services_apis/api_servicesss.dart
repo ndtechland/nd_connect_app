@@ -1238,6 +1238,7 @@ static var baseUrl = FixedText.apiurl;
         print(url);
         DashbordModel? geetdashbord = dashbordModelFromJson(r.body);
         print("totalAttendance: ${geetdashbord.data?.totalAttendance!}");
+        atteControler.AttendanceDetailApi(DateTime.now());
         return geetdashbord;
       } else {
         print('Failed to load dashboard');
@@ -2385,6 +2386,7 @@ static var baseUrl = FixedText.apiurl;
         // await attendanceController.AttendanceDetailApi(DateTime.now()
         // );
         // Navigate to the Attendance screen or perform other actions
+        Get.back();
         Get.to(() => BottomBar());
 
         // Show success toast
@@ -2478,7 +2480,7 @@ static var baseUrl = FixedText.apiurl;
     });
     print("BreakOut body:$body");
     try{
-      http.Response r = await http.post(
+      http.Response response = await http.post(
         Uri.parse(checkInUrl),
         body: body,
         headers: {
@@ -2486,10 +2488,88 @@ static var baseUrl = FixedText.apiurl;
           "Content-Type": "application/json",
         },
       );
-      print(r.body);
-      print(r.body);
+      LocationModel locationModel= locationModelFromJson(response!.body);
 
-      return r;
+      if (response?.statusCode == 200) {
+        print("breakOut successful: ${response?.body}");
+           // await Future.delayed(Duration(seconds: 3));
+           print("breakOut time: ${atteControler.attendanceDetailsModel?.data?.checkInTime}");
+           await atteControler.AttendanceDetailApi(DateTime.now());
+           // Navigate to the Attendance screen or perform other actions
+           // Get.to(() => BottomBar());
+
+        // await attendanceController.AttendanceDetailApi(DateTime.now()
+        // );
+        // Navigate to the Attendance screen or perform other actions
+        // Get.back();
+        await Get.to(() => BottomBar());
+
+        // Show success toast
+        Fluttertoast.showToast(
+          msg: "Break-Out Successfully!",
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.CENTER,
+        );
+      } else if (response?.statusCode == 401) {
+        print("Unauthorized access");
+        // statusColor.value = Color(0xfff44336);
+        // await saveCheckInStatus(false); // Save the check-out status or error state
+        // await saveStatusColor(Color(0xfff44336));
+        // Show unauthorized error
+        Fluttertoast.showToast(
+          msg: "Unauthorized access. Please check your login status.",
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.BOTTOM,
+        );
+      } else if(response?.statusCode ==409){
+        // statusColor.value = Colors.green;
+        // await attendanceController.AttendanceDetailApi(DateTime.now());
+
+        Get.to(() => BottomBar());
+
+        // Show success toast
+        Fluttertoast.showToast(
+          msg: "You are already Break-Out",
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.CENTER,
+        );
+      }else if(response?.statusCode ==400){
+        // statusColor.value = Colors.green;
+        // await attendanceController.AttendanceDetailApi(DateTime.now());
+
+        // Get.to(() => BottomBar());
+
+        // Show success toast
+        Fluttertoast.showToast(
+          msg: "${locationModel.message}",
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.CENTER,
+        );
+      } else {
+        // Handle other response status codes
+        print("Failed to check in: ${response?.statusCode}");
+        // statusColor.value = Color(0xfff44336);
+        // Get.snackbar('Error', 'Failed to check in. Please try again.');
+        Fluttertoast.showToast(
+          msg: "Break-Out failed.Please try again ",
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.BOTTOM,
+        );
+      }
+      print(response.body);
+      print(response.body);
+
+      return response;
     } catch(error) { print('Network error: $error');
 
     return null;}
@@ -3097,7 +3177,6 @@ static var baseUrl = FixedText.apiurl;
     return null;
   }
 
-
   ///todo: TotalLeaves Api
   static Future<TotalLeavesModel?> TotalLeaves() async {
     var totalLeave = '${baseUrl}EmployeeApi/EmpTotalLeaves';
@@ -3124,7 +3203,6 @@ static var baseUrl = FixedText.apiurl;
     }
     return null;
   }
-
 
   ///todo: getLeavesDetail Api
   static Future<LeavesDetailModel?> getLeavesDetail(int id) async {
@@ -3212,9 +3290,6 @@ static var baseUrl = FixedText.apiurl;
       return null;
     }
   }
-
-
-
 
   ///todo: TaskHistory Api
   static Future<TaskHistoryModel?> TaskHistory() async {
@@ -3400,16 +3475,18 @@ static var baseUrl = FixedText.apiurl;
     }
   }
 
+  ///todo: deviceId api
   static Future<http.Response?> DeviceID() async {
-    var deviceIdUrl = "${baseUrl}EmployeeApi/EmployeeOvertime";
+    var deviceIdUrl = "${baseUrl}Account/DeviceToken";
     token = prefs.read("token").toString();
-    var userId = prefs.read("Id").toString();
+    var userId = prefs.read("userid").toString();
 
-    // Fetch device token from Firebase Messaging
     String? deviceToken;
+
+    // Fetch Firebase Device Token
     try {
       deviceToken = await FirebaseMessaging.instance.getToken();
-      if (deviceToken == null) {
+      if (deviceToken == null || deviceToken.isEmpty) {
         throw Exception("Failed to retrieve device token");
       }
     } catch (e) {
@@ -3417,46 +3494,54 @@ static var baseUrl = FixedText.apiurl;
       return null;
     }
 
-    print('Overtime URL token: $token');
-    print('Device Token: $deviceToken');
+    // Print debug information
+    print("Device ID URL: $deviceIdUrl");
+    print("User ID: $userId");
+    print("Token: $token");
+    print("Firebase Device Token: $deviceToken");
 
+    // Validate userId and deviceToken
+    if (userId.isEmpty || deviceToken.isEmpty) {
+      print("Error: Missing User ID or Device Token");
+      return null;
+    }
+
+    // Prepare headers and body
+    Map<String, String> headers = {
+      'Authorization': 'Bearer $token',
+      'Content-Type': 'application/json',
+    };
+    var body = jsonEncode({
+      "userid": userId,
+      "DeviceId": deviceToken,
+    });
+
+    // Make POST request
     try {
-      Map<String, String> headers = {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json'
-      };
-
-      // JSON body with userId, deviceId, and deviceToken
-      var body = jsonEncode({
-        "userid": userId,
-        "DeviceId": deviceToken,
-      });
-
-      print("Device ID URL: $deviceIdUrl");
-
-      // Make the POST request with headers and body
-      http.Response response = await http.post(
+      final response = await http.post(
         Uri.parse(deviceIdUrl),
         headers: headers,
         body: body,
       );
 
-      // Log response status and body for debugging
       print("Response status: ${response.statusCode}");
       print("Response body: ${response.body}");
 
       if (response.statusCode == 200) {
         print("Device ID and token posted successfully");
+      } else if (response.statusCode == 500) {
+        print("Server Error (500): ${response.body}");
       } else {
-        print("Failed to post device ID. Status code: ${response.statusCode}");
+        print("Failed to post Device ID. Status code: ${response.statusCode}");
       }
 
       return response;
     } catch (e) {
-      print('Error posting device ID: $e');
+      print("Error posting device ID: $e");
       return null;
     }
   }
+
   ///todo: deviceId api
   static Future<http.Response?> DeviceIDD(String deviceId) async{
     var deviceIdUrl = "${baseUrl}EmployeeApi/EmployeeOvertime";
@@ -3481,6 +3566,77 @@ static var baseUrl = FixedText.apiurl;
       print('Error fetching deviceId: $e');
     }}
 
+  ///todo:workfromhome APi
+  static Future<http.Response?> WorkFromHomeApi(String date1, String date2, String reason) async {
+    var wfhUrl = "${baseUrl}EmployeeApi/Applywfh";
+    token = prefs.read("token").toString();
+    var userId = prefs.read("Id").toString();
+    print('wfhUrl token: $token');
+
+    try {
+      Map<String, String> headers = {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json'
+      };
+
+      // Correct the body to a map, not a set
+      var body = jsonEncode({
+        "Startdate": date1,
+        "EndDate": date2,
+        "Reason": reason,
+      });
+
+      print("wfhUrl: $wfhUrl");
+      http.Response response = await http.post(
+        Uri.parse(wfhUrl),
+        headers: headers,
+        body: body,
+      );
+
+      print("wfhUrl body: ${response.body}");
+
+      if (response.statusCode == 200) {
+        Get.to(() => BottomBar());
+        Fluttertoast.showToast(
+          msg: "Work From Home Request sent",
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.CENTER,
+        );
+      } else if (response.statusCode == 409) {
+        Get.to(() => BottomBar());
+        Fluttertoast.showToast(
+          msg: "WFH Already Applied...!",
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.CENTER,
+        );
+      } else {
+        Fluttertoast.showToast(
+          msg: "Failed to send request try again later",
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.CENTER,
+        );
+      }
+
+      return response;
+
+    } catch (e) {
+      print('Error fetching deviceId: $e');
+      Fluttertoast.showToast(
+        msg: "An error occurred",
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.CENTER,
+      );
+      return null;
+    }
+  }
 
 
 

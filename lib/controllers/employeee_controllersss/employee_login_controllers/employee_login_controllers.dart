@@ -4,11 +4,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:nd_connect_techland/modules/bottom_bar/bottom_bar.dart';
+import 'package:workmanager/workmanager.dart';
 import '../../../components/styles.dart';
 import '../../../models/employee_model/autologin_employee_model.dart';
 import '../../../services_apis/api_servicesss.dart';
 import '../../../services_apis/auto_login_employee.dart';
 import '../../employee_controller/profile_controller/profile_info_employee_controller.dart';
+import '../../location_controller.dart';
 import '../employee_dashboard_controller/employee_dashboardcontroller.dart';
 
 
@@ -153,8 +155,28 @@ class EmployeeLoginController extends GetxController {
     super.onInit();
     usernameController = TextEditingController();
     passwordController = TextEditingController();
+    callbackDispatcher();
   }
 
+  void callbackDispatcher() {
+    Workmanager().executeTask((task, inputData) async {
+      print("sendLocation execute login:");
+
+      // This function will run in the background
+      LocationController locationController = LocationController();
+      if (task == "sendLocationPeriodic") {
+        print("sendLocation login:");
+
+        await locationController.startSendingLocation();
+
+      }
+      // Call the sendLocation function
+      // await locationController.startSendingLocation();
+      print("sendLocation in terminated");
+      print("sendLocation :${locationController.latitude()}");
+      return Future.value(true);
+    });
+  }
   @override
   void onClose() {
     usernameController.dispose();
@@ -194,6 +216,7 @@ class EmployeeLoginController extends GetxController {
 
         Get.snackbar("Success", "Logged in successfully!",backgroundColor: Colors.white,colorText: appColor2);
         // Redirect to Dashboard or Home page
+        await Future.delayed(Duration(seconds: 2));
         await deviceTokenId();
         await _homedashboardController.dashboarddApi();
         await _profileEmployeeController.profileemployeeApi();

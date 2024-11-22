@@ -135,10 +135,11 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                   print("forgot pass");
                   // Get.dialog(CustomThreeInOutLoader(),
                   //     barrierDismissible: false);
-
+                  Get.dialog(CustomThreeInOutLoader(),
+                      barrierDismissible: false);
                  // if (forgotPasswordController.forgotPassFormKey.currentState?.validate() ?? false) {
                  await forgotPasswordController.ForgotPassword(context);
-                 // Get.back();
+                 Get.back();
 
                 // }
                   print("forgot pass done");

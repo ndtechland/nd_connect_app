@@ -48,17 +48,17 @@ class _LoginState extends State<Login> {
             return Scaffold(
               backgroundColor: Colors.white,
               body: Obx(
-                () => (_loginController.isLoading.value ||
-                        _employeeloginController.isLoading.value)
+                () => (_loginController.isLoading.value || _employeeloginController.isLoading.value)
                     ? Center(child: CircularProgressIndicator())
-                    : SingleChildScrollView(
-                        child: Container(
-                          height: MediaQuery.of(context).size.height,
-                        // color: Colors.pink,
+                    : SafeArea(
+                      child: Container(
+                        height: MediaQuery.of(context).size.height,
+                      // color: Colors.pink,
+                        child: SingleChildScrollView(
                           child: Stack(
                             children: [
                               Positioned(
-                                top: 25,
+                                //top: 25,
                                 child: SizedBox(
                                   height: 300,
                                   width: MediaQuery.of(context).size.width , // Adjust width based on screen
@@ -101,7 +101,7 @@ class _LoginState extends State<Login> {
                                   ),
                                 ),
                               ),
-
+                                              
                               Padding(
                                 padding: const EdgeInsets.only(top: 200.0),
                                 child: Container(
@@ -120,7 +120,7 @@ class _LoginState extends State<Login> {
                                   ),
                                   child: Stack(
                                     children: [
-
+                                              
                                       Container(
                                         height: 350, // Adjust as necessary
                                         child:
@@ -139,6 +139,7 @@ class _LoginState extends State<Login> {
                           ),
                         ),
                       ),
+                    ),
               ),
               //appBar: _buildAppBar(),
             );

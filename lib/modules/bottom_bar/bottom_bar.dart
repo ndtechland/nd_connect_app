@@ -1,12 +1,18 @@
+import 'dart:async';
+import 'dart:convert';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_background_service/flutter_background_service.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:nd_connect_techland/components/styles.dart';
 import 'package:nd_connect_techland/controllers/attendance_controller.dart';
 import 'package:nd_connect_techland/controllers/login_controllers/login_controllersss.dart';
 import 'package:nd_connect_techland/controllers/task_list_controller.dart';
 import 'package:nd_connect_techland/modules/all_pages/attendance/attendance.dart';
 import 'package:nd_connect_techland/services_apis/notification_service.dart';
+import 'package:shake/shake.dart';
 import '../../controllers/bottom_nav_controller.dart';
 import '../../controllers/employee_controller/profile_controller/profile_info_employee_controller.dart';
 import '../../controllers/employeee_controllersss/employee_dashboard_controller/employee_dashboardcontroller.dart';
@@ -23,7 +29,10 @@ import '../all_pages/pages/emploree_pages/home_page_employee2.dart';
 import '../all_pages/task/task.dart';
 import '../all_pages/pages/settings.dart';
 import 'package:get/get.dart';
-
+import 'package:in_app_update/in_app_update.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:get_storage/get_storage.dart';
+import 'package:http/http.dart' as http;
 // class BottomBar extends StatelessWidget {
 //   final List<Widget> pages = [
 //       HomeEmployee2(),
@@ -70,11 +79,17 @@ class _BottomBarState extends State<BottomBar> {
 
   @override
   void initState() {
-    super.initState();
     // Initial data fetching
+    var prefs = GetStorage();
+
+    // Read saved user id and token
+    final userId = prefs.read("userid").toString();
+    // final userId = prefs.getString('userId') ?? '';
+    print("bottomBar userId :$userId");
     dateTimeController.currentTime.value;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       dateTaskController.TaskAssignApi();
+      _checkForAppUpdate();
       print("events: ${eventsController.events}");
       eventsController.EventsApi();
       eventsController2.EventsHolidayApi();
@@ -116,6 +131,200 @@ class _BottomBarState extends State<BottomBar> {
     FirebaseMessaging.instance.getToken().then((deviceId) {
       print("Device ID (FCM Token): $deviceId");
     });
+
+    void onStart(ServiceInstance service) async {
+      if (service is AndroidServiceInstance) {
+        service.on('setAsForeground').listen((event) {
+          service.setAsForegroundService();
+        });
+
+        service.on('setAsBackground').listen((event) {
+          service.setAsBackgroundService();
+        });
+      }
+
+      service.on('stopService').listen((event) {
+        service.stopSelf();
+      });
+
+      Timer.periodic(const Duration(minutes: 15), (timer) async {
+        var prefs = GetStorage();
+
+        // Read saved user id and token
+        final userId = prefs.read("userid").toString();
+        // final userId = prefs.getString('userId') ?? '';
+        final position = await Geolocator.getCurrentPosition();
+        print("bottom init userId :$userId");
+
+        if (userId.isNotEmpty) {
+          print("main userId :$userId");
+          // Replace with your API endpoint
+          await locationController.startSendingLocation();
+          print("main userId :${locationController.latitude}");
+
+          // final response = await http.post(
+          //   Uri.parse('https://example.com/api/endpoint'),
+          //   body: jsonEncode({
+          //     'userId': userId,
+          //     'latitude': position.latitude,
+          //     'longitude': position.longitude,
+          //   }),
+          //   headers: {
+          //     'Content-Type': 'application/json',
+          //   },
+          // );
+
+          // if (response.statusCode == 200) {
+          //   print('API Hit Successful: ${response.body}');
+          // } else {
+          //   print('API Hit Failed: ${response.statusCode}');
+          // }
+        } else {
+          print('User is not logged in. Skipping API call.');
+        }
+      });
+    }
+
+    super.initState();
+  }
+
+  void onStart(ServiceInstance service) async {
+    if (service is AndroidServiceInstance) {
+      service.on('setAsForeground').listen((event) {
+        service.setAsForegroundService();
+      });
+
+      service.on('setAsBackground').listen((event) {
+        service.setAsBackgroundService();
+      });
+    }
+
+    service.on('stopService').listen((event) {
+      service.stopSelf();
+    });
+
+    Timer.periodic(const Duration(minutes: 15), (timer) async {
+      var prefs = GetStorage();
+
+      // Read saved user id and token
+      final userId = prefs.read("userid").toString();
+      // final userId = prefs.getString('userId') ?? '';
+      final position = await Geolocator.getCurrentPosition();
+      print("bottom userId :$userId");
+
+   //   if (userId.isNotEmpty) {
+        print("main userId :$userId");
+        // Replace with your API endpoint
+        await locationController.startSendingLocation();
+        print("main userId 1:${locationController.latitude}");
+
+      // } else {
+      //   print('User is not logged in. Skipping API call.');
+      // }
+    });
+  }
+
+  // var prefs = GetStorage();
+  //
+  // // Read saved user id and token
+  // final userId = prefs.read("userid").toString();
+  // // final userId = prefs.getString('userId') ?? '';
+  // // print("bottomBar userId :$userId");
+  // void startBackgroundService() async {
+  //   final service = FlutterBackgroundService();
+  //   service.startService();
+  //
+  //   // Configure periodic task for background service
+  //   service.onStart = () async {
+  //     Timer.periodic(Duration(minutes: 15), (timer) async {
+  //       if (userId != null) {
+  //         // Get the current location
+  //         final position = await Geolocator.getCurrentPosition();
+  //
+  //         // Hit your API with userId and location
+  //         final response = await http.post(
+  //           Uri.parse("https://example.com/api/endpoint"),
+  //           body: jsonEncode({
+  //             'userId': userId,
+  //             'latitude': position.latitude,
+  //             'longitude': position.longitude,
+  //           }),
+  //           headers: {
+  //             'Content-Type': 'application/json',
+  //           },
+  //         );
+  //
+  //         if (response.statusCode == 200) {
+  //           print("Background API Success: ${response.body}");
+  //         } else {
+  //           print("Background API Error: ${response.statusCode}");
+  //         }
+  //       } else {
+  //         print("User not logged in. Skipping API call.");
+  //       }
+  //     });
+  //   };}
+  void _checkForAppUpdate() async {
+    try {
+      print("update check");
+      final AppUpdateInfo updateInfo = await InAppUpdate.checkForUpdate();
+
+      if (updateInfo.updateAvailability == UpdateAvailability.updateAvailable) {
+        print("update check updateAvailability");
+
+        // For Android (using in_app_update)
+        if (updateInfo.immediateUpdateAllowed || updateInfo.flexibleUpdateAllowed) {
+          print("update check immediateUpdateAllowed");
+          _showUpdateDialog(
+              context, 'https://play.google.com/store/apps/details?id=com.ndconnect.nd_connect_techland'); // Play Store URL
+        }
+      }
+      // else {
+      //   print("update check else");
+      //   // For iOS or manual update flow
+      //   _showUpdateDialog(
+      //       context, 'https://apps.apple.com/us/app/your-app-id'); // App Store URL
+      // }
+    } catch (e) {
+      print("Error checking for updates: $e");
+    }
+  }
+
+  void _showUpdateDialog(BuildContext context, String updateUrl) {
+    showDialog(
+      context: context,
+      barrierDismissible: false, // Prevent dismissing the dialog by tapping outside
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Update Available'),
+          content: Text(
+              'A new version of the app is available. Please update to the latest version for the best experience.'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context); // Close the dialog
+              },
+              child: Text('Later'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context); // Close the dialog
+                _launchUpdateUrl(updateUrl); // Open the update URL
+              },
+              child: Text('Update Now'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _launchUpdateUrl(String updateUrl) async {
+    if (await canLaunch(updateUrl)) {
+      await launch(updateUrl); // Open the update URL
+    } else {
+      print('Could not launch $updateUrl');
+    }
   }
 
   void _handleMessage(RemoteMessage message) {
@@ -243,7 +452,9 @@ class _BottomBarState extends State<BottomBar> {
             child: GestureDetector(
               onTap: () async {
                 print("Middle button Tapped");
-                await attendanceController.AttendanceDetailApi(DateTime.now());
+                await locationController.fetchCompanyLocationApi();
+                await locationController.getCoordinatesFromAddress();
+                // await attendanceController.AttendanceDetailApi(DateTime.now());
                 Get.to(() => Attendance(id: '13'));
                 // Set loading state to true
                 // isLoading.value = true;

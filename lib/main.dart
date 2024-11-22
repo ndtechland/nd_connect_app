@@ -1,9 +1,13 @@
+import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 ///import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:get/get.dart';
+import 'package:nd_connect_techland/services_apis/api_servicesss.dart';
 import 'package:nd_connect_techland/services_apis/local_notification_service.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
@@ -18,9 +22,13 @@ import 'controllers/nav_bar_controller/nav_controller.dart';
 import 'controllers/user_profile_controller/user_profile_controller.dart';
 import 'controllers/view_job_controller/job_controllersss.dart';
 import 'test/profile.dart';
+import 'package:http/http.dart' as http;
 import 'modules/splash_screen/splash_screen.dart';
-
-
+import 'package:flutter_background_service/flutter_background_service.dart';
+import 'package:flutter_background_service_android/flutter_background_service_android.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 // import 'firebase_options.dart';
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -46,7 +54,7 @@ Future<void> main() async {
   await Firebase.initializeApp(
    // options: DefaultFirebaseOptions.currentPlatform,
   );
-  Workmanager().initialize(callbackDispatcher, isInDebugMode: true);
+  Workmanager().initialize(callbackDispatcher, isInDebugMode: false);
   //LocalNotificationService.initialize();
   setupLazyLoading();
  // FirebaseMessaging.onBackgroundMessage(backgroundHandler);
@@ -54,7 +62,8 @@ Future<void> main() async {
   print("mytoken${fcmToken}");
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   HttpOverrides.global = MyHttpOverrides();
-
+  // await GetStorage.init();
+  // await initializeService();
  // FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
   // await Firebase.initializeApp(
   //   options: DefaultFirebaseOptions.currentPlatform,
@@ -68,20 +77,98 @@ Future<void> main() async {
   runApp(const MyApp());
 }
 
+Future<void> initializeService() async {
+  final service = FlutterBackgroundService();
+
+  await service.configure(
+    androidConfiguration: AndroidConfiguration(
+      onStart: onStart,
+      isForegroundMode: true,
+      autoStart: true,
+    ),
+    iosConfiguration: IosConfiguration(
+      onForeground: onStart,
+      onBackground: onIosBackground,
+    ),
+  );
+
+  service.startService();
+}
+
+bool onIosBackground(ServiceInstance service) {
+  print('iOS background fetch activated');
+  return true;
+}
+
+void onStart(ServiceInstance service) async {
+  if (service is AndroidServiceInstance) {
+    service.on('setAsForeground').listen((event) {
+      service.setAsForegroundService();
+    });
+
+    service.on('setAsBackground').listen((event) {
+      service.setAsBackgroundService();
+    });
+  }
+
+  service.on('stopService').listen((event) {
+    service.stopSelf();
+  });
+
+  Timer.periodic(const Duration(minutes: 15), (timer) async {
+    var prefs = GetStorage();
+
+    // Read saved user id and token
+    final userId = prefs.read("userid").toString();
+    // final userId = prefs.getString('userId') ?? '';
+    final position = await Geolocator.getCurrentPosition();
+    print("main userId :$userId");
+
+    if (userId.isNotEmpty) {
+      print("main userId :$userId");
+      // Replace with your API endpoint
+      await locationController.startSendingLocation();
+      print("main userId :${locationController.latitude}");
+
+      // final response = await http.post(
+      //   Uri.parse('https://example.com/api/endpoint'),
+      //   body: jsonEncode({
+      //     'userId': userId,
+      //     'latitude': position.latitude,
+      //     'longitude': position.longitude,
+      //   }),
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //   },
+      // );
+
+      // if (response.statusCode == 200) {
+      //   print('API Hit Successful: ${response.body}');
+      // } else {
+      //   print('API Hit Failed: ${response.statusCode}');
+      // }
+    } else {
+      print('User is not logged in. Skipping API call.');
+    }
+  });
+}
+
 void callbackDispatcher() {
   Workmanager().executeTask((task, inputData) async {
+    print("sendLocation execute:");
+
     // This function will run in the background
     LocationController locationController = LocationController();
-    //if (task == "sendLocationPeriodic") {
+    if (task == "sendLocationPeriodic") {
     print("sendLocation :");
 
       await locationController.startSendingLocation();
 
-   // }
+   }
     // Call the sendLocation function
     // await locationController.startSendingLocation();
 print("sendLocation in terminated");
-print("sendLocation :${locationController.startSendingLocation()}");
+print("sendLocation :${locationController.latitude()}");
     return Future.value(true);
   });
 }

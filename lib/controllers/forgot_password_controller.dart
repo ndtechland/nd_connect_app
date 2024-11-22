@@ -27,10 +27,10 @@ class ForgotPasswordController extends GetxController {
 
        // Get.to(()=>Login());
       }else {
-        Get.snackbar('Error', 'Failed to forgot password. Please try again.');
+        Get.snackbar('Error', 'Failed to forgot password. Please try again.',backgroundColor: Colors.red,colorText: Colors.white);
       }
     }catch(e){
-      Get.snackbar('Error', '$e');
+      Get.snackbar('Error', '$e',backgroundColor: Colors.red,colorText: Colors.white);
     }
   }
   void forgotPasswordchange(BuildContext context) {

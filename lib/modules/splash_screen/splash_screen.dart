@@ -1,25 +1,17 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:nd_connect_techland/controllers/location_controller.dart';
 import 'package:nd_connect_techland/modules/bottom_bar/bottom_bar.dart';
-
-
-
+import 'package:workmanager/workmanager.dart';
 import '../../controllers/attendance_controller.dart';
 import '../../controllers/employee_controller/profile_controller/profile_info_employee_controller.dart';
 import '../../controllers/employeee_controllersss/employee_dashboard_controller/employee_dashboardcontroller.dart';
 import '../../controllers/employeee_controllersss/employee_login_controllers/employee_login_controllers.dart';
 import '../../controllers/splash_controller/splash_controllers.dart';
-import '../../controllers/user_profile_controller/user_profile_controller.dart';
 import '../../services_apis/api_servicesss.dart';
 import '../../services_apis/auto_login_employee.dart';
-import '../../services_apis/autologin_services.dart';
 import '../../test/profileUpdate_controller.dart';
-import '../all_pages/pages/emploree_pages/home_page_employee.dart';
-import '../all_pages/pages/emploree_pages/home_page_employee2.dart';
-import '../all_pages/pages/home.dart';
 import '../all_pages/pages/login.dart';
 
 class SplashScreen extends StatelessWidget {
@@ -35,6 +27,26 @@ class SplashScreen extends StatelessWidget {
       ProfileUpdateController(apiService: ApiProvider()));
   final AttendanceController attendanceController = Get.put(AttendanceController());
 
+  Future<void> callbackDispatcher() async {
+    Workmanager().executeTask((task, inputData) async {
+      print("sendLocation execute:");
+
+      // This function will run in the background
+      LocationController locationController = LocationController();
+      if (task == "sendLocationPeriodic") {
+        print("sendLocation splash :");
+
+        await locationController.startSendingLocation();
+
+      }
+      // Call the sendLocation function
+      // await locationController.startSendingLocation();
+      print("sendLocation in terminated");
+      print("sendLocation splash:${locationController.latitude()}");
+      return Future.value(true);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -42,55 +54,6 @@ class SplashScreen extends StatelessWidget {
         init: SplashScreenControllers(),
         builder: (controller) {
           if (controller.animation.status == AnimationStatus.completed) {
-            // Start the timer
-            // Timer(Duration(seconds: 2), () async {
-            //   try {
-            //     // final accountData = await accountService.getAccountData;
-            //     final accountData2 = await accountService2.getAccountData2;
-            //     // print("AccountData: $accountData");
-            //   //  print("AccountData2: $accountData2");
-            //
-            //     if ( accountData2 != null) {
-            //
-            //       await _getprofileepersonal.profileemployeeApi();
-            //       await _homedashboardController.dashboarddApi();
-            //       _homedashboardController.update();
-            //       await Navigator.pushReplacement(
-            //         context,
-            //         MaterialPageRoute(builder: (context) => BottomBar()),
-            //       );
-            //     }
-            //     // else if (accountData2 != null) {
-            //     //   await _getprofileepersonal.profileemployeeApi();
-            //     //   await _homedashboardController.dashboarddApi();
-            //     //   _homedashboardController.update();
-            //     //   await Navigator.pushReplacement(
-            //     //     context,
-            //     //     MaterialPageRoute(builder: (context) => BottomBar()),
-            //     //   );
-            //     // }
-            //     // else if (accountData != null) {
-            //     //   await _profileController.profileApi();
-            //     //   Navigator.pushReplacement(
-            //     //     context,
-            //     //     MaterialPageRoute(builder: (context) => Home()),
-            //     //   );
-            //     // }
-            //     else {
-            //       await _getprofileepersonal.profileemployeeApi();
-            //       await _homedashboardController.dashboarddApi();
-            //       _homedashboardController.update();
-            //      // await _profileController.profileApi();
-            //       Navigator.pushReplacement(
-            //         context,
-            //         MaterialPageRoute(builder: (context) => Login()),
-            //       );
-            //     }
-            //   } catch (error) {
-            //     print('Error in SplashScreen: $error');
-            //     // Handle error accordingly
-            //   }
-            // });
             Timer(Duration(seconds: 2), () async {
               try {
                 final accountData2 = await accountService2.getAccountData2;
@@ -103,16 +66,16 @@ class SplashScreen extends StatelessWidget {
                   await locationController.fetchCurrentLocation(
                     // " C 53, 1st Floor, C Block, Sector 2, Noida, Uttar Pradesh 201301"
                   );
-                  await locationController.fetchCompanyLocationApi();
-                  await locationController.getCoordinatesFromAddress();
+                  // await locationController.fetchCompanyLocationApi();
+                  // await locationController.getCoordinatesFromAddress();
                   await _homedashboardController.dashboarddApi();
-                  await attendanceController.AttendanceDetailApi(DateTime.now());
+                  // await attendanceController.AttendanceDetailApi(DateTime.now());
                 //  await attendanceController.updateAttendaneDetail();
                   await locationController.startSendingLocation();
                   await _getprofileepersonal.profileEmployeBankApi();
-
+                  await employeeLoginController.deviceTokenId();
+                  await callbackDispatcher();
                   print("Sending splash.");
-
                   print("attendance activity:${attendanceController.attendanceDetailsModel?.data?.loginStatus}");
                   _homedashboardController.update();
                   Future.delayed(Duration(seconds: 1));
@@ -121,7 +84,7 @@ class SplashScreen extends StatelessWidget {
                     MaterialPageRoute(builder: (context) => BottomBar()),
                   );
                 } else {
-                  await attendanceController.EmpActivityApi();
+                  await attendanceController.AttendanceDetailApi(DateTime.now());
                   print("attendance activity:${attendanceController.attendanceActivityModel?.data?.loginStatus}");
                   // Navigate to the login page if no account is stored
                   Navigator.pushReplacement(

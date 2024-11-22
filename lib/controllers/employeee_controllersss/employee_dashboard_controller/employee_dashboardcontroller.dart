@@ -1,4 +1,5 @@
 import 'package:nd_connect_techland/constants/static_text.dart';
+import 'package:nd_connect_techland/controllers/attendance_controller.dart';
 import 'package:open_file/open_file.dart';
 import 'dart:async';
 import 'dart:io';
@@ -14,6 +15,7 @@ class HomedashboardController extends GetxController {
   DashbordModel? dashboardResponse;
   var aptLetter = ''.obs;
   var offLetter = ''.obs;
+  AttendanceController attendanceController = Get.put(AttendanceController());
   Future<void> dashboarddApi() async {
     isLoading(true);
     print("try dashboard");
