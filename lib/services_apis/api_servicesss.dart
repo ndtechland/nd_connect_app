@@ -954,10 +954,14 @@ static var baseUrl = FixedText.apiurl;
     if (r.statusCode == 200) {
       var responseData = json.decode(r.body);
       var employeeId = responseData['response']['data']['userid'];
+      var userId = responseData['response']['data']['userid'];
       var token = responseData['token'];
       var refreshToken = responseData['refreshToken'];
       //token
       // Save employee ID and token
+      final SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+      sharedPreferences.setInt("userid", userId);
+      print("sharedPreferences userId: ${userId}");
       final storage = GetStorage();
       storage.write("userid", employeeId);
       storage.write("token", token);

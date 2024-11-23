@@ -13,6 +13,7 @@ import 'package:nd_connect_techland/controllers/task_list_controller.dart';
 import 'package:nd_connect_techland/modules/all_pages/attendance/attendance.dart';
 import 'package:nd_connect_techland/services_apis/notification_service.dart';
 import 'package:shake/shake.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../controllers/bottom_nav_controller.dart';
 import '../../controllers/employee_controller/profile_controller/profile_info_employee_controller.dart';
 import '../../controllers/employeee_controllersss/employee_dashboard_controller/employee_dashboardcontroller.dart';
@@ -24,6 +25,7 @@ import '../../controllers/location_controller.dart';
 import '../../services_apis/local_notification_service.dart';
 import '../../widget/upload_button.dart';
 import '../all_pages/attendance/attendanceBottomSheet.dart';
+import '../all_pages/background_service/background_service.dart';
 import '../all_pages/events/events_calender.dart';
 import '../all_pages/pages/emploree_pages/home_page_employee2.dart';
 import '../all_pages/task/task.dart';
@@ -79,9 +81,11 @@ class _BottomBarState extends State<BottomBar> {
 
   @override
   void initState() {
+    print("bottomBar");
+    // BackgroundService.initializeService();
     // Initial data fetching
     var prefs = GetStorage();
-
+    FlutterBackgroundService();
     // Read saved user id and token
     final userId = prefs.read("userid").toString();
     // final userId = prefs.getString('userId') ?? '';
@@ -132,97 +136,43 @@ class _BottomBarState extends State<BottomBar> {
       print("Device ID (FCM Token): $deviceId");
     });
 
-    void onStart(ServiceInstance service) async {
-      if (service is AndroidServiceInstance) {
-        service.on('setAsForeground').listen((event) {
-          service.setAsForegroundService();
-        });
-
-        service.on('setAsBackground').listen((event) {
-          service.setAsBackgroundService();
-        });
-      }
-
-      service.on('stopService').listen((event) {
-        service.stopSelf();
-      });
-
-      Timer.periodic(const Duration(minutes: 15), (timer) async {
-        var prefs = GetStorage();
-
-        // Read saved user id and token
-        final userId = prefs.read("userid").toString();
-        // final userId = prefs.getString('userId') ?? '';
-        final position = await Geolocator.getCurrentPosition();
-        print("bottom init userId :$userId");
-
-        if (userId.isNotEmpty) {
-          print("main userId :$userId");
-          // Replace with your API endpoint
-          await locationController.startSendingLocation();
-          print("main userId :${locationController.latitude}");
-
-          // final response = await http.post(
-          //   Uri.parse('https://example.com/api/endpoint'),
-          //   body: jsonEncode({
-          //     'userId': userId,
-          //     'latitude': position.latitude,
-          //     'longitude': position.longitude,
-          //   }),
-          //   headers: {
-          //     'Content-Type': 'application/json',
-          //   },
-          // );
-
-          // if (response.statusCode == 200) {
-          //   print('API Hit Successful: ${response.body}');
-          // } else {
-          //   print('API Hit Failed: ${response.statusCode}');
-          // }
-        } else {
-          print('User is not logged in. Skipping API call.');
-        }
-      });
-    }
-
     super.initState();
   }
-
-  void onStart(ServiceInstance service) async {
-    if (service is AndroidServiceInstance) {
-      service.on('setAsForeground').listen((event) {
-        service.setAsForegroundService();
-      });
-
-      service.on('setAsBackground').listen((event) {
-        service.setAsBackgroundService();
-      });
-    }
-
-    service.on('stopService').listen((event) {
-      service.stopSelf();
-    });
-
-    Timer.periodic(const Duration(minutes: 15), (timer) async {
-      var prefs = GetStorage();
-
-      // Read saved user id and token
-      final userId = prefs.read("userid").toString();
-      // final userId = prefs.getString('userId') ?? '';
-      final position = await Geolocator.getCurrentPosition();
-      print("bottom userId :$userId");
-
-   //   if (userId.isNotEmpty) {
-        print("main userId :$userId");
-        // Replace with your API endpoint
-        await locationController.startSendingLocation();
-        print("main userId 1:${locationController.latitude}");
-
-      // } else {
-      //   print('User is not logged in. Skipping API call.');
-      // }
-    });
-  }
+  // void onStart(ServiceInstance service) async {
+  //   if (service is AndroidServiceInstance) {
+  //     service.on('setAsForeground').listen((event) {
+  //       service.setAsForegroundService();
+  //     });
+  //
+  //     service.on('setAsBackground').listen((event) {
+  //       service.setAsBackgroundService();
+  //     });
+  //   }
+  //
+  //   service.on('stopService').listen((event) {
+  //     service.stopSelf();
+  //   });
+  //
+  //   Timer.periodic(const Duration(minutes: 15), (timer) async {
+  //     var prefs = GetStorage();
+  //
+  //     // Read saved user id and token
+  //     final userId = prefs.read("userid").toString();
+  //     // final userId = prefs.getString('userId') ?? '';
+  //     final position = await Geolocator.getCurrentPosition();
+  //     print("bottom userId :$userId");
+  //
+  //  //   if (userId.isNotEmpty) {
+  //       print("main userId :$userId");
+  //       // Replace with your API endpoint
+  //       await locationController.startSendingLocation();
+  //       print("main userId 1:${locationController.latitude}");
+  //
+  //     // } else {
+  //     //   print('User is not logged in. Skipping API call.');
+  //     // }
+  //   });
+  // }
 
   // var prefs = GetStorage();
   //

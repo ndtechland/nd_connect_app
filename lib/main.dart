@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 ///import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:get/get.dart';
+import 'package:nd_connect_techland/controllers/attendance_controller.dart';
 import 'package:nd_connect_techland/services_apis/api_servicesss.dart';
 import 'package:nd_connect_techland/services_apis/local_notification_service.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -63,7 +64,7 @@ Future<void> main() async {
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   HttpOverrides.global = MyHttpOverrides();
   // await GetStorage.init();
-  // await initializeService();
+   await initializeService();
  // FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
   // await Firebase.initializeApp(
   //   options: DefaultFirebaseOptions.currentPlatform,
@@ -77,7 +78,7 @@ Future<void> main() async {
   runApp(const MyApp());
 }
 
-Future<void> initializeService() async {
+Future<void> initializeService1() async {
   final service = FlutterBackgroundService();
 
   await service.configure(
@@ -91,8 +92,98 @@ Future<void> initializeService() async {
       onBackground: onIosBackground,
     ),
   );
-
+  print("Background service initialized");
   service.startService();
+}
+
+// Future<void> initializeService() async {
+//   final service = FlutterBackgroundService();
+//
+//   await service.configure(
+//       androidConfiguration: AndroidConfiguration(
+//         // this will be executed when app is in foreground or background in separated isolate
+//         onStart: onStart,
+//
+//         // auto start service
+//         autoStart: true,
+//         isForegroundMode: true,
+//       ),
+//       iosConfiguration: IosConfiguration(
+//         onForeground: onStart,
+//         onBackground: onIosBackground,
+//       ),);
+// }
+//
+// bool onIosBackground(ServiceInstance service) {
+//   print('iOS background fetch activated');
+//   return true;
+// }
+//
+// void onStart(ServiceInstance service) async {
+//   print("Service started");
+//
+//   // Initialize dependencies if needed
+//   final prefs = GetStorage();
+//
+//   if (service is AndroidServiceInstance) {
+//     service.on('setAsForeground').listen((event) {
+//       service.setAsForegroundService();
+//     });
+//
+//     service.on('setAsBackground').listen((event) {
+//       service.setAsBackgroundService();
+//     });
+//   }
+//
+//   service.on('stopService').listen((event) {
+//     service.stopSelf();
+//   });
+//
+//   // Periodic task
+//   Timer.periodic(const Duration(minutes: 15), (timer) async {
+//     try {
+//       final userId = prefs.read("userid") ?? '';
+//       print("User ID: $userId");
+//
+//       if (userId.isNotEmpty) {
+//         final position = await Geolocator.getCurrentPosition();
+//         print("Location: ${position.latitude}, ${position.longitude}");
+//
+//         // Call your API here
+//         print("API call executed for User ID: $userId");
+//       } else {
+//         print("No user ID found. Skipping API call.");
+//       }
+//     } catch (e) {
+//       print("Error in background service: $e");
+//     }
+//   });
+// }
+Future<void> initializeService() async {
+  final service = FlutterBackgroundService();
+
+  await service.configure(
+    androidConfiguration: AndroidConfiguration(
+      // This will be executed when the app is in foreground or background in a separate isolate
+      onStart: onStart,
+
+      // Auto start service
+      autoStart: true,
+      isForegroundMode: true,
+
+      // Notification for the foreground service
+      notificationChannelId: "my_foreground_service",
+      initialNotificationTitle: "Background Service",
+      initialNotificationContent: "Running in the background",
+    ),
+    iosConfiguration: IosConfiguration(
+      // Runs when the app is in foreground
+      onForeground: onStart,
+
+      // Runs when the app is in background
+      onBackground: onIosBackground,
+    ),
+  );
 }
 
 bool onIosBackground(ServiceInstance service) {
@@ -100,7 +191,133 @@ bool onIosBackground(ServiceInstance service) {
   return true;
 }
 
+// void onStart(ServiceInstance service) async {
+//   print("Service started");
+//
+//   // Access SharedPreferences
+//   final getStorage =GetStorage();
+//   // Access SharedPreferences
+//   final prefs = await SharedPreferences.getInstance();
+//   final attendanceController = Get.put(AttendanceController());
+//   final locationControllr = Get.put(LocationController());
+//   if (service is AndroidServiceInstance) {
+//     service.on('setAsForeground').listen((event) {
+//       print("Set as foreground service");
+//       service.setAsForegroundService();
+//     });
+//
+//     service.on('setAsBackground').listen((event) {
+//       print("Set as background service");
+//       service.setAsBackgroundService();
+//     });
+//   }
+//
+//   service.on('stopService').listen((event) {
+//     print("Service stopped");
+//     service.stopSelf();
+//   });
+//
+//   // Polling to check when the user ID is available
+//   Timer.periodic(const Duration(seconds: 5), (timer) async {
+//     final userId = prefs.getInt("userid");
+//     final uId = getStorage.read("userid");
+//     print("User ID: $userId");
+//     print("uId ID: $uId");
+//     if (userId != null && userId > 0) {
+//       print("User ID found: $userId. Starting periodic task.");
+//       timer.cancel(); // Stop polling once the user ID is found
+//
+//       // Start the main periodic task
+//       Timer.periodic(const Duration(minutes: 15), (innerTimer) async {
+//         print("Timer ticked at ${DateTime.now()}");
+//         try {
+//           if (attendanceController.attendanceDetailsModel?.data?.loginStatus == "Check-In") {
+//             print("Status: Check-In - Sending location...");
+//             await locationControllr.startSendingLocation(); // Call your API logic
+//           } else if (attendanceController.attendanceDetailsModel?.data?.loginStatus == "Check-Out") {
+//             print("Status: Check-Out - Stopping timer...");
+//             timer.cancel(); // Stop the timer for "Check-Out"
+//           } else {
+//             print("Unknown status. Timer stopped.");
+//             timer.cancel();
+//           }
+//           // Your periodic task (e.g., send location)
+//           print("Valid User ID found. Executing task...");
+//           // Call your API or periodic logic here
+//           print("Executing API call with User ID: $userId");
+//         } catch (e) {
+//           print("Error during periodic task: $e");
+//         }
+//       });
+//     } else {
+//       print("Waiting for User ID...");
+//     }
+//   });
+// }
+
 void onStart(ServiceInstance service) async {
+  print("Service started");
+  // final getStorage =GetStorage();
+  // Access SharedPreferences
+  final prefs = await SharedPreferences.getInstance();
+  final attendanceController = Get.put(AttendanceController());
+  final locationControllr = Get.put(LocationController());
+  if (service is AndroidServiceInstance) {
+    service.on('setAsForeground').listen((event) {
+      print("Set as foreground service");
+      service.setAsForegroundService();
+    });
+
+    service.on('setAsBackground').listen((event) {
+      print("Set as background service");
+      service.setAsBackgroundService();
+    });
+  }
+
+  service.on('stopService').listen((event) {
+    print("Service stopped");
+    service.stopSelf();
+  });
+
+  // Periodic task
+  Timer.periodic(const Duration(seconds: 15), (timer) async {
+    try {
+      print("Timer ticked at ${DateTime.now()}");
+
+      // Retrieve userId from SharedPreferences
+      final userId = prefs.getInt("userid");
+      // final uId = getStorage.read("userid");
+      print("User ID: $userId");
+      // print("uId ID: $uId");
+
+      if (userId != null && userId > 0) {
+        // if (attendanceController.attendanceDetailsModel?.data?.loginStatus == "Check-In") {
+          print("Status: Check-In - Sending location...");
+          await locationControllr.sendLocation(); // Call your API logic
+        // } else if (attendanceController.attendanceDetailsModel?.data?.loginStatus == "Check-Out") {
+        //   print("Status: Check-Out - Stopping timer...");
+        //   timer.cancel(); // Stop the timer for "Check-Out"
+        // } else {
+        //   print("Unknown status. Timer stopped.");
+        //   timer.cancel();
+        // }
+        // Your periodic task (e.g., send location)
+        print("Valid User ID found. Executing task...");
+        // Add your API call or location logic here
+      } else {
+        print("Invalid User ID or not yet saved. Skipping task.");
+      }
+    } catch (e) {
+      print("Error during periodic task: $e");
+    }
+  });
+}
+
+
+
+
+
+void onStart1(ServiceInstance service) async {
   if (service is AndroidServiceInstance) {
     service.on('setAsForeground').listen((event) {
       service.setAsForegroundService();

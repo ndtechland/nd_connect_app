@@ -36,6 +36,7 @@ import '../../../../controllers/employeee_controllersss/support_comman/support_c
 import '../../../../controllers/employeee_controllersss/timer_controller.dart';
 import '../../../../controllers/user_profile_controller/user_profile_controller.dart';
 import '../../../../widget/custom_loader.dart';
+import '../../background_service/background_service.dart';
 import '../../leave_left/leave_left.dart';
 import '../../total_attendance/current_month_attendance.dart';
 import '../../total_leaves/total_leaves.dart';
@@ -876,6 +877,7 @@ int shakeCount=0;
                                 // ),
                                 GestureDetector(
                                   onTap:()async{
+                                    // await BackgroundService.initializeService();
                                     await totalLeavesDateController.TotalLeaveApi();
                                     Navigator.push(context, MaterialPageRoute(builder: (context)=>TotalLeaves()));
                                   },
