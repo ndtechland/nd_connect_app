@@ -35,6 +35,7 @@ class _BankDetailUpdateEmployeeProfileState
 
   final BankEmployeeUodateController _bankEmployeeUodateController =
       Get.put(BankEmployeeUodateController());
+  ProfileEmployeeController _profileEmployeeController = Get.put(ProfileEmployeeController());
 
   var selectedChequeImage = Rxn<Uint8List>(); // Use Rxn for nullable values
 
@@ -57,7 +58,13 @@ class _BankDetailUpdateEmployeeProfileState
   final BottomNavController _bottomNavController = Get.put(BottomNavController());
 
   Uint8List? _cvFileContent;
-
+  Future<void> _refreshData() async {
+    // Add logic to refresh data, e.g., fetching from an API
+    await Future.delayed(Duration(seconds: 2));
+    await _profileEmployeeController.profileEmployeBankApi();
+    await Future.delayed(Duration(seconds: 2));
+    print("Data refreshed");
+  }
   @override
   void initState() {
     super.initState();
@@ -252,501 +259,510 @@ class _BankDetailUpdateEmployeeProfileState
         (_getprofileebnk.isLoading.value)
             ? Center(child: CircularProgressIndicator())
             :
-        Form(
+        WillPopScope(
+          onWillPop: () async {
+            _bottomNavController.changeTabIndex(0);
+            return true;
+          },
+          child: RefreshIndicator(
+            onRefresh: _refreshData,
+            child: SingleChildScrollView(
+              child: Form(
                 key: _bankEmployeeUodateController.bankemployeeFormKey,
                 autovalidateMode: AutovalidateMode.onUserInteraction,
-                child: SingleChildScrollView(
-                  child: Container(
-                    child: Column(
-                      children: [
-                        //const SizedBox(height: 80),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 16),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              blackHeadingSmall('Bank Information'.toUpperCase()),
-                              // GestureDetector(
-                              //     onTap: () async {
-                              //       await _profileEmployeeController
-                              //           .profileemployeeApi();
-                              //       await _profileEmployeeController
-                              //           .profileBasicemployeeApi();
-                              //       await _profileEmployeeController
-                              //           .profileEmployeBankApi();
-                              //
-                              //       //profileBasicemployeeApi();
-                              //       //     profileEmployeBankApi();
-                              //
-                              //       _profileEmployeeController.update();
-                              //       // await _profileController.profileApi();
-                              //       // _profileController.update();
-                              //
-                              //       Get.off(EmployeeProfile());
-                              //       /*await Navigator.push(
-                              //           context,
-                              //           MaterialPageRoute(
-                              //               builder: (context) =>
-                              //                   EmployeeProfile()));*/
-                              //     },
-                              //     child: appcolorText('view'))
-                            ],
-                          ),
+                child: Container(
+                  child: Column(
+                    children: [
+                      //const SizedBox(height: 80),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 16),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            blackHeadingSmall('Bank Information'.toUpperCase()),
+                            // GestureDetector(
+                            //     onTap: () async {
+                            //       await _profileEmployeeController
+                            //           .profileemployeeApi();
+                            //       await _profileEmployeeController
+                            //           .profileBasicemployeeApi();
+                            //       await _profileEmployeeController
+                            //           .profileEmployeBankApi();
+                            //
+                            //       //profileBasicemployeeApi();
+                            //       //     profileEmployeBankApi();
+                            //
+                            //       _profileEmployeeController.update();
+                            //       // await _profileController.profileApi();
+                            //       // _profileController.update();
+                            //
+                            //       Get.off(EmployeeProfile());
+                            //       /*await Navigator.push(
+                            //           context,
+                            //           MaterialPageRoute(
+                            //               builder: (context) =>
+                            //                   EmployeeProfile()));*/
+                            //     },
+                            //     child: appcolorText('view'))
+                          ],
                         ),
-                        Container(
-                          margin: const EdgeInsets.symmetric(
-                              vertical: 0, horizontal: 0),
-                          child: Column(
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 0, horizontal: 16),
-                                margin: const EdgeInsets.symmetric(
-                                    vertical: 0, horizontal: 16),
-                                decoration: const BoxDecoration(
-                                  color: Colors.white,
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black12,
-                                      blurRadius: 20.0,
-                                    ),
-                                  ],
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(6.0)),
-                                ),
-                                child: Column(
-                                  children: [
-                                    Container(
-                                      padding: EdgeInsets.symmetric(vertical: 0),
-                                      child: TextFormField(
-                                        controller: _acholdernameController,
-                                        decoration: InputDecoration(
-                                          labelText: "A/C Holder Name",
-                                          hintStyle: TextStyle(fontSize: 13),
-                                          labelStyle: const TextStyle(
-                                              color: Colors.black54,
-                                              fontSize: 13),
-                                          focusedBorder:
-                                              const UnderlineInputBorder(
-                                            borderSide:
-                                                BorderSide(color: appColor2),
-                                          ),
-                                          enabledBorder:
-                                              const UnderlineInputBorder(
-                                            borderSide:
-                                                BorderSide(color: Colors.black12),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    Container(
-                                      padding: EdgeInsets.symmetric(vertical: 0),
-                                      child: TextFormField(
-                                        controller: _bankController,
-                                        decoration: InputDecoration(
-                                          labelText: "Bank Name",
-                                          hintStyle: TextStyle(fontSize: 13),
-                                          labelStyle: const TextStyle(
-                                              color: Colors.black54,
-                                              fontSize: 13),
-                                          focusedBorder:
-                                              const UnderlineInputBorder(
-                                            borderSide:
-                                                BorderSide(color: appColor2),
-                                          ),
-                                          enabledBorder:
-                                              const UnderlineInputBorder(
-                                            borderSide:
-                                                BorderSide(color: Colors.black12),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    Container(
-                                      padding: EdgeInsets.symmetric(vertical: 0),
-                                      child: TextFormField(
-                                        controller: _accnumberController,
-                                        decoration: InputDecoration(
-                                          labelText: "Account Number",
-                                          hintStyle: TextStyle(fontSize: 13),
-                                          labelStyle: const TextStyle(
-                                              color: Colors.black54,
-                                              fontSize: 13),
-                                          focusedBorder:
-                                              const UnderlineInputBorder(
-                                            borderSide:
-                                                BorderSide(color: appColor2),
-                                          ),
-                                          enabledBorder:
-                                              const UnderlineInputBorder(
-                                            borderSide:
-                                                BorderSide(color: Colors.black12),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    Container(
-                                      padding: EdgeInsets.symmetric(vertical: 0),
-                                      child: TextFormField(
-                                        controller: _reenteracnoNumberController,
-                                        decoration: InputDecoration(
-                                          labelText: "Re-Enter A/C No.",
-                                          hintStyle: TextStyle(fontSize: 13),
-                                          labelStyle: const TextStyle(
-                                              color: Colors.black54,
-                                              fontSize: 13),
-                                          focusedBorder:
-                                              const UnderlineInputBorder(
-                                            borderSide:
-                                                BorderSide(color: appColor2),
-                                          ),
-                                          enabledBorder:
-                                              const UnderlineInputBorder(
-                                            borderSide:
-                                                BorderSide(color: Colors.black12),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    Container(
-                                      padding: EdgeInsets.symmetric(vertical: 0),
-                                      child: TextFormField(
-                                        controller: _ifscController,
-                                        decoration: InputDecoration(
-                                          labelText: "IFSC Code",
-                                          hintStyle: TextStyle(fontSize: 13),
-                                          labelStyle: const TextStyle(
-                                              color: Colors.black54,
-                                              fontSize: 13),
-                                          focusedBorder:
-                                              const UnderlineInputBorder(
-                                            borderSide:
-                                                BorderSide(color: appColor2),
-                                          ),
-                                          enabledBorder:
-                                              const UnderlineInputBorder(
-                                            borderSide:
-                                                BorderSide(color: Colors.black12),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      height: size.height * 0.02,
-                                    ),
-                                    Align(
-                                        alignment: Alignment.centerLeft,
-                                        child: Text(
-                                          "Account Type",
-                                          style: TextStyle(
-                                            fontSize: 11,
-                                            color: Colors.grey.shade500,
-                                          ),
-                                        )),
-                                    Container(padding: EdgeInsets.symmetric(vertical: 0),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Expanded(
-                                            child: Obx(()=>
-                                             RadioListTile(
-                                                  title: Text(
-                                                    'Current',
-                                                    style: TextStyle(
-                                                      fontSize:
-                                                          size.height * 0.014,
-                                                      fontWeight: FontWeight.w600,
-                                                    ),
-                                                  ),
-                                                  visualDensity: VisualDensity(
-                                                    horizontal: VisualDensity
-                                                        .minimumDensity,
-                                                    vertical: VisualDensity
-                                                        .minimumDensity,
-                                                  ),
-
-                                                  // title: Text("Male"),
-                                                  value:
-                                                      //_nurseBooking1Controller.selectedshift.value,
-                                                  //_acounttypeController.value.text.toString(),
-                                                  "1",
-                                                  groupValue:
-
-                                                      _bankEmployeeUodateController.selectedAccountType.value,
-                                                  onChanged: (value) {
-                                                    print("accountType:${_acounttypeController.value.text}");
-                                                    _bankEmployeeUodateController
-                                                        .onChangeAccountType(value!);
-                                                    // setState(() {
-                                                    //   gender = value.toString();
-                                                    // });
-                                                  },
-                                                ),
-                                            ),
-                                           // ),
-                                          ),
-                                          Expanded(
-                                            child: Obx(()=>
-                                              RadioListTile(
-                                                  title: Text(
-                                                    'Savings',
-                                                    style: TextStyle(
-                                                      fontSize:
-                                                          size.height * 0.014,
-                                                      fontWeight: FontWeight.w600,
-                                                    ),
-                                                  ),
-                                                  visualDensity: VisualDensity(
-                                                    horizontal: VisualDensity
-                                                        .minimumDensity,
-                                                    vertical: VisualDensity
-                                                        .minimumDensity,
-                                                  ),
-                                                  // title: Text("Male"),
-                                                  value:
-                                                      //_nurseBooking1Controller.selectedshift.value,
-                                                  //_acounttypeController.value.text.toString(),
-                                                     "2",
-                                                  groupValue:
-                                                  // _acounttypeController.value.text == 2?
-                                                  // _bankEmployeeUodateController.selectedAccountType.value:"",
-                                                 // _acounttypeController.value.text,
-                                                  _bankEmployeeUodateController.selectedAccountType.value,
-                                                  onChanged: (value) {
-                                                    print("accountType:${_acounttypeController.value.text}");
-                                                    _bankEmployeeUodateController
-                                                        .onChangeAccountType(value!);
-                                                    // setState(() {
-                                                    //   gender = value.toString();
-                                                    // });
-                                                  },
-                                                ),
-                                            ),
-                                            ),
-                                         // ),
-                                        ],
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      height: size.height * 0.005,
-                                    ),
-                                    Container(
-                                      padding: EdgeInsets.symmetric(vertical: 1),
-                                      child: TextFormField(
-                                        controller: _epfnumnberController,
-                                        decoration: InputDecoration(
-                                          labelText: "EPF Number",
-                                          hintStyle: TextStyle(fontSize: 13),
-                                          labelStyle: const TextStyle(
-                                              color: Colors.black54,
-                                              fontSize: 13),
-                                          focusedBorder:
-                                              const UnderlineInputBorder(
-                                            borderSide:
-                                                BorderSide(color: appColor2),
-                                          ),
-                                          enabledBorder:
-                                              const UnderlineInputBorder(
-                                            borderSide:
-                                                BorderSide(color: Colors.black12),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    Container(
-                                      padding: EdgeInsets.symmetric(vertical: 0),
-                                      child: TextFormField(
-                                        controller: _nominiNameController,
-                                        decoration: InputDecoration(
-                                          labelText: "Nominee",
-                                          hintStyle: TextStyle(fontSize: 13),
-                                          labelStyle: const TextStyle(
-                                              color: Colors.black54,
-                                              fontSize: 13),
-                                          focusedBorder:
-                                              const UnderlineInputBorder(
-                                            borderSide:
-                                                BorderSide(color: appColor2),
-                                          ),
-                                          enabledBorder:
-                                              const UnderlineInputBorder(
-                                            borderSide:
-                                                BorderSide(color: Colors.black12),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    SizedBox(height: 20),
-                                    Container(
-                                      padding: EdgeInsets.symmetric(vertical: 0),
-                                      child: Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          GestureDetector(
-                                            onTap: () {
-                                              Navigator.push(context, MaterialPageRoute(builder: (_) {
-                                                return ChequePage();
-                                              }));
-                                            },
-
-                                            child: Container(
-                                              height: 60,
-                                              width: 120,
-                                              decoration: BoxDecoration(
-                                                border: Border.all(width: 2, color: Colors.grey),
-                                                  borderRadius: BorderRadius.circular(12.0),
-                                              ),
-                                              child:Obx(() {
-                                                return Hero(
-                                                  tag: 'chequeImg',
-                                                  child: selectedChequeImage.value != null
-                                                      ? ClipRRect(
-                                                    borderRadius: BorderRadius.circular(10.0),
-                                                        child: Image.memory(
-                                                        selectedChequeImage.value!,
-                                                        fit: BoxFit.contain,
-                                                        width: double.infinity,
-                                                        height: double.infinity,
-                                                      ),
-                                                      )
-                                                      : (_getprofileebnk.getbankprofiledetail!.data!.chequeimage != null
-                                                      ? ClipRRect(
-                                                    borderRadius: BorderRadius.circular(10.0),
-                                                        child: Image.network(
-                                                       "${FixedText.imageUrlll}${_getprofileebnk.getbankprofiledetail!.data!.chequeimage}",
-                                                       fit: BoxFit.cover,
-                                                       errorBuilder: (context, error, stackTrace) {
-                                                        return ClipRRect(
-                                                          borderRadius: BorderRadius.circular(10.0),
-                                                          child: Image.network(
-                                                            'https://media.geeksforgeeks.org/wp-content/uploads/20230711180739/Date-the-Cheque.jpg',
-                                                            fit: BoxFit.contain,
-                                                          ),
-                                                        );
-                                                          },
-                                                        ),
-                                                      )
-                                                      : ClipRRect(
-                                                    borderRadius: BorderRadius.circular(10.0),
-                                                        child: Image.asset(
-                                                        'https://media.geeksforgeeks.org/wp-content/uploads/20230711180739/Date-the-Cheque.jpg',
-                                                        fit: BoxFit.contain,
-                                                      ),
-                                                      )),
-                                                );
-                                              }),),
-                                          ),
-                                          // Container(
-                                          //   width:120,
-                                          //   height: 80,
-                                          //   child: TextFormField(
-                                          //     readOnly: true,
-                                          //     validator: (value) {
-                                          //       if (value == null ||
-                                          //           value.isEmpty) {
-                                          //         return 'Please select your Check';
-                                          //       }
-                                          //       return null;
-                                          //     },
-                                          //     controller: _cvFilePathController,
-                                          //     decoration: InputDecoration(
-                                          //         labelText: 'Check File'),
-                                          //     enabled: false,
-                                          //   ),
-                                          // ),
-                                          SizedBox(width: 10),
-                                          UpdateButton(onTap: ()
-                                          {
-                                            _showChequeFileDialog(context);
-                                            //_selectCVFile();
-                                            }, text: 'Cheque',),
-                                          // NextButton(onTap: () {
-                                          //   //_selectCVFile();
-                                          // }, text: 'Cheque', h: 50, w: 80,),
-                                          // GestureDetector(
-                                          //   onTap: (){
-                                          //     _selectCVFile();
-                                          //   },
-                                          //   child: Container(
-                                          //     alignment: Alignment.center,
-                                          //     width: 80,
-                                          //     height: 50,
-                                          //     decoration: BoxDecoration(
-                                          //       color: appColorr2,
-                                          //       borderRadius:
-                                          //           BorderRadius.circular(10),
-                                          //     ),
-                                          //     child: Text(
-                                          //       'Cheque',
-                                          //       style: TextStyle(
-                                          //         fontSize: 12,
-                                          //         fontWeight: FontWeight.bold,
-                                          //         color: Colors.white
-                                          //       ),
-                                          //     ),
-                                          //   ),
-                                          // ),
-                                        ],
-                                      ),
-                                    ),
-                                    const SizedBox(height: 24),
-                                    MyElevatedButton(
-                                      onPressed: () {
-                                        print("update bank");
-                                        Get.dialog(CustomThreeInOutLoader(),
-                                            barrierDismissible: false);
-                                        _bankEmployeeUodateController.updateBankProfile(
-                                          accountHolderName:
-                                              _acholdernameController.text,
-                                          bankname: _bankController.text,
-                                          accountNumber:
-                                              _accnumberController.text,
-                                          reEnterAccountNumber:
-                                              _reenteracnoNumberController.text,
-                                          ifsc: _ifscController.text,
-                                          epfNumber: _epfnumnberController.text,
-                                          // deductionCycle:
-                                          //     _deductioncycleController.text,
-                                          // employeeContributionRate:
-                                          //     _employeecontrobutionController
-                                          //         .text,
-                                          //_deduc
-                                          nominee: _nominiNameController.text,
-                                          accountTypeId:
-                                              _bankEmployeeUodateController
-                                                  .selectedAccountType.value,
-                                          cvFileContent: _cvFileContent!,
-                                          Chequebase64:
-                                              _cvFilePathController.text,
-                                        );
-                                        Get.back();
-                                        print("update bank done");
-
-                                      },
-                                      text: Text('Update',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.w600
-                                      ),),
-                                      height: 40,
-                                      width: 200,
-                                    ),
-                                   // const SizedBox(height: 34),
-                                    const SizedBox(height: 20),
-                                  ],
-                                ),
+                      ),
+                      Container(
+                        margin: const EdgeInsets.symmetric(
+                            vertical: 0, horizontal: 0),
+                        child: Column(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 0, horizontal: 16),
+                              margin: const EdgeInsets.symmetric(
+                                  vertical: 0, horizontal: 16),
+                              decoration: const BoxDecoration(
+                                color: Colors.white,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black12,
+                                    blurRadius: 20.0,
+                                  ),
+                                ],
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(6.0)),
                               ),
-                            ],
-                          ),
+                              child: Column(
+                                children: [
+                                  Container(
+                                    padding: EdgeInsets.symmetric(vertical: 0),
+                                    child: TextFormField(
+                                      controller: _acholdernameController,
+                                      decoration: InputDecoration(
+                                        labelText: "A/C Holder Name",
+                                        hintStyle: TextStyle(fontSize: 13),
+                                        labelStyle: const TextStyle(
+                                            color: Colors.black54,
+                                            fontSize: 13),
+                                        focusedBorder:
+                                            const UnderlineInputBorder(
+                                          borderSide:
+                                              BorderSide(color: appColor2),
+                                        ),
+                                        enabledBorder:
+                                            const UnderlineInputBorder(
+                                          borderSide:
+                                              BorderSide(color: Colors.black12),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  Container(
+                                    padding: EdgeInsets.symmetric(vertical: 0),
+                                    child: TextFormField(
+                                      controller: _bankController,
+                                      decoration: InputDecoration(
+                                        labelText: "Bank Name",
+                                        hintStyle: TextStyle(fontSize: 13),
+                                        labelStyle: const TextStyle(
+                                            color: Colors.black54,
+                                            fontSize: 13),
+                                        focusedBorder:
+                                            const UnderlineInputBorder(
+                                          borderSide:
+                                              BorderSide(color: appColor2),
+                                        ),
+                                        enabledBorder:
+                                            const UnderlineInputBorder(
+                                          borderSide:
+                                              BorderSide(color: Colors.black12),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  Container(
+                                    padding: EdgeInsets.symmetric(vertical: 0),
+                                    child: TextFormField(
+                                      controller: _accnumberController,
+                                      decoration: InputDecoration(
+                                        labelText: "Account Number",
+                                        hintStyle: TextStyle(fontSize: 13),
+                                        labelStyle: const TextStyle(
+                                            color: Colors.black54,
+                                            fontSize: 13),
+                                        focusedBorder:
+                                            const UnderlineInputBorder(
+                                          borderSide:
+                                              BorderSide(color: appColor2),
+                                        ),
+                                        enabledBorder:
+                                            const UnderlineInputBorder(
+                                          borderSide:
+                                              BorderSide(color: Colors.black12),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  Container(
+                                    padding: EdgeInsets.symmetric(vertical: 0),
+                                    child: TextFormField(
+                                      controller: _reenteracnoNumberController,
+                                      decoration: InputDecoration(
+                                        labelText: "Re-Enter A/C No.",
+                                        hintStyle: TextStyle(fontSize: 13),
+                                        labelStyle: const TextStyle(
+                                            color: Colors.black54,
+                                            fontSize: 13),
+                                        focusedBorder:
+                                            const UnderlineInputBorder(
+                                          borderSide:
+                                              BorderSide(color: appColor2),
+                                        ),
+                                        enabledBorder:
+                                            const UnderlineInputBorder(
+                                          borderSide:
+                                              BorderSide(color: Colors.black12),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  Container(
+                                    padding: EdgeInsets.symmetric(vertical: 0),
+                                    child: TextFormField(
+                                      controller: _ifscController,
+                                      decoration: InputDecoration(
+                                        labelText: "IFSC Code",
+                                        hintStyle: TextStyle(fontSize: 13),
+                                        labelStyle: const TextStyle(
+                                            color: Colors.black54,
+                                            fontSize: 13),
+                                        focusedBorder:
+                                            const UnderlineInputBorder(
+                                          borderSide:
+                                              BorderSide(color: appColor2),
+                                        ),
+                                        enabledBorder:
+                                            const UnderlineInputBorder(
+                                          borderSide:
+                                              BorderSide(color: Colors.black12),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height: size.height * 0.02,
+                                  ),
+                                  Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: Text(
+                                        "Account Type",
+                                        style: TextStyle(
+                                          fontSize: 11,
+                                          color: Colors.grey.shade500,
+                                        ),
+                                      )),
+                                  Container(padding: EdgeInsets.symmetric(vertical: 0),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Expanded(
+                                          child: Obx(()=>
+                                           RadioListTile(
+                                                title: Text(
+                                                  'Current',
+                                                  style: TextStyle(
+                                                    fontSize:
+                                                        size.height * 0.014,
+                                                    fontWeight: FontWeight.w600,
+                                                  ),
+                                                ),
+                                                visualDensity: VisualDensity(
+                                                  horizontal: VisualDensity
+                                                      .minimumDensity,
+                                                  vertical: VisualDensity
+                                                      .minimumDensity,
+                                                ),
+
+                                                // title: Text("Male"),
+                                                value:
+                                                    //_nurseBooking1Controller.selectedshift.value,
+                                                //_acounttypeController.value.text.toString(),
+                                                "1",
+                                                groupValue:
+
+                                                    _bankEmployeeUodateController.selectedAccountType.value,
+                                                onChanged: (value) {
+                                                  print("accountType:${_acounttypeController.value.text}");
+                                                  _bankEmployeeUodateController
+                                                      .onChangeAccountType(value!);
+                                                  // setState(() {
+                                                  //   gender = value.toString();
+                                                  // });
+                                                },
+                                              ),
+                                          ),
+                                         // ),
+                                        ),
+                                        Expanded(
+                                          child: Obx(()=>
+                                            RadioListTile(
+                                                title: Text(
+                                                  'Savings',
+                                                  style: TextStyle(
+                                                    fontSize:
+                                                        size.height * 0.014,
+                                                    fontWeight: FontWeight.w600,
+                                                  ),
+                                                ),
+                                                visualDensity: VisualDensity(
+                                                  horizontal: VisualDensity
+                                                      .minimumDensity,
+                                                  vertical: VisualDensity
+                                                      .minimumDensity,
+                                                ),
+                                                // title: Text("Male"),
+                                                value:
+                                                    //_nurseBooking1Controller.selectedshift.value,
+                                                //_acounttypeController.value.text.toString(),
+                                                   "2",
+                                                groupValue:
+                                                // _acounttypeController.value.text == 2?
+                                                // _bankEmployeeUodateController.selectedAccountType.value:"",
+                                               // _acounttypeController.value.text,
+                                                _bankEmployeeUodateController.selectedAccountType.value,
+                                                onChanged: (value) {
+                                                  print("accountType:${_acounttypeController.value.text}");
+                                                  _bankEmployeeUodateController
+                                                      .onChangeAccountType(value!);
+                                                  // setState(() {
+                                                  //   gender = value.toString();
+                                                  // });
+                                                },
+                                              ),
+                                          ),
+                                          ),
+                                       // ),
+                                      ],
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height: size.height * 0.005,
+                                  ),
+                                  Container(
+                                    padding: EdgeInsets.symmetric(vertical: 1),
+                                    child: TextFormField(
+                                      controller: _epfnumnberController,
+                                      decoration: InputDecoration(
+                                        labelText: "EPF Number",
+                                        hintStyle: TextStyle(fontSize: 13),
+                                        labelStyle: const TextStyle(
+                                            color: Colors.black54,
+                                            fontSize: 13),
+                                        focusedBorder:
+                                            const UnderlineInputBorder(
+                                          borderSide:
+                                              BorderSide(color: appColor2),
+                                        ),
+                                        enabledBorder:
+                                            const UnderlineInputBorder(
+                                          borderSide:
+                                              BorderSide(color: Colors.black12),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  Container(
+                                    padding: EdgeInsets.symmetric(vertical: 0),
+                                    child: TextFormField(
+                                      controller: _nominiNameController,
+                                      decoration: InputDecoration(
+                                        labelText: "Nominee",
+                                        hintStyle: TextStyle(fontSize: 13),
+                                        labelStyle: const TextStyle(
+                                            color: Colors.black54,
+                                            fontSize: 13),
+                                        focusedBorder:
+                                            const UnderlineInputBorder(
+                                          borderSide:
+                                              BorderSide(color: appColor2),
+                                        ),
+                                        enabledBorder:
+                                            const UnderlineInputBorder(
+                                          borderSide:
+                                              BorderSide(color: Colors.black12),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(height: 20),
+                                  Container(
+                                    padding: EdgeInsets.symmetric(vertical: 0),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        GestureDetector(
+                                          onTap: () {
+                                            Navigator.push(context, MaterialPageRoute(builder: (_) {
+                                              return ChequePage();
+                                            }));
+                                          },
+
+                                          child: Container(
+                                            height: 60,
+                                            width: 120,
+                                            decoration: BoxDecoration(
+                                              border: Border.all(width: 2, color: Colors.grey),
+                                                borderRadius: BorderRadius.circular(12.0),
+                                            ),
+                                            child:Obx(() {
+                                              return Hero(
+                                                tag: 'chequeImg',
+                                                child: selectedChequeImage.value != null
+                                                    ? ClipRRect(
+                                                  borderRadius: BorderRadius.circular(10.0),
+                                                      child: Image.memory(
+                                                      selectedChequeImage.value!,
+                                                      fit: BoxFit.contain,
+                                                      width: double.infinity,
+                                                      height: double.infinity,
+                                                    ),
+                                                    )
+                                                    : (_getprofileebnk.getbankprofiledetail!.data!.chequeimage != null
+                                                    ? ClipRRect(
+                                                  borderRadius: BorderRadius.circular(10.0),
+                                                      child: Image.network(
+                                                     "${FixedText.imageUrlll}${_getprofileebnk.getbankprofiledetail!.data!.chequeimage}",
+                                                     fit: BoxFit.cover,
+                                                     errorBuilder: (context, error, stackTrace) {
+                                                      return ClipRRect(
+                                                        borderRadius: BorderRadius.circular(10.0),
+                                                        child: Image.network(
+                                                          'https://media.geeksforgeeks.org/wp-content/uploads/20230711180739/Date-the-Cheque.jpg',
+                                                          fit: BoxFit.contain,
+                                                        ),
+                                                      );
+                                                        },
+                                                      ),
+                                                    )
+                                                    : ClipRRect(
+                                                  borderRadius: BorderRadius.circular(10.0),
+                                                      child: Image.asset(
+                                                      'https://media.geeksforgeeks.org/wp-content/uploads/20230711180739/Date-the-Cheque.jpg',
+                                                      fit: BoxFit.contain,
+                                                    ),
+                                                    )),
+                                              );
+                                            }),),
+                                        ),
+                                        // Container(
+                                        //   width:120,
+                                        //   height: 80,
+                                        //   child: TextFormField(
+                                        //     readOnly: true,
+                                        //     validator: (value) {
+                                        //       if (value == null ||
+                                        //           value.isEmpty) {
+                                        //         return 'Please select your Check';
+                                        //       }
+                                        //       return null;
+                                        //     },
+                                        //     controller: _cvFilePathController,
+                                        //     decoration: InputDecoration(
+                                        //         labelText: 'Check File'),
+                                        //     enabled: false,
+                                        //   ),
+                                        // ),
+                                        SizedBox(width: 10),
+                                        UpdateButton(onTap: ()
+                                        {
+                                          _showChequeFileDialog(context);
+                                          //_selectCVFile();
+                                          }, text: 'Cheque',),
+                                        // NextButton(onTap: () {
+                                        //   //_selectCVFile();
+                                        // }, text: 'Cheque', h: 50, w: 80,),
+                                        // GestureDetector(
+                                        //   onTap: (){
+                                        //     _selectCVFile();
+                                        //   },
+                                        //   child: Container(
+                                        //     alignment: Alignment.center,
+                                        //     width: 80,
+                                        //     height: 50,
+                                        //     decoration: BoxDecoration(
+                                        //       color: appColorr2,
+                                        //       borderRadius:
+                                        //           BorderRadius.circular(10),
+                                        //     ),
+                                        //     child: Text(
+                                        //       'Cheque',
+                                        //       style: TextStyle(
+                                        //         fontSize: 12,
+                                        //         fontWeight: FontWeight.bold,
+                                        //         color: Colors.white
+                                        //       ),
+                                        //     ),
+                                        //   ),
+                                        // ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(height: 24),
+                                  MyElevatedButton(
+                                    onPressed: () {
+                                      print("update bank");
+                                      Get.dialog(CustomThreeInOutLoader(),
+                                          barrierDismissible: false);
+                                      _bankEmployeeUodateController.updateBankProfile(
+                                        accountHolderName:
+                                            _acholdernameController.text,
+                                        bankname: _bankController.text,
+                                        accountNumber:
+                                            _accnumberController.text,
+                                        reEnterAccountNumber:
+                                            _reenteracnoNumberController.text,
+                                        ifsc: _ifscController.text,
+                                        epfNumber: _epfnumnberController.text,
+                                        // deductionCycle:
+                                        //     _deductioncycleController.text,
+                                        // employeeContributionRate:
+                                        //     _employeecontrobutionController
+                                        //         .text,
+                                        //_deduc
+                                        nominee: _nominiNameController.text,
+                                        accountTypeId:
+                                            _bankEmployeeUodateController
+                                                .selectedAccountType.value,
+                                        cvFileContent: _cvFileContent!,
+                                        Chequebase64:
+                                            _cvFilePathController.text,
+                                      );
+                                      Get.back();
+                                      print("update bank done");
+
+                                    },
+                                    text: Text('Update',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w600
+                                    ),),
+                                    height: 40,
+                                    width: 200,
+                                  ),
+                                 // const SizedBox(height: 34),
+                                  const SizedBox(height: 20),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
-                        const SizedBox(height: 20),
-                      ],
-                    ),
+                      ),
+                      const SizedBox(height: 20),
+                    ],
                   ),
                 ),
               ),
+            ),
+          ),
+        ),
       ),
     );
   }

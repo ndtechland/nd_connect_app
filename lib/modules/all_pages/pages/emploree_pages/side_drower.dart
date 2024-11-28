@@ -282,7 +282,7 @@ class EmployeeNavBar extends StatelessWidget {
                 onTap: () async {
                   Get.dialog(CustomThreeInOutLoader(),
                       barrierDismissible: false);
-                  _profileEmployeeController.profileEmployeBankApi();
+                  await _profileEmployeeController.profileEmployeBankApi();
 
                  // _allsalaryslipController.fetchSalarySlips();
                  // _allsalaryslipController.onInit();

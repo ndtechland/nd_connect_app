@@ -188,7 +188,7 @@ if(message !=null && message.data.isNotEmpty){
           builder: (context) => Attendance(id: message.data['id'],)));
     } else if (message.data['type'] == 'setting') {
       Navigator.push(context, MaterialPageRoute(
-          builder: (context) => Settings(id: message.data['id'],)));
+          builder: (context) => Settingss(id: message.data['id'],)));
     } else {
       Navigator.push(
           context, MaterialPageRoute(builder: (context) => BottomBar()));

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -14,6 +15,7 @@ import 'package:nd_connect_techland/modules/all_pages/attendance/attendance.dart
 import 'package:nd_connect_techland/services_apis/notification_service.dart';
 import 'package:shake/shake.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:workmanager/workmanager.dart';
 import '../../controllers/bottom_nav_controller.dart';
 import '../../controllers/employee_controller/profile_controller/profile_info_employee_controller.dart';
 import '../../controllers/employeee_controllersss/employee_dashboard_controller/employee_dashboardcontroller.dart';
@@ -22,6 +24,7 @@ import '../../controllers/employeee_controllersss/timer_controller.dart';
 import '../../controllers/event_controller2.dart';
 import '../../controllers/events_controller.dart';
 import '../../controllers/location_controller.dart';
+import '../../main.dart';
 import '../../services_apis/local_notification_service.dart';
 import '../../widget/upload_button.dart';
 import '../all_pages/attendance/attendanceBottomSheet.dart';
@@ -35,6 +38,8 @@ import 'package:in_app_update/in_app_update.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter/services.dart';
+import 'package:location/location.dart' as loc;
 // class BottomBar extends StatelessWidget {
 //   final List<Widget> pages = [
 //       HomeEmployee2(),
@@ -55,7 +60,6 @@ import 'package:http/http.dart' as http;
 //   }
 // }
 
-const task = 'firstTask';
 
 class BottomBar extends StatefulWidget {
   @override
@@ -78,6 +82,10 @@ class _BottomBarState extends State<BottomBar> {
   final DateTaskController dateTaskController = Get.put(DateTaskController());
   final EventsController eventsController = Get.put(EventsController());
   final EventController2 eventsController2 = Get.put(EventController2());
+  final loc.Location location = loc.Location();
+  StreamSubscription<loc.LocationData>? _locationSubscription;
+
+
 
   @override
   void initState() {
@@ -86,12 +94,14 @@ class _BottomBarState extends State<BottomBar> {
     // Initial data fetching
     var prefs = GetStorage();
     FlutterBackgroundService();
+    //initAutoStart();
     // Read saved user id and token
     final userId = prefs.read("userid").toString();
     // final userId = prefs.getString('userId') ?? '';
     print("bottomBar userId :$userId");
     dateTimeController.currentTime.value;
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      locationController.fetchCurrentLocation();
       dateTaskController.TaskAssignApi();
       _checkForAppUpdate();
       print("events: ${eventsController.events}");
@@ -116,8 +126,19 @@ class _BottomBarState extends State<BottomBar> {
       // _homedashboardController.dashboarddApi();
 
       LocalNotificationService.initialize(context);
+      _getLocation();
+      _listenLocation();
     });
-
+    var uniqueIdentifier = DateTime.now().second.toString();
+    // A perriodic task
+    //  Workmanager().registerPeriodicTask(
+    //   uniqueIdentifier, taskName, // The task name you defined before
+    //   frequency: const Duration(seconds: 15),
+    //   // constraints: Constraints(
+    //   //   networkType: NetworkType.connected,
+    //   // ),
+    //   initialDelay: const Duration(seconds: 15),
+    // );
     // Firebase notification listeners
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       LocalNotificationService.createanddisplaynotification(message);
@@ -138,6 +159,20 @@ class _BottomBarState extends State<BottomBar> {
 
     super.initState();
   }
+  // Future<void> initAutoStart() async {
+  //   try {
+  //     //check auto-start availability.
+  //     // var test = await (isAutoStartAvailable as FutureOr<bool>);
+  //     // print(test);
+  //     //if available then navigate to auto-start setting page.
+  //     //if (test)
+  //     await getAutoStartPermission();
+  //   } on PlatformException catch (e) {
+  //     print(e);
+  //   }
+  //   if (!mounted) return;
+  // }
+
   // void onStart(ServiceInstance service) async {
   //   if (service is AndroidServiceInstance) {
   //     service.on('setAsForeground').listen((event) {
@@ -214,6 +249,45 @@ class _BottomBarState extends State<BottomBar> {
   //       }
   //     });
   //   };}
+
+  _getLocation() async {
+    try {
+      print("firestore get try");
+      final loc.LocationData _locationResult = await location.getLocation();
+      await FirebaseFirestore.instance.collection('location').doc('${profileEmployeeController.getprofileemployeeModel?.data?.userid}').set({
+        'latitude': _locationResult.latitude,
+        'longitude': _locationResult.longitude,
+        'id': '${profileEmployeeController.getprofileemployeeModel?.data?.userid}'
+      }, SetOptions(merge: true));
+      print("firestore get");
+
+    } catch (e) {
+      print("firestore :$e");
+    }
+  }
+
+  Future<void> _listenLocation() async {
+    _locationSubscription = location.onLocationChanged.handleError((onError) {
+      print(onError);
+      _locationSubscription?.cancel();
+      setState(() {
+        _locationSubscription = null;
+      });
+    }).listen((loc.LocationData currentlocation) async {
+      await FirebaseFirestore.instance.collection('location').doc('${profileEmployeeController.getprofileemployeeModel?.data?.userid}').set({
+        'latitude': currentlocation.latitude,
+        'longitude': currentlocation.longitude,
+        'name': '${profileEmployeeController.getprofileemployeeModel?.data?.fullName}'
+      }, SetOptions(merge: true));
+    });
+  }
+
+  _stopListening() {
+    _locationSubscription?.cancel();
+    setState(() {
+      _locationSubscription = null;
+    });
+  }
   void _checkForAppUpdate() async {
     try {
       print("update check");
@@ -342,7 +416,7 @@ class _BottomBarState extends State<BottomBar> {
             case 0:
               return HomeEmployee2();
             case 1:
-              return Settings(id: '14');
+              return Settingss(id: '14');
             case 2:
               return Attendance(id: '13'); // Background screen when bottom sheet opens
             case 3:
@@ -402,8 +476,9 @@ class _BottomBarState extends State<BottomBar> {
             child: GestureDetector(
               onTap: () async {
                 print("Middle button Tapped");
-                await locationController.fetchCompanyLocationApi();
-                await locationController.getCoordinatesFromAddress();
+                 locationController.fetchCompanyLocationApi();
+                 locationController.getCoordinatesFromAddress();
+                _getLocation();
                 // await attendanceController.AttendanceDetailApi(DateTime.now());
                 Get.to(() => Attendance(id: '13'));
                 // Set loading state to true

@@ -324,57 +324,79 @@ class Attendance extends StatelessWidget {
                                     ],
                                   ),
                                 ),
-                                GestureDetector(
-                                  onTap: ()async{
-                                    DateTime? pickedDate = await showDatePicker(
-                                      context: context,
-                                      initialDate: DateTime.now(),
-                                      firstDate: DateTime(1950),
-                                      lastDate: DateTime.now(),
-                                    );
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  children: [
+                                    GestureDetector(
+                                      onTap: ()async{
+                                        DateTime? pickedDate = await showDatePicker(
+                                          context: context,
+                                          initialDate: DateTime.now(),
+                                          firstDate: DateTime(1950),
+                                          lastDate: DateTime.now(),
+                                        );
 
-                                    if (pickedDate != null) {
-                                      String formattedDate = DateFormat('yyyy-MM-dd').format(pickedDate);
-                                      attendanceController.updateSelectedDate(pickedDate);
-                                    }
-                                  },
-                                  child: SizedBox(
-                                    width: MediaQuery.of(context).size.width/2.95,
-                                    height: MediaQuery.of(context).size.height/30,
-                                    child: Row(
-                                      crossAxisAlignment: CrossAxisAlignment.center,
-                                      mainAxisAlignment: MainAxisAlignment.end,
-                                    children: [
-                                      // Text("Search",style: TextStyle(),),
-                                      Text(
-                                        DateFormat('d MMM y').format(attendanceController.selectedDate.value),
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.w500,
-                                            fontSize: 14,
-                                            color: appColor2),
+                                        if (pickedDate != null) {
+                                          String formattedDate = DateFormat('yyyy-MM-dd').format(pickedDate);
+                                          attendanceController.updateSelectedDate(pickedDate);
+                                        }
+                                      },
+                                      child: SizedBox(
+                                        width: MediaQuery.of(context).size.width/2.95,
+                                        height: MediaQuery.of(context).size.height/30,
+                                        child: Row(
+                                          crossAxisAlignment: CrossAxisAlignment.center,
+                                          mainAxisAlignment: MainAxisAlignment.end,
+                                        children: [
+                                          // Text("Search",style: TextStyle(),),
+                                          Text(
+                                            DateFormat('d MMM y').format(attendanceController.selectedDate.value),
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.w500,
+                                                fontSize: 14,
+                                                color: appColor2),
+                                          ),
+                                          SizedBox(width: 6,),
+                                          Align(
+                                            //alignment: Alignment.topRight,
+                                            child: InkWell(
+                                                onTap: ()async{
+                                                  DateTime? pickedDate = await showDatePicker(
+                                                    context: context,
+                                                    initialDate: DateTime.now(),
+                                                    firstDate: DateTime(1950),
+                                                    lastDate: DateTime.now(),
+                                                  );
+
+                                                  if (pickedDate != null) {
+                                                    String formattedDate = DateFormat('yyyy-MM-dd').format(pickedDate);
+                                                    attendanceController.updateSelectedDate(pickedDate);
+                                                  }
+                                                },
+                                                child: Icon(Icons.search,color: Colors.red,)),
+                                          )
+                                        ],
                                       ),
-                                      SizedBox(width: 6,),
-                                      Align(
-                                        //alignment: Alignment.topRight,
-                                        child: InkWell(
-                                            onTap: ()async{
-                                              DateTime? pickedDate = await showDatePicker(
-                                                context: context,
-                                                initialDate: DateTime.now(),
-                                                firstDate: DateTime(1950),
-                                                lastDate: DateTime.now(),
-                                              );
-
-                                              if (pickedDate != null) {
-                                                String formattedDate = DateFormat('yyyy-MM-dd').format(pickedDate);
-                                                attendanceController.updateSelectedDate(pickedDate);
-                                              }
-                                            },
-                                            child: Icon(Icons.search,color: Colors.red,)),
-                                      )
-                                    ],
-                                  ),
-                                  ),
+                                      ),
+                                    ),
+                                    SizedBox(height: 5,),
+                                    Row(
+                                      children: [
+                                        SizedBox(
+                                            child: Text("Radius: ")
+                                        ),
+                                        SizedBox(
+                                            child: Text(
+                                              locationController.latitude.value==0.0 && locationController.longitude.value==0.0?"N/A":
+                                              "${locationController.distanceFromCompany.value.toStringAsFixed(2)}m",
+                                              style: TextStyle(
+                                                  color: Colors.red,
+                                                  fontWeight: FontWeight.w600
+                                              ),)
+                                        ),
+                                      ],
+                                    ),
+                                  ],
                                 )
                                 // Container(
                                 //   child: CircleAvatar(

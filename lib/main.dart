@@ -43,7 +43,7 @@ void setupLazyLoading() {
   Get.lazyPut(() => HomedashboardController());
   Get.lazyPut(() => CompanyDetailController());
   Get.lazyPut(() => AllcompanyController());
- // Get.lazyPut(() => ProfileController());
+  // Get.lazyPut(() => ProfileController());
   Get.lazyPut(() => PaymentEmployeeController());
 }
 
@@ -53,19 +53,19 @@ void setupLazyLoading() {
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
-   // options: DefaultFirebaseOptions.currentPlatform,
+    // options: DefaultFirebaseOptions.currentPlatform,
   );
   Workmanager().initialize(callbackDispatcher, isInDebugMode: false);
   //LocalNotificationService.initialize();
   setupLazyLoading();
- // FirebaseMessaging.onBackgroundMessage(backgroundHandler);
+  // FirebaseMessaging.onBackgroundMessage(backgroundHandler);
   final fcmToken = await FirebaseMessaging.instance.getToken();
   print("mytoken${fcmToken}");
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   HttpOverrides.global = MyHttpOverrides();
   // await GetStorage.init();
-   await initializeService();
- // FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+  // await initializeService();
+  // FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
   // await Firebase.initializeApp(
   //   options: DefaultFirebaseOptions.currentPlatform,
   // );
@@ -73,8 +73,6 @@ Future<void> main() async {
   /// await requestFilePermission();
 
   await Permission.storage.request();
-
-
   runApp(const MyApp());
 }
 
@@ -278,39 +276,39 @@ void onStart(ServiceInstance service) async {
     print("Service stopped");
     service.stopSelf();
   });
-
+  await locationControllr.startSendingLocation();
   // Periodic task
-  Timer.periodic(const Duration(seconds: 15), (timer) async {
-    try {
-      print("Timer ticked at ${DateTime.now()}");
-
-      // Retrieve userId from SharedPreferences
-      final userId = prefs.getInt("userid");
-      // final uId = getStorage.read("userid");
-      print("User ID: $userId");
-      // print("uId ID: $uId");
-
-      if (userId != null && userId > 0) {
-        // if (attendanceController.attendanceDetailsModel?.data?.loginStatus == "Check-In") {
-          print("Status: Check-In - Sending location...");
-          await locationControllr.sendLocation(); // Call your API logic
-        // } else if (attendanceController.attendanceDetailsModel?.data?.loginStatus == "Check-Out") {
-        //   print("Status: Check-Out - Stopping timer...");
-        //   timer.cancel(); // Stop the timer for "Check-Out"
-        // } else {
-        //   print("Unknown status. Timer stopped.");
-        //   timer.cancel();
-        // }
-        // Your periodic task (e.g., send location)
-        print("Valid User ID found. Executing task...");
-        // Add your API call or location logic here
-      } else {
-        print("Invalid User ID or not yet saved. Skipping task.");
-      }
-    } catch (e) {
-      print("Error during periodic task: $e");
-    }
-  });
+  // Timer.periodic(const Duration(seconds: 15), (timer) async {
+  //   try {
+  //     print("Timer ticked at ${DateTime.now()}");
+  //
+  //     // Retrieve userId from SharedPreferences
+  //     final userId = prefs.getInt("userid");
+  //     // final uId = getStorage.read("userid");
+  //     print("User ID: $userId");
+  //     // print("uId ID: $uId");
+  //
+  //     if (userId != null && userId > 0) {
+  //       // if (attendanceController.attendanceDetailsModel?.data?.loginStatus == "Check-In") {
+  //       print("Status: Check-In - Sending location...");
+  //       await locationControllr.sendLocation(); // Call your API logic
+  //       // } else if (attendanceController.attendanceDetailsModel?.data?.loginStatus == "Check-Out") {
+  //       //   print("Status: Check-Out - Stopping timer...");
+  //       //   timer.cancel(); // Stop the timer for "Check-Out"
+  //       // } else {
+  //       //   print("Unknown status. Timer stopped.");
+  //       //   timer.cancel();
+  //       // }
+  //       // Your periodic task (e.g., send location)
+  //       print("Valid User ID found. Executing task...");
+  //       // Add your API call or location logic here
+  //     } else {
+  //       print("Invalid User ID or not yet saved. Skipping task.");
+  //     }
+  //   } catch (e) {
+  //     print("Error during periodic task: $e");
+  //   }
+  // });
 }
 
 
@@ -377,15 +375,15 @@ void callbackDispatcher() {
     // This function will run in the background
     LocationController locationController = LocationController();
     if (task == "sendLocationPeriodic") {
-    print("sendLocation :");
+      print("sendLocation :");
 
       await locationController.startSendingLocation();
 
-   }
+    }
     // Call the sendLocation function
     // await locationController.startSendingLocation();
-print("sendLocation in terminated");
-print("sendLocation :${locationController.latitude()}");
+    print("sendLocation in terminated");
+    print("sendLocation :${locationController.latitude()}");
     return Future.value(true);
   });
 }

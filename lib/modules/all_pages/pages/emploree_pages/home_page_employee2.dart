@@ -2184,7 +2184,7 @@ int shakeCount=0;
                   Row(
                     children: [
                       SizedBox(
-                          child: Text("Distance: ")
+                          child: Text("Radius: ")
                       ),
                       SizedBox(
                           child: Text(

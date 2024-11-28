@@ -852,7 +852,7 @@ static var baseUrl = FixedText.apiurl;
   static String apiUrl2 = "${baseUrl}Login/createProfile";
 
   static Future<List<StateModelss>> getSatesApi() async {
-    var url = "https://api.ndtechland.com/api/EmployeeApi/Getstate";
+    var url = "${baseUrl}EmployeeApi/Getstate";
     try {
       http.Response r = await http.get(Uri.parse(url));
       print(r.body.toString());
@@ -890,7 +890,7 @@ static var baseUrl = FixedText.apiurl;
 
 ///todo: city by stste id...
   static Future<List<CityModell>> getCitiesApi(int stateID) async {
-    var url = "https://api.ndtechland.com/api/EmployeeApi/getcity?stateid=$stateID";
+    var url = "${baseUrl}EmployeeApi/getcity?stateid=$stateID";
     try {
       http.Response r = await http.get(Uri.parse(url));
       print(r.body.toString());
@@ -932,7 +932,7 @@ static var baseUrl = FixedText.apiurl;
   ///todo:EmployeeLoginApi Api
   static Future<http.Response> EmployeeLoginApi(String employee_ID,
       String password) async {
-    var url = "https://api.ndtechland.com/api/Account/Login";
+    var url = "${baseUrl}Account/Login";
     var body2 = jsonEncode({
       "Employee_ID": employee_ID,
       "Password": password,
@@ -1055,7 +1055,7 @@ static var baseUrl = FixedText.apiurl;
 
     token = prefs.read("token").toString();
     print('tokenProfile: $token');
-    var url = 'https://api.ndtechland.com/api/EmployeeApi/GetEmployeeBasicInfo';
+    var url = '${baseUrl}EmployeeApi/GetEmployeeBasicInfo';
     try {
       // Add the token to the headers
       Map<String, String> headers = {
@@ -1127,7 +1127,7 @@ static var baseUrl = FixedText.apiurl;
 
     token = prefs.read("token").toString();
     print('token: $token');
-    var url = 'https://api.ndtechland.com/api/EmployeeApi/GetBankdetail';
+    var url = '${baseUrl}EmployeeApi/GetBankdetail';
     try {
       // Add the token to the headers
       Map<String, String> headers = {
@@ -1189,7 +1189,7 @@ static var baseUrl = FixedText.apiurl;
   static Future<AllsalaryslipModells?> getSalarySlips() async {
     String userId = GetStorage().read("userId").toString();
     String token = GetStorage().read("token").toString();
-    var url = "https://api.ndtechland.com/api/EmployeeApi/GetAllEmployeesalaryslip";
+    var url = "${baseUrl}EmployeeApi/GetAllEmployeesalaryslip";
 
     try {
       Map<String, String> headers = {
@@ -1227,7 +1227,7 @@ static var baseUrl = FixedText.apiurl;
 
     // token = prefs.read("token").toString();
     print('tokendash: $token');
-    var url = 'https://api.ndtechland.com/api/EmployeeApi/EmployeeDashboard';
+    var url = '${baseUrl}EmployeeApi/EmployeeDashboard';
     try {
       // Add the token to the headers
       Map<String, String> headers = {
@@ -1423,7 +1423,7 @@ static var baseUrl = FixedText.apiurl;
       Uint8List? profileFileContent,
       String? Profilebase64,) async {
     var uri = Uri.parse(
-        "https://api.ndtechland.com/api/EmployeeApi/EmployeePersonalDetail");
+        "${baseUrl}EmployeeApi/EmployeePersonalDetail");
     var request = http.MultipartRequest('POST', uri);
 
     // Add form fields
@@ -1664,7 +1664,7 @@ static var baseUrl = FixedText.apiurl;
     Uint8List? profileFileContent,
     String? Profilebase64,
   }) async {
-    var uri = Uri.parse("https://api.ndtechland.com/api/EmployeeApi/EmployeePersonalDetail");
+    var uri = Uri.parse("${baseUrl}EmployeeApi/EmployeePersonalDetail");
     var request = http.MultipartRequest('POST', uri);
 
     // Add form fields
@@ -1772,7 +1772,7 @@ static var baseUrl = FixedText.apiurl;
     Uint8List? profileFileContent,
     String? Profilebase64,
   }) async {
-    var uri = Uri.parse("https://api.ndtechland.com/api/EmployeeApi/EmployeePersonalDetail");
+    var uri = Uri.parse("${baseUrl}EmployeeApi/EmployeePersonalDetail");
     var request = http.MultipartRequest('POST', uri);
 
     // Add form fields
@@ -1829,7 +1829,7 @@ static var baseUrl = FixedText.apiurl;
       Uint8List? cvFileContent,
       String? Chequebase64,) async {
     var uri = Uri.parse(
-        "https://api.ndtechland.com/api/EmployeeApi/EmployeeBankDetail");
+        "${baseUrl}EmployeeApi/EmployeeBankDetail");
     var request = http.MultipartRequest('POST', uri);
 
     // Add form fields
@@ -2609,7 +2609,7 @@ static var baseUrl = FixedText.apiurl;
   var responseData = json.decode(r.body);
   await Future.delayed(Duration(seconds: 1));
   Get.offAll(() => Attendance(id: "13"));
-
+  await AttendancedatailUpdate(DateTime.now());
   // Show success toast
   Fluttertoast.showToast(
   msg: "Check Out Successfully!",
@@ -3782,7 +3782,7 @@ static var baseUrl = FixedText.apiurl;
     String? panbaseImage,
   }) async {
     try {
-      var request = http.MultipartRequest('POST', Uri.parse("https://api.ndtechland.com/api/EmployeeApi/EmployeePersonalDetail"));
+      var request = http.MultipartRequest('POST', Uri.parse("${baseUrl}EmployeeApi/EmployeePersonalDetail"));
 
       // Add only the fields that are provided
       if (fullName != null) request.fields['FullName'] = fullName;

@@ -128,15 +128,13 @@ class LocationController extends GetxController {
       //   isLoading.value = false;
       //   return;
       // }
-
+      await locationController.fetchCurrentLocation();
       // Make API request
       final response = await ApiProvider.CheckInApiii(
           latitude.toString(),
           longitude.toString(),
       );
-      await locationController.fetchCurrentLocation(
-        // " C 53, 1st Floor, C Block, Sector 2, Noida, Uttar Pradesh 201301"
-      );
+
       // await locationController.fetchCompanyLocationApi();
       // await locationController.getCoordinatesFromAddress();
       // await attendanceController.AttendanceDetailApi(DateTime.now());
@@ -406,9 +404,14 @@ class LocationController extends GetxController {
 
   Future<void> sendLocation() async {
     await Future.delayed(Duration(seconds: 1));
-    print("checkIN Controller");
+     print("checkIN Controller 1");
+    // await locationController.fetchCurrentLocation();
+    // await locationController.fetchCompanyLocationApi();
+    // await locationController.getCoordinatesFromAddress();
+    // await locationController.updateDistanceFromCompany();
     try {
       isLoading.value = true;
+
       final response = await ApiProvider.sendLatLang(
           latitude.toString(),
           longitude.toString(),

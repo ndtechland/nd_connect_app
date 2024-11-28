@@ -4,20 +4,21 @@ import 'package:get/get.dart';
 import 'package:nd_connect_techland/modules/all_pages/pages/testtt.dart';
 import 'package:nd_connect_techland/modules/all_pages/pages/willPop_scope_exit.dart';
 import '../../../controllers/bottom_nav_controller.dart';
+import '../../../test/trip_form_page.dart';
 import '../../bottom_bar/bottom_bar.dart';
 import 'emploree_pages/change_password_employee.dart';
 import 'emploree_pages/profile_employee/update_add_profile/personal_information_update.dart';
 import 'emploree_pages/profile_employee/update_add_profile/update_add_bank_detail.dart';
 
-class Settings extends StatelessWidget {
+class Settingss extends StatelessWidget {
   String id ='14';
-   Settings({super.key,required this.id});
+   Settingss({super.key,required this.id});
 
   @override
   Widget build(BuildContext context) {
     bool shouldPop = true;
 
-    final BottomNavController bottomNavController = Get.find<BottomNavController>();
+    final BottomNavController bottomNavController = Get.put(BottomNavController());
 
     List<String> settingList = [
       "Account Settings",
@@ -109,37 +110,37 @@ class Settings extends StatelessWidget {
               ),
             ),
           ),
-          //       Padding(
-          //   padding: const EdgeInsets.fromLTRB(12.0,8.0,12.0,0),
-          //   child: GestureDetector(
-          //     onTap: (){
-          //       Get.to(()=>Testtt());
-          //     },
-          //     child: Card(
-          //       shape: RoundedRectangleBorder(
-          //         borderRadius: BorderRadius.circular(10),
-          //       ),
-          //       elevation: 2,
-          //       child: Container(
-          //           alignment: Alignment.centerLeft,
-          //           width: double.infinity,
-          //           height: 80,
-          //           child: Padding(
-          //             padding: const EdgeInsets.only(left: 18.0,right: 18.0),
-          //             child: Row(
-          //               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          //               children: [
-          //                 Text("Testt Settings",
-          //                   style: TextStyle(
-          //                       fontSize: 16,fontWeight: FontWeight.w600,color: appColor2
-          //                   ),),
-          //                 Icon(Icons.arrow_circle_right_rounded,color: appColor2,)
-          //               ],
-          //             ),
-          //           )),
-          //     ),
-          //   ),
-          // ),
+                Padding(
+            padding: const EdgeInsets.fromLTRB(12.0,8.0,12.0,0),
+            child: GestureDetector(
+              onTap: (){
+                Get.to(()=>TripFormPage());
+              },
+              child: Card(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                elevation: 2,
+                child: Container(
+                    alignment: Alignment.centerLeft,
+                    width: double.infinity,
+                    height: 80,
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 18.0,right: 18.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text("Trip Form Settings",
+                            style: TextStyle(
+                                fontSize: 16,fontWeight: FontWeight.w600,color: appColor2
+                            ),),
+                          Icon(Icons.arrow_circle_right_rounded,color: appColor2,)
+                        ],
+                      ),
+                    )),
+              ),
+            ),
+          ),
                 Padding(
             padding: const EdgeInsets.fromLTRB(12.0,8.0,12.0,0),
             child: GestureDetector(
