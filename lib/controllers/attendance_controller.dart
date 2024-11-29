@@ -48,6 +48,7 @@ class AttendanceController extends GetxController {
   var payPeriodHours = ''.obs;
   var presence = ''.obs;
   var absence = ''.obs;
+  var loginstatus = ''.obs;
   var overtime = ''.obs;
   var breakInTime = [].obs;
   var breakOutTime = [].obs;
@@ -86,10 +87,14 @@ Future<void> AttendanceDetailApi(DateTime date) async{
   isLoading.value = true;
     try{
       attendanceDetailsModel= await ApiProvider.EmpAttendancedatail(date);
+      loginstatus.value=attendanceDetailsModel?.data?.loginStatus.toString() ?? "";
+      print("loginstatus:$loginstatus");
       if(attendanceDetailsModel?.data?.officeHour==null){
         print("attendance detail null");
         isLoading(true);
         attendanceDetailsModel= await ApiProvider.EmpAttendancedatail(date);
+        loginstatus.value=attendanceDetailsModel?.data?.loginStatus.toString() ?? "";
+        print("loginstatus:$loginstatus");
       }
       if(attendanceDetailsModel?.data?.officeHour!=null) {
         print("attendance detail :${attendanceDetailsModel?.data}");

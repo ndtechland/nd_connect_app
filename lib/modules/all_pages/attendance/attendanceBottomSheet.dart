@@ -119,6 +119,7 @@ import 'package:nd_connect_techland/controllers/attendance_controller.dart';
 import '../../../controllers/employee_controller/profile_controller/profile_info_employee_controller.dart';
 import '../../../controllers/location_controller.dart';
 import '../../../controllers/marker_controller.dart';
+import '../../../widget/custom_loader.dart';
 
 
 //todayyyy
@@ -352,6 +353,8 @@ void initState(){
                       //     snackPosition: SnackPosition.BOTTOM,
                       //   );
                       // }
+                       Get.dialog(CustomThreeInOutLoader(),
+                           barrierDismissible: false);
                       print("checkkk");
                       await locationController.checkInApi();
                       await Future.delayed(Duration(seconds: 2));

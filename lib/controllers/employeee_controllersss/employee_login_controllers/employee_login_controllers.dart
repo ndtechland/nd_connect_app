@@ -9,6 +9,7 @@ import '../../../components/styles.dart';
 import '../../../models/employee_model/autologin_employee_model.dart';
 import '../../../services_apis/api_servicesss.dart';
 import '../../../services_apis/auto_login_employee.dart';
+import '../../attendance_controller.dart';
 import '../../employee_controller/profile_controller/profile_info_employee_controller.dart';
 import '../../location_controller.dart';
 import '../employee_dashboard_controller/employee_dashboardcontroller.dart';
@@ -150,6 +151,8 @@ class EmployeeLoginController extends GetxController {
   late TextEditingController usernameController, passwordController;
   final ProfileEmployeeController _profileEmployeeController = Get.put(ProfileEmployeeController());
   HomedashboardController _homedashboardController = Get.put(HomedashboardController());
+  final AttendanceController attendanceController = Get.put(AttendanceController());
+
   @override
   void onInit() {
     super.onInit();
@@ -221,6 +224,7 @@ class EmployeeLoginController extends GetxController {
         await _homedashboardController.dashboarddApi();
         await _profileEmployeeController.profileemployeeApi();
         await _profileEmployeeController.profileEmployeBankApi();
+        await attendanceController.AttendanceDetailApi(DateTime.now());
 
         // await _homedashboardController.dashboarddApi();
 

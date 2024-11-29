@@ -81,7 +81,6 @@ class Attendance extends StatelessWidget {
       print("Data refreshed");
     }
 
-
     String _getGreeting() {
       final hour = DateTime.now().hour;
       if (hour < 12) {
@@ -122,9 +121,9 @@ class Attendance extends StatelessWidget {
             ),
              actions: [
                Text(
-                 attendanceController.attendanceDetailsModel?.data?.loginStatus=="Check-In"?"In":"Out",
+                 attendanceController.loginstatus=="Check-In"?"In":"Out",
                  //locationController.statusColor.value==Color(0xfff44336)?"Out":"In",
-                 style: TextStyle(color:attendanceController.attendanceDetailsModel?.data?.loginStatus=="Check-In"?Colors.green:Colors.red),),
+                 style: TextStyle(color:attendanceController.loginstatus=="Check-In"?Colors.green:Colors.red),),
                // ),
                SizedBox(width: 4,),
                Padding(
@@ -139,70 +138,6 @@ class Attendance extends StatelessWidget {
                    ),
                  ),
                ),
-            //   Padding(
-            //     padding: const EdgeInsets.only(right: 8.0),
-            //     child: GestureDetector(
-            //       onTap: () {
-            //         showDialog(
-            //           context: context,
-            //           builder: (context) => AlertDialog(
-            //             shape: ContinuousRectangleBorder(
-            //                 side: BorderSide.none,
-            //                 borderRadius: BorderRadius.circular(12)
-            //             ),
-            //             title: Text('Check-Out'),
-            //             content: Text('Do you really want to check out'),
-            //             actions: [
-            //               Container(
-            //                 height:40,
-            //                 width: 70,
-            //                 decoration: BoxDecoration(
-            //                     color: Colors.green,
-            //                     borderRadius: BorderRadius.circular(12)
-            //
-            //                 ),
-            //                 child: TextButton(
-            //                   onPressed: () => Navigator.pop(context),
-            //                   child: Text('No',style: TextStyle(color: Colors.white),),
-            //                 ),
-            //               ),
-            //
-            //               Container(
-            //                 height:40,
-            //                 width: 70,
-            //                 decoration: BoxDecoration(
-            //                     color: Colors.red,
-            //                     borderRadius: BorderRadius.circular(12)
-            //
-            //                 ),
-            //                 child: TextButton(
-            //                   onPressed: () async{
-            //                     print("cheedck-Outt");
-            //                     await locationController.employeeCheckOut();
-            //                     await attendanceController.EmpActivityApi();
-            //                     print("cheedck-Outt done");
-            //                     WidgetsBinding.instance.addPostFrameCallback((_) {
-            //                       Get.offAll(() => BottomBar());
-            //                     });
-            //                   },
-            //                   child: Text('Yes',style: TextStyle(color: Colors.white),),
-            //                 ),
-            //               ),
-            //             ],
-            //           ),
-            //         );
-            //       },
-            //       child: CircleAvatar(
-            //         radius: 16,
-            //         backgroundColor: Colors.white,
-            //         child: Icon(
-            //           size: 20,
-            //               Icons.logout_rounded,
-            //               color: Colors.black87,
-            //             ),
-            //       ),
-            //     ),
-            //   )
             ],
           ),
           body: OrientationBuilder(builder: (context, orientation) {
@@ -727,6 +662,8 @@ class Attendance extends StatelessWidget {
                                                                   //   toastLength: Toast.LENGTH_LONG,
                                                                   //   gravity: ToastGravity.CENTER,
                                                                   // );
+                                                                  Get.dialog(CustomThreeInOutLoader(),
+                                                                      barrierDismissible: false);
                                                                   await attendanceController.EmpActivityApi();
                                                                   print("cheedck-Outt done");
                                                                   WidgetsBinding.instance.addPostFrameCallback((_) async{

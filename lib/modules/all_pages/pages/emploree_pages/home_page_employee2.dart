@@ -35,6 +35,7 @@ import '../../../../controllers/employeee_controllersss/salary_slip_controller/s
 import '../../../../controllers/employeee_controllersss/support_comman/support_commannn.dart';
 import '../../../../controllers/employeee_controllersss/timer_controller.dart';
 import '../../../../controllers/user_profile_controller/user_profile_controller.dart';
+import '../../../../services_apis/api_servicesss.dart';
 import '../../../../widget/custom_loader.dart';
 import '../../background_service/background_service.dart';
 import '../../leave_left/leave_left.dart';
@@ -123,6 +124,7 @@ int shakeCount=0;
   @override
   void initState(){
     print("shakeee init");
+    ApiProvider.AttendancedatailUpdate(DateTime.now());
     attendanceController.AttendanceDetailApi(DateTime.now());
 
     ShakeDetector detector = ShakeDetector.autoStart(
@@ -186,9 +188,9 @@ int shakeCount=0;
               actions: [
               // Obx(()=>
                 Text(
-                  attendanceController.attendanceDetailsModel?.data?.loginStatus=="Check-In"?"In":"Out",
+                  attendanceController.loginstatus=="Check-In"?"In":"Out",
                   //locationController.statusColor.value==Color(0xfff44336)?"Out":"In",
-                  style: TextStyle(color:attendanceController.attendanceDetailsModel?.data?.loginStatus=="Check-In"?Colors.green:Colors.red),),
+                  style: TextStyle(color: attendanceController.loginstatus=="Check-In"?Colors.green:Colors.red),),
               // ),
                    SizedBox(width: 4,),
                    Padding(
@@ -197,7 +199,7 @@ int shakeCount=0;
                       radius: 8,
                       child: Container(
                         decoration: BoxDecoration(
-                          color: attendanceController.attendanceDetailsModel?.data?.loginStatus=="Check-In"?Colors.green:Colors.red,
+                          color:  attendanceController.loginstatus=="Check-In"?Colors.green:Colors.red,
                           shape: BoxShape.circle,
                         ),
                       ),

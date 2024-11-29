@@ -464,7 +464,8 @@ class LocationController extends GetxController {
       if (response?.statusCode == 200) {
         print("Check-Out successful: ${response?.body}");
         // Navigate to the Attendance screen or perform other actions
-        Get.offAll(() => BottomBar());
+       // Navigator.push(context, MaterialPageRoute(builder: (context)=>BottomBar()));
+        Get.off(() => BottomBar());
 
       } else {
         // Handle other response status codes

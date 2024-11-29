@@ -12,6 +12,7 @@ import 'package:nd_connect_techland/controllers/attendance_controller.dart';
 import 'package:nd_connect_techland/controllers/login_controllers/login_controllersss.dart';
 import 'package:nd_connect_techland/controllers/task_list_controller.dart';
 import 'package:nd_connect_techland/modules/all_pages/attendance/attendance.dart';
+import 'package:nd_connect_techland/services_apis/api_servicesss.dart';
 import 'package:nd_connect_techland/services_apis/notification_service.dart';
 import 'package:shake/shake.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -89,6 +90,8 @@ class _BottomBarState extends State<BottomBar> {
 
   @override
   void initState() {
+    attendanceController.AttendanceDetailApi(DateTime.now());
+    ApiProvider.AttendancedatailUpdate(DateTime.now());
     print("bottomBar");
     // BackgroundService.initializeService();
     // Initial data fetching
@@ -107,7 +110,6 @@ class _BottomBarState extends State<BottomBar> {
       print("events: ${eventsController.events}");
       eventsController.EventsApi();
       eventsController2.EventsHolidayApi();
-      attendanceController.AttendanceDetailApi(DateTime.now());
       print("attendanceStatusINit:${attendanceController.attendanceDetailsModel?.data?.loginStatus}");
       _homedashboardController.dashboarddApi();
       employeeLoginController.deviceTokenId();

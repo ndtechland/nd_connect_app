@@ -59,13 +59,15 @@ class SplashScreen extends StatelessWidget {
                 final accountData2 = await accountService2.getAccountData2;
                 if (accountData2 != null) {
                   await ApiProvider.RefreshToken();
+                  await attendanceController.AttendanceDetailApi(DateTime.now());
+
                   // Auto-login and fetch the necessary data
                   await _getprofileepersonal.profileemployeeApi();
                  // await locationController.checkAndRequestLocationPermission();
 
-                  await locationController.fetchCurrentLocation(
-                    // " C 53, 1st Floor, C Block, Sector 2, Noida, Uttar Pradesh 201301"
-                  );
+                  // await locationController.fetchCurrentLocation(
+                  //   // " C 53, 1st Floor, C Block, Sector 2, Noida, Uttar Pradesh 201301"
+                  // );
                   // await locationController.fetchCompanyLocationApi();
                   // await locationController.getCoordinatesFromAddress();
                   await _homedashboardController.dashboarddApi();
