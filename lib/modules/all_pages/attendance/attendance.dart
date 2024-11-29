@@ -81,6 +81,7 @@ class Attendance extends StatelessWidget {
       print("Data refreshed");
     }
 
+
     String _getGreeting() {
       final hour = DateTime.now().hour;
       if (hour < 12) {
