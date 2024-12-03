@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+// import 'package:background_fetch/background_fetch.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -16,7 +17,7 @@ import 'package:nd_connect_techland/services_apis/api_servicesss.dart';
 import 'package:nd_connect_techland/services_apis/notification_service.dart';
 import 'package:shake/shake.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:workmanager/workmanager.dart';
+// import 'package:workmanager/workmanager.dart';
 import '../../controllers/bottom_nav_controller.dart';
 import '../../controllers/employee_controller/profile_controller/profile_info_employee_controller.dart';
 import '../../controllers/employeee_controllersss/employee_dashboard_controller/employee_dashboardcontroller.dart';
@@ -41,25 +42,6 @@ import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/services.dart';
 import 'package:location/location.dart' as loc;
-// class BottomBar extends StatelessWidget {
-//   final List<Widget> pages = [
-//       HomeEmployee2(),
-//       Settings(),
-//       SupportViewHirejobComman(),
-//       EventCalendarScreen(),
-//       PersonalUpdateProfile()
-//   ];
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     final BottomNavController bottomNavController = Get.put(BottomNavController());
-//
-//     return Scaffold(
-//       body: Obx(() => pages[bottomNavController.selectedIndex.value]),
-//       bottomNavigationBar: CustomBottomNavBar(),
-//     );
-//   }
-// }
 
 
 class BottomBar extends StatefulWidget {
@@ -124,13 +106,17 @@ class _BottomBarState extends State<BottomBar> {
       locationController.updateDistanceFromCompany();
       attendanceController.fetchAttendanceData();
       attendanceController.EmpActivityApi();
+
      // attendanceController.updateAttendaneDetail();
       // _homedashboardController.dashboarddApi();
 
       LocalNotificationService.initialize(context);
       _getLocation();
       _listenLocation();
+      print("startForegroundService");
+      // startForegroundService();
     });
+
     var uniqueIdentifier = DateTime.now().second.toString();
     // A perriodic task
     //  Workmanager().registerPeriodicTask(
@@ -161,97 +147,69 @@ class _BottomBarState extends State<BottomBar> {
 
     super.initState();
   }
-  // Future<void> initAutoStart() async {
-  //   try {
-  //     //check auto-start availability.
-  //     // var test = await (isAutoStartAvailable as FutureOr<bool>);
-  //     // print(test);
-  //     //if available then navigate to auto-start setting page.
-  //     //if (test)
-  //     await getAutoStartPermission();
-  //   } on PlatformException catch (e) {
-  //     print(e);
-  //   }
+  bool _enabled = true;
+  int _status = 0;
+  List<DateTime> _events = [];
+  // Future<void> initPlatformState() async {
+  //   // Configure BackgroundFetch.
+  //   int status = await BackgroundFetch.configure(BackgroundFetchConfig(
+  //       minimumFetchInterval: 15,
+  //       stopOnTerminate: false,
+  //       enableHeadless: true,
+  //       requiresBatteryNotLow: false,
+  //       requiresCharging: false,
+  //       requiresStorageNotLow: false,
+  //       requiresDeviceIdle: false,
+  //       requiredNetworkType: NetworkType.NONE
+  //   ), (String taskId) async {  // <-- Event handler
+  //     // This is the fetch-event callback.
+  //     print("[BackgroundFetch] Event received $taskId");
+  //     setState(() {
+  //       _events.insert(0, new DateTime.now());
+  //     });
+  //     // IMPORTANT:  You must signal completion of your task or the OS can punish your app
+  //     // for taking too long in the background.
+  //     BackgroundFetch.finish(taskId);
+  //   }, (String taskId) async {  // <-- Task timeout handler.
+  //     // This task has exceeded its allowed running-time.  You must stop what you're doing and immediately .finish(taskId)
+  //     print("[BackgroundFetch] TASK TIMEOUT taskId: $taskId");
+  //     BackgroundFetch.finish(taskId);
+  //   });
+  //   print('[BackgroundFetch] configure success: $status');
+  //   setState(() {
+  //     _status = status;
+  //   });
+
+    // If the widget was removed from the tree while the asynchronous platform
+    // message was in flight, we want to discard the reply rather than calling
+    // setState to update our non-existent appearance.
   //   if (!mounted) return;
   // }
 
-  // void onStart(ServiceInstance service) async {
-  //   if (service is AndroidServiceInstance) {
-  //     service.on('setAsForeground').listen((event) {
-  //       service.setAsForegroundService();
+  // void _onClickEnable(enabled) {
+  //   setState(() {
+  //     _enabled = enabled;
+  //   });
+  //   if (enabled) {
+  //     BackgroundFetch.start().then((int status) {
+  //       print('[BackgroundFetch] start success: $status');
+  //     }).catchError((e) {
+  //       print('[BackgroundFetch] start FAILURE: $e');
   //     });
-  //
-  //     service.on('setAsBackground').listen((event) {
-  //       service.setAsBackgroundService();
+  //   } else {
+  //     BackgroundFetch.stop().then((int status) {
+  //       print('[BackgroundFetch] stop success: $status');
   //     });
   //   }
-  //
-  //   service.on('stopService').listen((event) {
-  //     service.stopSelf();
-  //   });
-  //
-  //   Timer.periodic(const Duration(minutes: 15), (timer) async {
-  //     var prefs = GetStorage();
-  //
-  //     // Read saved user id and token
-  //     final userId = prefs.read("userid").toString();
-  //     // final userId = prefs.getString('userId') ?? '';
-  //     final position = await Geolocator.getCurrentPosition();
-  //     print("bottom userId :$userId");
-  //
-  //  //   if (userId.isNotEmpty) {
-  //       print("main userId :$userId");
-  //       // Replace with your API endpoint
-  //       await locationController.startSendingLocation();
-  //       print("main userId 1:${locationController.latitude}");
-  //
-  //     // } else {
-  //     //   print('User is not logged in. Skipping API call.');
-  //     // }
-  //   });
   // }
 
-  // var prefs = GetStorage();
-  //
-  // // Read saved user id and token
-  // final userId = prefs.read("userid").toString();
-  // // final userId = prefs.getString('userId') ?? '';
-  // // print("bottomBar userId :$userId");
-  // void startBackgroundService() async {
-  //   final service = FlutterBackgroundService();
-  //   service.startService();
-  //
-  //   // Configure periodic task for background service
-  //   service.onStart = () async {
-  //     Timer.periodic(Duration(minutes: 15), (timer) async {
-  //       if (userId != null) {
-  //         // Get the current location
-  //         final position = await Geolocator.getCurrentPosition();
-  //
-  //         // Hit your API with userId and location
-  //         final response = await http.post(
-  //           Uri.parse("https://example.com/api/endpoint"),
-  //           body: jsonEncode({
-  //             'userId': userId,
-  //             'latitude': position.latitude,
-  //             'longitude': position.longitude,
-  //           }),
-  //           headers: {
-  //             'Content-Type': 'application/json',
-  //           },
-  //         );
-  //
-  //         if (response.statusCode == 200) {
-  //           print("Background API Success: ${response.body}");
-  //         } else {
-  //           print("Background API Error: ${response.statusCode}");
-  //         }
-  //       } else {
-  //         print("User not logged in. Skipping API call.");
-  //       }
-  //     });
-  //   };}
-
+  // void _onClickStatus() async {
+  //   int status = await BackgroundFetch.status;
+  //   print('[BackgroundFetch] status: $status');
+  //   setState(() {
+  //     _status = status;
+  //   });
+  // }
   _getLocation() async {
     try {
       print("firestore get try");
@@ -290,6 +248,29 @@ class _BottomBarState extends State<BottomBar> {
       _locationSubscription = null;
     });
   }
+
+  // void startForegroundService() async {
+  //   await FlutterForegroundPlugin.setServiceMethodInterval(seconds: 5);
+  //   await FlutterForegroundPlugin.setServiceMethod(globalForegroundService);
+  //   await FlutterForegroundPlugin.startForegroundService(
+  //     holdWakeLock: false,
+  //     onStarted: () async {
+  //       print("Foreground on Started");
+  //       await locationController.sendLocation();
+  //     },
+  //     onStopped: () {
+  //       print("Foreground on Stopped");
+  //     },
+  //     title: "Flutter Foreground Service",
+  //     content: "This is Content",
+  //     iconName: "ic_stat_hot_tub",
+  //   );
+  // }
+
+  void globalForegroundService() {
+    debugPrint("current datetime is ${DateTime.now()}");
+  }
+
   void _checkForAppUpdate() async {
     try {
       print("update check");

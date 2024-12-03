@@ -541,9 +541,7 @@ class TaskList extends StatelessWidget {
                         SizedBox(height: 20,),
                         _buildCalendar(controller),
                         SizedBox(height: 20,),
-
-                          _buildTasksList(controller,selectedDay,orientation)
-
+                        _buildTasksList(controller,selectedDay,orientation)
                       ],
                     ),
               );}

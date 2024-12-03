@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:nd_connect_techland/modules/all_pages/pages/testtt.dart';
 import 'package:nd_connect_techland/modules/all_pages/pages/willPop_scope_exit.dart';
 import '../../../controllers/bottom_nav_controller.dart';
+import '../../../test/trip_form_controller.dart';
 import '../../../test/trip_form_page.dart';
 import '../../bottom_bar/bottom_bar.dart';
 import 'emploree_pages/change_password_employee.dart';
@@ -19,6 +20,7 @@ class Settingss extends StatelessWidget {
     bool shouldPop = true;
 
     final BottomNavController bottomNavController = Get.put(BottomNavController());
+    final TripFormController tripFormController = Get.put(TripFormController());
 
     List<String> settingList = [
       "Account Settings",
@@ -82,7 +84,8 @@ class Settingss extends StatelessWidget {
           ), Padding(
             padding: const EdgeInsets.fromLTRB(12.0,8.0,12.0,0),
             child: GestureDetector(
-              onTap: (){
+              onTap: () async{
+
                 Get.to(()=>PersonalUpdateProfile());
               },
               child: Card(
@@ -113,7 +116,11 @@ class Settingss extends StatelessWidget {
                 Padding(
             padding: const EdgeInsets.fromLTRB(12.0,8.0,12.0,0),
             child: GestureDetector(
-              onTap: (){
+              onTap: () async{
+                await tripFormController.fetchTripTypes();
+                await tripFormController.fetchShiftTypes();
+                await tripFormController.fetchPickupShiftTime();
+                await tripFormController.fetchDropShiftTime();
                 Get.to(()=>TripFormPage());
               },
               child: Card(

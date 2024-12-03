@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 ///import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:get/get.dart';
+import 'package:nd_connect_techland/constants/static_text.dart';
 import 'package:nd_connect_techland/controllers/attendance_controller.dart';
 import 'package:nd_connect_techland/services_apis/api_servicesss.dart';
 import 'package:nd_connect_techland/services_apis/local_notification_service.dart';
@@ -30,6 +31,7 @@ import 'package:flutter_background_service_android/flutter_background_service_an
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+// import 'package:background_fetch/background_fetch.dart';
 // import 'firebase_options.dart';
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -74,8 +76,22 @@ Future<void> main() async {
 
   await Permission.storage.request();
   runApp(const MyApp());
+  // BackgroundFetch.registerHeadlessTask(backgroundFetchHeadlessTask);
 }
-
+// void backgroundFetchHeadlessTask(HeadlessTask task) async {
+//   String taskId = task.taskId;
+//   bool isTimeout = task.timeout;
+//   if (isTimeout) {
+//     // This task has exceeded its allowed running-time.
+//     // You must stop what you're doing and immediately .finish(taskId)
+//     print("[BackgroundFetch] Headless task timed-out: $taskId");
+//     BackgroundFetch.finish(taskId);
+//     return;
+//   }
+//   print('[BackgroundFetch] Headless event received.');
+//   // Do your work here...
+//   BackgroundFetch.finish(taskId);
+// }
 Future<void> initializeService1() async {
   final service = FlutterBackgroundService();
 
@@ -376,6 +392,40 @@ void callbackDispatcher() {
     LocationController locationController = LocationController();
     if (task == "sendLocationPeriodic") {
       print("sendLocation :");
+      Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high,forceAndroidLocationManager: true,);
+
+        var prefs = GetStorage();
+
+        // Read saved user id and token
+        final userId = prefs.read("userid").toString();
+        print('work manager id: $userId');
+
+        String token = GetStorage().read("token").toString();
+        var checkInUrl = "${FixedText.apiurl}EmployeeApi/UpdateEmployeeLocation";
+        // String employeeId = prefs.read("userid").toString();
+        print('useridddd:$userId');
+        var body = jsonEncode({
+          "CurrentLat": position.latitude,
+          "Currentlong": position.longitude,
+          "Userid": userId,
+        });
+        print("sendLatLang work manager body:$body");
+        try{
+          http.Response r = await http.post(
+            Uri.parse(checkInUrl),
+            body: body,
+            headers: {
+              'Authorization': 'Bearer $token',
+              "Content-Type": "application/json",
+            },
+          );
+          print(r.body);
+
+          // return r;
+        } catch(error) { print('Network error: $error');
+        }
+
+
 
       await locationController.startSendingLocation();
 

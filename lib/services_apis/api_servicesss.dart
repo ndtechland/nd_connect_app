@@ -24,6 +24,8 @@ import 'package:nd_connect_techland/models/leaves_detail_model.dart';
 import 'package:nd_connect_techland/models/sub_task_model.dart';
 import 'package:nd_connect_techland/models/task_history_model.dart';
 import 'package:nd_connect_techland/models/task_model.dart';
+import 'package:nd_connect_techland/models/test_model/drop_time_model.dart';
+import 'package:nd_connect_techland/models/test_model/pickup_time_model.dart';
 import 'package:nd_connect_techland/models/total_attendance_model.dart';
 import 'package:nd_connect_techland/modules/all_pages/attendance/attendance.dart';
 import 'package:nd_connect_techland/modules/all_pages/total_attendance/current_month_attendance.dart';
@@ -51,6 +53,7 @@ import '../models/employee_model/profile_model/profile_info_model_personal.dart'
 import '../models/employee_model/support_comman_model.dart';
 import '../models/event_model2.dart';
 import '../models/events_model.dart';
+import '../models/test_model/get_trip_type_model.dart';
 import '../models/job_description_by_job_id.dart';
 import '../models/job_list_bycat_id_model.dart';
 import '../models/location_model.dart';
@@ -58,6 +61,7 @@ import '../models/overtime_model.dart';
 import '../models/profile_model.dart';
 import '../models/related_job_byjobId.dart';
 import '../models/saved_job_model.dart';
+import '../models/test_model/shift_type_model.dart';
 import '../models/state_model.dart';
 import '../models/task_details_model.dart';
 import '../models/testimonial_model.dart';
@@ -3104,30 +3108,6 @@ static var baseUrl = FixedText.apiurl;
   }
 
 
-///todo: GetofficeEvents Api
-  static Future<EventsModell?> GetofficeEventsApi() async {
-    var eventsUrl = '${baseUrl}EmployeeApi/GetofficeEvents';
-    token = prefs.read("token").toString();
-    print('eventstoken: $token');
-    try {
-      Map<String, String> headers = {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json'
-      };
-      print("eventstoken:${eventsUrl}");
-      http.Response response = await http.get(Uri.parse(eventsUrl),headers: headers);
-      if (response.statusCode == 200) {
-        print("eventsUrl:200");
-        EventsModell? eventsModel = eventsModellFromJson(response.body);
-        print("eventsss:${eventsModel.data?.map((e)=>e.subtittle)}");
-        return eventsModel;
-      }
-      // return null;
-    } catch (error) {
-      print('Error fetching events details: $error');
-    }
-    return null;
-  }
 
   static Future<EventModel2?> GetofficeEventsHoliApi() async {
     var eventsUrl = '${baseUrl}EmployeeApi/GetHolidayandEvents';
@@ -3547,28 +3527,28 @@ static var baseUrl = FixedText.apiurl;
   }
 
   ///todo: deviceId api
-  static Future<http.Response?> DeviceIDD(String deviceId) async{
-    var deviceIdUrl = "${baseUrl}EmployeeApi/EmployeeOvertime";
-    token = prefs.read("token").toString();
-    var userId = prefs.read("Id").toString();
-    print('overTimeUrl token: $token');
-    try {
-      Map<String, String> headers = {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json'
-      };
-      var body={
-        {
-          "userid":userId,
-          "DeviceId":deviceId
-        }
-      };
-      print("deviceIdUrl:${deviceIdUrl}");
-      http.Response response = await http.post(Uri.parse(deviceIdUrl),headers: headers);
-
-    } catch(e){
-      print('Error fetching deviceId: $e');
-    }}
+  // static Future<http.Response?> DeviceIDD(String deviceId) async{
+  //   var deviceIdUrl = "${baseUrl}EmployeeApi/EmployeeOvertime";
+  //   token = prefs.read("token").toString();
+  //   var userId = prefs.read("Id").toString();
+  //   print('overTimeUrl token: $token');
+  //   try {
+  //     Map<String, String> headers = {
+  //       'Authorization': 'Bearer $token',
+  //       'Content-Type': 'application/json'
+  //     };
+  //     var body={
+  //       {
+  //         "userid":userId,
+  //         "DeviceId":deviceId
+  //       }
+  //     };
+  //     print("deviceIdUrl:${deviceIdUrl}");
+  //     http.Response response = await http.post(Uri.parse(deviceIdUrl),headers: headers);
+  //
+  //   } catch(e){
+  //     print('Error fetching deviceId: $e');
+  //   }}
 
   ///todo:workfromhome APi
   static Future<http.Response?> WorkFromHomeApi(String date1, String date2, String reason) async {
@@ -3642,7 +3622,232 @@ static var baseUrl = FixedText.apiurl;
     }
   }
 
+  ///todo: GetofficeEvents Api
+  static Future<EventsModell?> GetofficeEventsApi() async {
+    var eventsUrl = '${baseUrl}EmployeeApi/GetofficeEvents';
+    token = prefs.read("token").toString();
+    print('eventstoken: $token');
+    try {
+      Map<String, String> headers = {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json'
+      };
+      print("eventstoken:${eventsUrl}");
+      http.Response response = await http.get(Uri.parse(eventsUrl),headers: headers);
+      if (response.statusCode == 200) {
+        print("eventsUrl:200");
+        EventsModell? eventsModel = eventsModellFromJson(response.body);
+        print("eventsss:${eventsModel.data?.map((e)=>e.subtittle)}");
+        return eventsModel;
+      }
+      // return null;
+    } catch (error) {
+      print('Error fetching events details: $error');
+    }
+    return null;
+  }
 
+
+
+  ///todo:getTripType api
+  static Future<GetTripTypeModel?> getTripType() async {
+    var getTripType = 'https://api.vardaan.ndinfotech.com/api/Common/GetTripTypes';
+    try {
+
+      print("getTripType:${getTripType}");
+      http.Response response = await http.get(Uri.parse(getTripType));
+      if (response.statusCode == 200) {
+        print("getTripType:200");
+        GetTripTypeModel aboutCompanyModel = getTripTypeModelFromJson(response.body);
+        // var jsonResponse = jsonDecode(response.body);
+        // if (jsonResponse['data'] != null) {
+        //   print("comUrl:${jsonResponse['data']}");
+        //   return aboutCompanyModel;
+        // }
+        print("getTripType:${aboutCompanyModel.data}");
+         return aboutCompanyModel;
+      }
+      // return null;
+    } catch (error) {
+      print('Error fetching FAQ: $error');
+       // return [];
+    }
+    return null;
+
+  }
+
+  static Future<List<GetTripTypeData>> getTripType1() async {
+    var url = "https://api.vardaan.ndinfotech.com/api/Common/GetTripTypes";
+    try {
+      http.Response response = await http.get(Uri.parse(url));
+      if (response.statusCode == 200) {
+        var jsonResponse = jsonDecode(response.body);
+        if (jsonResponse['data'] != null) {
+          // Parsing the list of states
+          return (jsonResponse['data'] as List)
+              .map((item) => GetTripTypeData.fromJson(item))
+              .toList();
+        }
+      }
+      return [];
+    } catch (error) {
+      print('Error fetching states: $error');
+      return [];
+    }
+  }
+
+  ///todo:getShiftType api
+  static Future<GetShiftTypeModel?> getShiftType() async {
+    var getShiftType = 'https://api.vardaan.ndinfotech.com/api/Common/GetShiftType';
+    try {
+
+      print("getShiftType:${getShiftType}");
+      http.Response response = await http.get(Uri.parse(getShiftType));
+      if (response.statusCode == 200) {
+        print("getShiftType:200");
+        GetShiftTypeModel getShiftTypeModel = getShiftTypeModelFromJson(response.body);
+        // var jsonResponse = jsonDecode(response.body);
+        // if (jsonResponse['data'] != null) {
+        //   print("comUrl:${jsonResponse['data']}");
+        //   return aboutCompanyModel;
+        // }
+        print("getTripType:${getShiftTypeModel.data}");
+         return getShiftTypeModel;
+      }
+      // return null;
+    } catch (error) {
+      print('Error fetching FAQ: $error');
+       // return [];
+    }
+    return null;
+
+  }
+
+  ///todo:getPickupShiftTime api
+  static Future<GetPickupShiftTimeModel?> getPickupShiftTime() async {
+    var getPickupShiftTime = 'https://api.vardaan.ndinfotech.com/api/Common/GetPickupShiftTime';
+    try {
+
+      print("getPickupShiftTime:${getPickupShiftTime}");
+      http.Response response = await http.get(Uri.parse(getPickupShiftTime));
+      if (response.statusCode == 200) {
+        print("getPickupShiftTime:200");
+        GetPickupShiftTimeModel getPickupShiftTimeModel = getPickupShiftTimeModelFromJson(response.body);
+        // var jsonResponse = jsonDecode(response.body);
+        // if (jsonResponse['data'] != null) {
+        //   print("comUrl:${jsonResponse['data']}");
+        //   return aboutCompanyModel;
+        // }
+        print("getPickupShiftTime:${getPickupShiftTimeModel.data}");
+         return getPickupShiftTimeModel;
+      }
+      // return null;
+    } catch (error) {
+      print('Error fetching FAQ: $error');
+       // return [];
+    }
+    return null;
+
+  }
+
+  ///todo:getPickupShiftTime api
+  static Future<GetDropShiftTimeModel?> getDropShiftTime() async {
+    var getDropShiftTime = 'https://api.vardaan.ndinfotech.com/api/Common/GetDropShiftTime';
+    try {
+
+      print("getDropShiftTime:${getDropShiftTime}");
+      http.Response response = await http.get(Uri.parse(getDropShiftTime));
+      if (response.statusCode == 200) {
+        print("getDropShiftTime:200");
+        GetDropShiftTimeModel getDropShiftTimeModel = getDropShiftTimeModelFromJson(response.body);
+        // var jsonResponse = jsonDecode(response.body);
+        // if (jsonResponse['data'] != null) {
+        //   print("comUrl:${jsonResponse['data']}");
+        //   return aboutCompanyModel;
+        // }
+        print("getDropShiftTime:${getDropShiftTimeModel.data}");
+         return getDropShiftTimeModel;
+      }
+      // return null;
+    } catch (error) {
+      print('Error fetching FAQ: $error');
+       // return [];
+    }
+    return null;
+
+  }
+
+  ///todo:bookTrip api
+  static Future<http.Response?> bookTrip(int shiftType,int tripType, String startDate,String endDate,int pickupTimeId,int dropTimeId) async {
+    var bookTripUrl = 'https://api.vardaan.ndinfotech.com/api/Booking/CreateRequest';
+    var body = jsonEncode({
+      "EmployeeId":"${9169442031}",
+      "CompanyId":"${2768}",
+      "ShiftType":"${shiftType}",
+      "TripType":"${tripType}",
+      "StartRequestDate":"${startDate}",
+      "EndRequestDate":"${endDate}",
+      "PickupShiftTimeId":"${pickupTimeId}",
+      "DropShiftTimeId":"${dropTimeId}"
+    });
+    try{
+      http.Response r = await http.post(
+        Uri.parse(bookTripUrl),
+        body: body,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      );
+      print("shiftType :$shiftType");
+      print("tripType :$tripType");
+      print("startDate :$startDate");
+      print("endDate :$endDate");
+      print("pickupTimeId :$pickupTimeId");
+      print("dropTimeId :$dropTimeId");
+
+      print(r.body);
+      if(r.statusCode ==200){
+        print("booktrip Body 200:${r.body}");
+        print("booktrip :${r.statusCode}");
+        var responseData = json.decode(r.body);
+        await Future.delayed(Duration(seconds: 1));
+
+        // Show success toast
+        Fluttertoast.showToast(
+          msg: "Request Sent Successfully!",
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.CENTER,
+        );
+      }else if (r.statusCode == 401) {
+        Fluttertoast.showToast(
+          msg: "Unauthorized access. Status code: ${r.statusCode}",
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.BOTTOM,
+        );
+        print('booktrip elseeeIf');
+
+        Get.snackbar('Error', r.body);
+      } else {
+        print('booktrip elseee');
+        // Get.snackbar('Error', r.body);
+      }
+      return r;
+    } catch(error) { print('Network error: $error');
+
+    Fluttertoast.showToast(
+      msg: "Network error: $error",
+      backgroundColor: Colors.red,
+      textColor: Colors.white,
+      toastLength: Toast.LENGTH_LONG,
+      gravity: ToastGravity.BOTTOM,
+    );
+
+    return null;}
+  }
 
 
 

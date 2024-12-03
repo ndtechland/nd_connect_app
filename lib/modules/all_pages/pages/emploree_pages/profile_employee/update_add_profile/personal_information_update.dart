@@ -1265,7 +1265,8 @@ class _PersonalUpdateProfileState extends State<PersonalUpdateProfile> {
 
                                       Container(
                                         padding: EdgeInsets.symmetric(vertical: 0),
-                                        child: Obx(
+                                        child:
+                                        Obx(
                                               () => DropdownButtonFormField<StateModelss>(
                                             value: _employeeUpdatePersonalController.selectedState.value,
                                             decoration: InputDecoration(
